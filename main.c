@@ -18,7 +18,7 @@ void process_files(int argc, char *argv[]){
     for (i ; i < argc ; i++){
         filename = get_filename(argv[i]);
         printf("%s\n", filename);
-        if (filename)
-            printf("");/* -> First iteration */
+        if (filename && is_valid(argv[i]))
+            printf("Found file\n");/* First Iteration*/
     }
 }

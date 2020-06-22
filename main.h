@@ -5,8 +5,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 enum {INPUT = 1};
 char * get_filename(char *);
+int is_valid(char *);
 void file_management(int, char *[]);
 void process_files(int, char *[]);
 #endif //ASSEMBLER_MAIN_H
