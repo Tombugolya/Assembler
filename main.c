@@ -1,4 +1,6 @@
 #include "main.h"
+#include "src/UtilFunctions/functions.h"
+#include "src/FirstIteration/first_iteration.h"
 
 int main(int argc, char *argv[]) {
     file_management(argc, argv);
@@ -15,10 +17,12 @@ void file_management(int argc, char *argv[]){
 void process_files(int argc, char *argv[]){
     int i = INPUT;
     char * filename;
+    FILE * file;
     for (i ; i < argc ; i++){
         filename = get_filename(argv[i]);
         printf("%s\n", filename);
-        if (filename && is_valid(argv[i]))
-            printf("Found file\n");/* First Iteration*/
+        file = get_file(argv[i]);
+        if (filename && file)
+            first_iteration(file);
     }
 }

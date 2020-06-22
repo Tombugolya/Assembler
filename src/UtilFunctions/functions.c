@@ -1,4 +1,4 @@
-#include "main.h"
+#include "functions.h"
 
 char * get_filename(char * file){
     size_t len = strlen(file);
@@ -9,7 +9,7 @@ char * get_filename(char * file){
 
     if (len > 3) {
         last_three = &file[len - FILE_TYPE_LEN];
-        for(i; last_three[i]; i++)
+        for(i ; last_three[i] ; i++)
             last_three[i] = tolower(last_three[i]);
         if (strcmp(last_three, FILE_TYPE) == 0) {
             memcpy(filename, file, len - FILE_TYPE_LEN);
@@ -21,10 +21,11 @@ char * get_filename(char * file){
     return NULL;
 }
 
-int is_valid(char * file){
-    if (fopen(file, "r")  == NULL) {
+FILE * get_file(char * file){
+    FILE * opened_file = fopen(file, "r");
+    if (opened_file  == NULL) {
         fprintf(stderr, "Error: Cannot locate file \"%s\"\n", file);
-        return 0;
+        return opened_file;
     }
-    return 1;
+    return opened_file;
 }
