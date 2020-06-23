@@ -23,6 +23,6 @@ void process_files(int argc, char *argv[]){
         printf("%s\n", filename);
         file = get_file(argv[i]);
         if (filename && file)
-            first_iteration(file);
+            first_iteration(filename, file);
     }
 }

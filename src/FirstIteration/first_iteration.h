@@ -1,2 +1,2 @@
 #include <stdio.h>
-int first_iteration(FILE *);
+int first_iteration(char *, FILE *);
