@@ -15,10 +15,10 @@ void file_management(int argc, char *argv[]){
 }
 
 void process_files(int argc, char *argv[]){
-    int i = INPUT;
+    int i;
     char * filename;
     FILE * file;
-    for (i ; i < argc ; i++){
+    for (i = INPUT ; i < argc ; i++){
         filename = get_filename(argv[i]);
         printf("%s\n", filename);
         file = get_file(argv[i]);
