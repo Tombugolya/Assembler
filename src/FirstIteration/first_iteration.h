@@ -1,5 +1,7 @@
 #include <stdio.h>
 #include <string.h>
+#include <ctype.h>
+#define MAX_SYMBOL_CHARS 32
 typedef enum {False, True} boolean;
 void first_iteration(char *, FILE *);
 boolean is_a_symbol(char *);
