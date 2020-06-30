@@ -19,14 +19,10 @@ void first_iteration(char * filename, FILE * file){
 /*
             printf("String: %s\t\tLine no.%d\t\tToken No.%d\n", token, line_counter, ++token_counter);
 */
-            if (is_a_symbol(token))
+            if (is_label(token))
                 symbol_flag = True;
-            else if (is_data(token)) {
-                if (is_extern(token))
-                    process_extern_line(line, token);
-                else
-                    process_data_line(line, token, symbol_flag);
-            }
+            else if (is_data(token))
+                is_extern(token) ? process_extern_line(line, token) : process_data_line(line, token, symbol_flag);
             else if (is_command(token))
                 process_command_line(line, token, symbol_flag);
             else if (is_comment(token))
@@ -36,7 +32,7 @@ void first_iteration(char * filename, FILE * file){
     }
 }
 
-boolean is_a_symbol(char token[]){
+boolean is_label(char *token){
     size_t len = strlen(token);
     if (isalpha(token[0]) && token[len - 1] == ':' ) {
         if (len >= MAX_SYMBOL_CHARS) {
@@ -72,24 +68,45 @@ boolean is_data(char token[]){
     free(data_name);
     return False;
 }
-boolean is_command(char token[]){
-    return False;
-}
-boolean is_comment(char token[]){
-    return False;
-}
-boolean is_valid_data_name(char * data_name){
+boolean is_command(char * token){
     if (
-        strcmp(data_name, "string") == 0 ||
-        strcmp(data_name, "data") == 0 ||
-        strcmp(data_name, "entry") == 0 ||
-        strcmp(data_name, "extern") == 0
+        strcmp(token, "mov") == 0 ||
+        strcmp(token, "cmp") == 0 ||
+        strcmp(token, "add") == 0 ||
+        strcmp(token, "sub") == 0 ||
+        strcmp(token, "lea") == 0 ||
+        strcmp(token, "clr") == 0 ||
+        strcmp(token, "not") == 0 ||
+        strcmp(token, "inc") == 0 ||
+        strcmp(token, "dec") == 0 ||
+        strcmp(token, "jmp") == 0 ||
+        strcmp(token, "bne") == 0 ||
+        strcmp(token, "jsr") == 0 ||
+        strcmp(token, "red") == 0 ||
+        strcmp(token, "prn") == 0 ||
+        strcmp(token, "rts") == 0 ||
+        strcmp(token, "stop") == 0
     )
+        return True;
+    fprintf(stderr, "Error: Unknown command \"%s\"\n", token);
+    return False;
+}
+boolean is_comment(const char token[]){
+    if (token[0] == ';')
         return True;
     return False;
 }
 boolean is_extern(char * data_name){
-    if (strcmp(data_name, "extern") == 0)
+    boolean bool = strcmp(data_name, "extern") == 0 ?  True : False;
+    return bool;
+}
+boolean is_valid_data_name(char * data_name){
+    if (
+            strcmp(data_name, "string") == 0 ||
+            strcmp(data_name, "data") == 0 ||
+            strcmp(data_name, "entry") == 0 ||
+            strcmp(data_name, "extern") == 0
+            )
         return True;
     return False;
 }
