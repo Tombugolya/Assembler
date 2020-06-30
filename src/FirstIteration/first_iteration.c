@@ -7,7 +7,7 @@ void first_iteration(char * filename, FILE * file){
     int line_counter = 0;
     int token_counter;
     const char delimiters[] = " \t\n";
-    char line[82];
+    char line[MAX_LINE_CHARS];
     char * token;
     errors_exist = False;
     while(fgets(line, sizeof(line), file)){

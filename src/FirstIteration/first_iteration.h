@@ -3,6 +3,7 @@
 #include <string.h>
 #include <ctype.h>
 #define MAX_SYMBOL_CHARS 32
+#define MAX_LINE_CHARS 82
 typedef enum {False, True} boolean;
 void first_iteration(char *, FILE *);
 boolean is_label(char token[]);
