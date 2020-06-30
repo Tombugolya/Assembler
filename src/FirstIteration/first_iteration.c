@@ -1,8 +1,12 @@
 #include "first_iteration.h"
+#include "../LabelChart/label_chart.h"
+
 int IC = 100;
 int DC = 0;
 boolean errors_exist = False;
 boolean symbol_flag;
+char label[MAX_SYMBOL_CHARS];
+char * type;
 void first_iteration(char * filename, FILE * file){
     int line_counter = 0;
     int token_counter;
@@ -14,19 +18,22 @@ void first_iteration(char * filename, FILE * file){
         symbol_flag = False;
         token_counter = 0;
         line_counter++;
+        memset(label, 0, MAX_SYMBOL_CHARS);
+        free(type);
         token = strtok(line, delimiters);
         while(token != NULL) {
 /*
             printf("String: %s\t\tLine no.%d\t\tToken No.%d\n", token, line_counter, ++token_counter);
 */
-            if (is_label(token))
+            if (is_label(token)) {
                 symbol_flag = True;
+            }
+            else if (is_comment(token))
+                token = NULL;
             else if (is_data(token))
                 is_extern(token) ? process_extern_line(line, token) : process_data_line(line, token, symbol_flag);
             else if (is_command(token))
                 process_command_line(line, token, symbol_flag);
-            else if (is_comment(token))
-                token = NULL;
             token = strtok(NULL, delimiters);
         }
     }
@@ -40,8 +47,11 @@ boolean is_label(char *token){
                     MAX_SYMBOL_CHARS - 1);
             errors_exist = True;
         }
-        else if (!symbol_flag)
+        else if (!symbol_flag) {
+            memcpy(label, token, len - 2);
+            label[len-2] = '\0';
             return True;
+        }
         else {
             fprintf(stderr,
                     "Error: Unexpected appearance of an extra label \"%s\", only one label can appear per line\n",
@@ -106,16 +116,20 @@ boolean is_valid_data_name(char * data_name){
             strcmp(data_name, "data") == 0 ||
             strcmp(data_name, "entry") == 0 ||
             strcmp(data_name, "extern") == 0
-            )
+            ) {
+        type = malloc(sizeof(data_name));
+        strcpy(type, data_name);
         return True;
+    }
     return False;
 }
-void process_data_line(char token[], char* line, boolean is_symbol){
+void process_data_line(char token[], char * line, boolean is_symbol){
+    if (symbol_flag)
+        add_to_label_chart(label, DC, type, False, False);
+}
+void process_extern_line(char token[], char * line){
 
 }
-void process_extern_line(char token[], char* line){
-
-}
-void process_command_line(char token[], char* line, boolean is_symbol){
+void process_command_line(char token[], char * line, boolean is_symbol){
 
 }
