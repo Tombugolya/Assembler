@@ -28,8 +28,12 @@ void first_iteration(char * filename, FILE * file){
             if (is_label(token)) {
                 symbol_flag = True;
             }
-            else if (is_comment(token))
-                token = NULL;
+            else if (is_comment(token)){
+                while(strcmp(token, "\n") != 0){
+                    *token++;
+                }
+                token = strtok(NULL, delimiters);
+            }
             else if (is_data(token))
                 is_extern(token) ? process_extern_line(line, token) : process_data_line(line, token, symbol_flag);
             else if (is_command(token))
@@ -127,6 +131,7 @@ void process_data_line(const char * token, char * line, boolean is_symbol){
     size_t len;
     int i = 0;
     char * stringContent;
+    char * saveContent;
     if (symbol_flag) {
         printf("Is a symbol\n");
         /*add_to_label_chart(label, DC, type, False, False);*/
@@ -136,23 +141,28 @@ void process_data_line(const char * token, char * line, boolean is_symbol){
         if (token[0]=='"' && token[len = (strlen(token) - 1)]=='"') {
             stringContent = malloc(len);
             strncpy(stringContent, token + 1, len-1);
-            stringContent[strlen(stringContent) - 1] = '\0';
+            stringContent[strlen(stringContent)] = '\0';
             for (i ; i < strlen(stringContent) ; i++){
                 printf("%d: %c\n", DC, stringContent[i]);
                 DC++;
             }
+            printf("%d: \\0\n", DC);
+            DC++;
             /* Decode */
         } else {
-            fprintf(stderr, "Error: No opening and closing brackets in \"%s\"\n", token);
+            fprintf(stderr, "Error: No opening and closing brackets in > %s  \n", token);
         }
     } else { /* .data */
-        token = strtok(NULL, " ,");
+        token = strtok(NULL, ",\n");
         while (token != NULL){
-            printf("%d: %s\n",DC ,token);
-            DC++;
-            /* Check validity of numbers */
-                /* Decode */
-            token = strtok(NULL, " ,");
+            saveContent = malloc(strlen(token));
+            strcpy(saveContent, token);
+            saveContent[strlen(saveContent)] = '\0';
+            if (is_valid_param(saveContent)) {
+                printf("%d: %d\n",DC ,atoi(saveContent));
+                DC++;
+            }
+            token = strtok(NULL, ",\n");
         }
     }
     printf("SIZE OF DC: %d\n\n", DC);
@@ -162,4 +172,29 @@ void process_extern_line(char token[], char * line){
 }
 void process_command_line(char token[], char * line, boolean is_symbol){
 
+}
+
+boolean is_valid_param(char * number){
+    int i=0;
+    boolean isValidParam = True;
+    while (number[0] == ' ' || number[0] == '\t')
+        *number++;
+    for(i ; i < strlen(number) ; i++) {
+        if (i==0 && number[i] == '-')
+            isValidParam = True;
+        else if (number[i] != ' ' && number[i] != '\t' && !isdigit(number[i])) {
+            fprintf(stderr, "Error: \"%s\" is not a valid number\n", number);
+            return False;
+        }
+    }
+    number = strpbrk(number, " ");
+    if (number == NULL)
+        return isValidParam;
+    while (number[0] == ' ' || number[0] == '\t')
+        *number++;
+    if (strcmp(number, "") != 0) {
+        fprintf(stderr, "Error: Missing comma before \"%s\"\n", number);
+        isValidParam = False;
+    }
+    return isValidParam;
 }
