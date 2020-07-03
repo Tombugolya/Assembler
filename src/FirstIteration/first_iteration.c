@@ -7,10 +7,10 @@ boolean errors_exist = False;
 boolean symbol_flag;
 char label[MAX_SYMBOL_CHARS];
 char * type;
+const char delimiters[] = " \t\n";
 void first_iteration(char * filename, FILE * file){
     int line_counter = 0;
     int token_counter;
-    const char delimiters[] = " \t\n";
     char line[MAX_LINE_CHARS];
     char * token;
     errors_exist = False;
@@ -123,9 +123,39 @@ boolean is_valid_data_name(char * data_name){
     }
     return False;
 }
-void process_data_line(char token[], char * line, boolean is_symbol){
-    if (symbol_flag)
-        add_to_label_chart(label, DC, type, False, False);
+void process_data_line(const char * token, char * line, boolean is_symbol){
+    size_t len;
+    int i = 0;
+    char * stringContent;
+    if (symbol_flag) {
+        printf("Is a symbol\n");
+        /*add_to_label_chart(label, DC, type, False, False);*/
+    }
+    if (strcmp(type, "string") == 0){
+        token = strtok(NULL, delimiters);
+        if (token[0]=='"' && token[len = (strlen(token) - 1)]=='"') {
+            stringContent = malloc(len);
+            strncpy(stringContent, token + 1, len-1);
+            stringContent[strlen(stringContent) - 1] = '\0';
+            for (i ; i < strlen(stringContent) ; i++){
+                printf("%d: %c\n", DC, stringContent[i]);
+                DC++;
+            }
+            /* Decode */
+        } else {
+            fprintf(stderr, "Error: No opening and closing brackets in \"%s\"\n", token);
+        }
+    } else { /* .data */
+        token = strtok(NULL, " ,");
+        while (token != NULL){
+            printf("%d: %s\n",DC ,token);
+            DC++;
+            /* Check validity of numbers */
+                /* Decode */
+            token = strtok(NULL, " ,");
+        }
+    }
+    printf("SIZE OF DC: %d\n\n", DC);
 }
 void process_extern_line(char token[], char * line){
 

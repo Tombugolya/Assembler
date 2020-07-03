@@ -14,7 +14,7 @@ boolean is_command(char *);
 boolean is_comment(const char *);
 boolean is_extern(char *);
 boolean is_valid_data_name(char *);
-void process_data_line(char[], char*, boolean);
+void process_data_line(const char[], char*, boolean);
 void process_extern_line(char[], char*);
 void process_command_line(char[], char*, boolean);
 #endif /* FIRST_ITERATION_H */
