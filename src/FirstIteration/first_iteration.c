@@ -196,22 +196,20 @@ void process_command_line(char token[], char * line, boolean is_symbol){
         strcmp(command, "add") == 0 ||
         strcmp(command, "sub") == 0 ||
         strcmp(command, "lea") == 0
-    )
+    ) {
         printf("Two operands\n");
+        is_valid_two_operands(token);
+    }
     else if (
-        strcmp(command, "clr") == 0 ||
-        strcmp(command, "not") == 0 ||
-        strcmp(command, "inc") == 0 ||
-        strcmp(command, "dec") == 0 ||
-        strcmp(command, "jmp") == 0 ||
-        strcmp(command, "bne") == 0 ||
-        strcmp(command, "jsr") == 0 ||
-        strcmp(command, "red") == 0 ||
-        strcmp(command, "prn") == 0
-    )
-        printf("One operand\n");
-    else
+        strcmp(command, "rts") == 0 ||
+        strcmp(command, "stop") == 0
+    ) {
         printf("No operands\n");
+    }
+    else {
+        is_valid_operand(token);
+        printf("One operand\n");
+    }
 }
 
 boolean is_valid_param(char * number){
@@ -237,4 +235,43 @@ boolean is_valid_param(char * number){
         isValidParam = False;
     }
     return isValidParam;
+}
+
+boolean is_valid_two_operands(char * operand){
+    int i=0;
+    int tokenCounter = 0;
+    char * pt;
+    boolean isValidParam = True;
+    while (operand[0] == ' ' || operand[0] == '\t')
+        *operand++;
+    operand = strtok(NULL, ",\n");
+    while (operand != NULL) {
+        tokenCounter++;
+        while (operand[0] == ' ' || operand[0] == '\t')
+            *operand++;
+        pt = strpbrk(operand, " \t");
+        if (pt != NULL) {
+            while (pt[0] == ' ' || pt[0] == '\t')
+                *pt++;
+            if (strcmp(pt, "") != 0) {
+                fprintf(stderr, "Error: Not comma separated value\n");
+                return False;
+            }
+        }
+        printf("%s\n", operand);
+        operand = strtok(NULL, ",\n");
+        if (tokenCounter > 2) {
+            fprintf(stderr, "Error: Too many arguments\n");
+            return False;
+        }
+    }
+    if (tokenCounter == 1) {
+        fprintf(stderr, "Error: Too few arguments\n");
+        return False;
+    }
+    return True;
+}
+
+boolean is_valid_operand(char * operand){
+
 }

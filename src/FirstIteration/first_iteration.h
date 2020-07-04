@@ -15,6 +15,8 @@ boolean is_comment(const char *);
 boolean is_extern();
 boolean is_valid_data_name(char *);
 boolean is_valid_param(char *);
+boolean is_valid_two_operands(char *);
+boolean is_valid_operand(char *);
 void process_data_line(const char[], char*, boolean);
 void process_extern_line(const char[], char*);
 void process_command_line(char[], char*, boolean);
