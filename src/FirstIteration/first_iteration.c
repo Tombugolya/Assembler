@@ -7,6 +7,7 @@ boolean errors_exist = False;
 boolean symbol_flag;
 char label[MAX_SYMBOL_CHARS];
 char * type;
+char * command;
 const char delimiters[] = " \t\n";
 void first_iteration(char * filename, FILE * file){
     int line_counter = 0;
@@ -82,27 +83,30 @@ boolean is_data(char token[]){
     /*free(data_name);*/
     return False;
 }
-boolean is_command(char * token){
+boolean is_command(char * command_name){
     if (
-        strcmp(token, "mov") == 0 ||
-        strcmp(token, "cmp") == 0 ||
-        strcmp(token, "add") == 0 ||
-        strcmp(token, "sub") == 0 ||
-        strcmp(token, "lea") == 0 ||
-        strcmp(token, "clr") == 0 ||
-        strcmp(token, "not") == 0 ||
-        strcmp(token, "inc") == 0 ||
-        strcmp(token, "dec") == 0 ||
-        strcmp(token, "jmp") == 0 ||
-        strcmp(token, "bne") == 0 ||
-        strcmp(token, "jsr") == 0 ||
-        strcmp(token, "red") == 0 ||
-        strcmp(token, "prn") == 0 ||
-        strcmp(token, "rts") == 0 ||
-        strcmp(token, "stop") == 0
-    )
+        strcmp(command_name, "mov") == 0 ||
+        strcmp(command_name, "cmp") == 0 ||
+        strcmp(command_name, "add") == 0 ||
+        strcmp(command_name, "sub") == 0 ||
+        strcmp(command_name, "lea") == 0 ||
+        strcmp(command_name, "clr") == 0 ||
+        strcmp(command_name, "not") == 0 ||
+        strcmp(command_name, "inc") == 0 ||
+        strcmp(command_name, "dec") == 0 ||
+        strcmp(command_name, "jmp") == 0 ||
+        strcmp(command_name, "bne") == 0 ||
+        strcmp(command_name, "jsr") == 0 ||
+        strcmp(command_name, "red") == 0 ||
+        strcmp(command_name, "prn") == 0 ||
+        strcmp(command_name, "rts") == 0 ||
+        strcmp(command_name, "stop") == 0
+    ) {
+        command = malloc(sizeof(command_name));
+        strcpy(command, command_name);
         return True;
-    fprintf(stderr, "Error: Unknown command \"%s\"\n", token);
+    }
+    fprintf(stderr, "Error: Unknown command \"%s\"\n", command_name);
     return False;
 }
 boolean is_comment(const char token[]){
@@ -182,7 +186,32 @@ void process_extern_line(const char token[], char * line){
     }
 }
 void process_command_line(char token[], char * line, boolean is_symbol){
-
+    if (is_symbol) {
+        printf("Is a symbol\n");
+        /*add_to_label_chart(label, IC, type(code), False, False);*/
+    }
+    if (
+        strcmp(command, "mov") == 0 ||
+        strcmp(command, "cmp") == 0 ||
+        strcmp(command, "add") == 0 ||
+        strcmp(command, "sub") == 0 ||
+        strcmp(command, "lea") == 0
+    )
+        printf("Two operands\n");
+    else if (
+        strcmp(command, "clr") == 0 ||
+        strcmp(command, "not") == 0 ||
+        strcmp(command, "inc") == 0 ||
+        strcmp(command, "dec") == 0 ||
+        strcmp(command, "jmp") == 0 ||
+        strcmp(command, "bne") == 0 ||
+        strcmp(command, "jsr") == 0 ||
+        strcmp(command, "red") == 0 ||
+        strcmp(command, "prn") == 0
+    )
+        printf("One operand\n");
+    else
+        printf("No operands\n");
 }
 
 boolean is_valid_param(char * number){
