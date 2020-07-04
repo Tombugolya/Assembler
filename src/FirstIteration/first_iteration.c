@@ -19,7 +19,7 @@ void first_iteration(char * filename, FILE * file){
         token_counter = 0;
         line_counter++;
         memset(label, 0, MAX_SYMBOL_CHARS);
-        free(type);
+        /*free(type);*/
         token = strtok(line, delimiters);
         while(token != NULL) {
 /*
@@ -35,7 +35,7 @@ void first_iteration(char * filename, FILE * file){
                 token = strtok(NULL, delimiters);
             }
             else if (is_data(token))
-                is_extern(token) ? process_extern_line(line, token) : process_data_line(line, token, symbol_flag);
+                is_extern() ? process_extern_line(line, token) : process_data_line(line, token, symbol_flag);
             else if (is_command(token))
                 process_command_line(line, token, symbol_flag);
             token = strtok(NULL, delimiters);
@@ -43,7 +43,7 @@ void first_iteration(char * filename, FILE * file){
     }
 }
 
-boolean is_label(char *token){
+boolean is_label(const char *token){
     size_t len = strlen(token);
     if (isalpha(token[0]) && token[len - 1] == ':' ) {
         if (len >= MAX_SYMBOL_CHARS) {
@@ -73,13 +73,13 @@ boolean is_data(char token[]){
     data_name[len - 1] = '\0';
     if (token[0] == '.') {
         if (is_valid_data_name(data_name)) {
-            free(data_name);
+            /*free(data_name);*/
             return True;
         }
         else
             fprintf(stderr, "Error: Unknown data command \"%s\"\n", token);
     }
-    free(data_name);
+    /*free(data_name);*/
     return False;
 }
 boolean is_command(char * token){
@@ -110,17 +110,17 @@ boolean is_comment(const char token[]){
         return True;
     return False;
 }
-boolean is_extern(char * data_name){
-    boolean bool = strcmp(data_name, "extern") == 0 ?  True : False;
+boolean is_extern(){
+    boolean bool = strcmp(type, "extern") == 0 ?  True : False;
     return bool;
 }
 boolean is_valid_data_name(char * data_name){
     if (
-            strcmp(data_name, "string") == 0 ||
-            strcmp(data_name, "data") == 0 ||
-            strcmp(data_name, "entry") == 0 ||
-            strcmp(data_name, "extern") == 0
-            ) {
+        strcmp(data_name, "string") == 0 ||
+        strcmp(data_name, "data") == 0 ||
+        strcmp(data_name, "entry") == 0 ||
+        strcmp(data_name, "extern") == 0
+    ) {
         type = malloc(sizeof(data_name));
         strcpy(type, data_name);
         return True;
@@ -132,7 +132,7 @@ void process_data_line(const char * token, char * line, boolean is_symbol){
     int i = 0;
     char * stringContent;
     char * saveContent;
-    if (symbol_flag) {
+    if (is_symbol) {
         printf("Is a symbol\n");
         /*add_to_label_chart(label, DC, type, False, False);*/
     }
@@ -141,7 +141,7 @@ void process_data_line(const char * token, char * line, boolean is_symbol){
         if (token[0]=='"' && token[len = (strlen(token) - 1)]=='"') {
             stringContent = malloc(len);
             strncpy(stringContent, token + 1, len-1);
-            stringContent[strlen(stringContent)] = '\0';
+            stringContent[len - 1] = '\0';
             for (i ; i < strlen(stringContent) ; i++){
                 printf("%d: %c\n", DC, stringContent[i]);
                 DC++;
@@ -159,6 +159,7 @@ void process_data_line(const char * token, char * line, boolean is_symbol){
             strcpy(saveContent, token);
             saveContent[strlen(saveContent)] = '\0';
             if (is_valid_param(saveContent)) {
+                /* Decode */
                 printf("%d: %d\n",DC ,atoi(saveContent));
                 DC++;
             }
@@ -167,8 +168,18 @@ void process_data_line(const char * token, char * line, boolean is_symbol){
     }
     printf("SIZE OF DC: %d\n\n", DC);
 }
-void process_extern_line(char token[], char * line){
-
+void process_extern_line(const char token[], char * line){
+    if (symbol_flag) {
+        fprintf(stderr, "Error: Label needs to appear after \".extern\"\n");
+        return;
+    }
+    token = strtok(NULL, delimiters);
+    if (is_label(token)){
+        printf("Good Label!!! %s\n", token);
+        /*add_to_label_chart(label, 0, type, False, True);*/
+    } else {
+        fprintf(stderr, "Error: \"%s\" is not a valid label\n", token);
+    }
 }
 void process_command_line(char token[], char * line, boolean is_symbol){
 
