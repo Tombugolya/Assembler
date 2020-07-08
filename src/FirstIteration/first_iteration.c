@@ -109,6 +109,20 @@ boolean is_command(char * command_name){
     fprintf(stderr, "Error: Unknown command \"%s\"\n", command_name);
     return False;
 }
+boolean is_register (char * regis){
+    if (
+        strcmp(regis, "r0") == 0 ||
+        strcmp(regis, "r1") == 0 ||
+        strcmp(regis, "r2") == 0 ||
+        strcmp(regis, "r3") == 0 ||
+        strcmp(regis, "r4") == 0 ||
+        strcmp(regis, "r5") == 0 ||
+        strcmp(regis, "r6") == 0 ||
+        strcmp(regis, "r7") == 0
+    )
+        return True;
+    return False;
+}
 boolean is_comment(const char token[]){
     if (token[0] == ';')
         return True;
@@ -242,6 +256,7 @@ boolean is_valid_two_operands(char * operand){
     int tokenCounter = 0;
     char * pt;
     boolean isValidParam = True;
+    int operandType;
     while (operand[0] == ' ' || operand[0] == '\t')
         *operand++;
     operand = strtok(NULL, ",\n");
@@ -259,7 +274,10 @@ boolean is_valid_two_operands(char * operand){
             }
         }
         printf("%s\n", operand);
+        operandType = get_operand_type(operand);
+        printf("OPERAND TYPE : %d\n", operandType);
         operand = strtok(NULL, ",\n");
+        /* Decode the type  */
         if (tokenCounter > 2) {
             fprintf(stderr, "Error: Too many arguments\n");
             return False;
@@ -274,4 +292,18 @@ boolean is_valid_two_operands(char * operand){
 
 boolean is_valid_operand(char * operand){
 
+}
+
+int get_operand_type(char * operand) {
+    if (operand[0] == '#'){
+        *operand++;
+        if (is_valid_param(operand))
+            return IMMEDIATE;
+        return ERROR;
+    } else if (is_register(operand)) {
+        return REGISTER;
+    } else if (operand[0] == '&') {
+        return INDIRECT;
+    } else
+        return DIRECT;
 }

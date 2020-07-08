@@ -7,6 +7,9 @@
 #include "../Common/common.h"
 #define MAX_SYMBOL_CHARS 32
 #define MAX_LINE_CHARS 82
+enum addressing_modes {
+    IMMEDIATE = 0, DIRECT = 1, INDIRECT = 2, REGISTER = 3, ERROR = -1
+};
 void first_iteration(char *, FILE *);
 boolean is_label(const char token[]);
 boolean is_data(char *);
@@ -17,6 +20,8 @@ boolean is_valid_data_name(char *);
 boolean is_valid_param(char *);
 boolean is_valid_two_operands(char *);
 boolean is_valid_operand(char *);
+boolean is_register(char *);
+int get_operand_type(char *);
 void process_data_line(const char[], char*, boolean);
 void process_extern_line(const char[], char*);
 void process_command_line(char[], char*, boolean);
