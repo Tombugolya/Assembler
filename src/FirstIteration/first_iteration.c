@@ -5,7 +5,7 @@ int IC = 100;
 int DC = 0;
 boolean errors_exist = False;
 boolean symbol_flag;
-char label[MAX_SYMBOL_CHARS];
+char label[MAX_LABEL_CHARS];
 char * type;
 char * command;
 const char delimiters[] = " \t\n";
@@ -19,7 +19,7 @@ void first_iteration(char * filename, FILE * file){
         symbol_flag = False;
         token_counter = 0;
         line_counter++;
-        memset(label, 0, MAX_SYMBOL_CHARS);
+        memset(label, 0, MAX_LABEL_CHARS);
         /*free(type);*/
         token = strtok(line, delimiters);
         while(token != NULL) {
@@ -47,9 +47,9 @@ void first_iteration(char * filename, FILE * file){
 boolean is_label(const char *token){
     size_t len = strlen(token);
     if (isalpha(token[0]) && token[len - 1] == ':' ) {
-        if (len >= MAX_SYMBOL_CHARS) {
+        if (len >= MAX_LABEL_CHARS) {
             fprintf(stderr, "Error: Label name \"%s\" is too long, up to %d characters are allowed\n", token,
-                    MAX_SYMBOL_CHARS - 1);
+                    MAX_LABEL_CHARS - 1);
             errors_exist = True;
         }
         else if (!symbol_flag) {

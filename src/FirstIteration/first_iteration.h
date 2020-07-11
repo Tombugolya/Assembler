@@ -1,15 +1,10 @@
 #ifndef FIRST_ITERATION_H
 #define FIRST_ITERATION_H
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #include <ctype.h>
 #include "../Common/common.h"
-#define MAX_SYMBOL_CHARS 32
+#define MAX_LABEL_CHARS 32
 #define MAX_LINE_CHARS 82
-enum addressing_modes {
-    IMMEDIATE = 0, DIRECT = 1, INDIRECT = 2, REGISTER = 3, ERROR = -1
-};
+
 void first_iteration(char *, FILE *);
 boolean is_label(const char token[]);
 boolean is_data(char *);
