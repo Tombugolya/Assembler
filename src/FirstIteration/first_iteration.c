@@ -9,7 +9,9 @@ char label[MAX_LABEL_CHARS];
 char * type;
 char * command;
 const char delimiters[] = " \t\n";
+Label* head;
 void first_iteration(char * filename, FILE * file){
+    head = NULL;
     int line_counter = 0;
     int token_counter;
     char line[MAX_LINE_CHARS];
@@ -20,12 +22,9 @@ void first_iteration(char * filename, FILE * file){
         token_counter = 0;
         line_counter++;
         memset(label, 0, MAX_LABEL_CHARS);
-        /*free(type);*/
         token = strtok(line, delimiters);
         while(token != NULL) {
-/*
-            printf("String: %s\t\tLine no.%d\t\tToken No.%d\n", token, line_counter, ++token_counter);
-*/
+            printf("String: %s\t\tLine no.%d\t\tToken No.%d\n\n\n", token, line_counter, ++token_counter);
             if (is_label(token)) {
                 symbol_flag = True;
             }
@@ -42,6 +41,7 @@ void first_iteration(char * filename, FILE * file){
             token = strtok(NULL, delimiters);
         }
     }
+    print_label_chart(&head);
 }
 
 boolean is_label(const char *token){
@@ -53,8 +53,9 @@ boolean is_label(const char *token){
             errors_exist = True;
         }
         else if (!symbol_flag) {
-            memcpy(label, token, len - 2);
-            label[len-2] = '\0';
+            memcpy(label, token, len - 1);
+            label[len-1] = '\0';
+            printf("LABEL IS %s\n", label);
             return True;
         }
         else {
@@ -150,11 +151,9 @@ void process_data_line(const char * token, char * line, boolean is_symbol){
     int i = 0;
     char * stringContent;
     char * saveContent;
-    if (is_symbol) {
-        printf("Is a symbol\n");
-        /*add_to_label_chart(label, DC, type, False, False);*/
-    }
     if (strcmp(type, "string") == 0){
+        if (is_symbol && is_unique_label(&head, label))
+            add_to_label_chart(&head, label, DC, STRING, False, False);
         token = strtok(NULL, delimiters);
         if (token[0]=='"' && token[len = (strlen(token) - 1)]=='"') {
             stringContent = malloc(len);
@@ -171,6 +170,8 @@ void process_data_line(const char * token, char * line, boolean is_symbol){
             fprintf(stderr, "Error: No opening and closing brackets in > %s  \n", token);
         }
     } else { /* .data */
+        if (is_symbol && is_unique_label(&head, label))
+            add_to_label_chart(&head, label, DC, DATA, False, False);
         token = strtok(NULL, ",\n");
         while (token != NULL){
             saveContent = malloc(strlen(token));
@@ -194,15 +195,15 @@ void process_extern_line(const char token[], char * line){
     token = strtok(NULL, delimiters);
     if (is_label(token)){
         printf("Good Label!!! %s\n", token);
-        /*add_to_label_chart(label, 0, type, False, True);*/
+        add_to_label_chart(&head, label, 0, DATA, False, True);
     } else {
         fprintf(stderr, "Error: \"%s\" is not a valid label\n", token);
     }
 }
 void process_command_line(char token[], char * line, boolean is_symbol){
-    if (is_symbol) {
+    if (is_symbol && is_unique_label(&head, label)) {
         printf("Is a symbol\n");
-        /*add_to_label_chart(label, IC, type(code), False, False);*/
+        add_to_label_chart(&head, label, IC, CODE, False, False);
     }
     if (
         strcmp(command, "mov") == 0 ||
@@ -211,8 +212,7 @@ void process_command_line(char token[], char * line, boolean is_symbol){
         strcmp(command, "sub") == 0 ||
         strcmp(command, "lea") == 0
     ) {
-        printf("Two operands\n");
-        is_valid_two_operands(token);
+        is_valid_operand(token, 2);
     }
     else if (
         strcmp(command, "rts") == 0 ||
@@ -221,8 +221,7 @@ void process_command_line(char token[], char * line, boolean is_symbol){
         printf("No operands\n");
     }
     else {
-        is_valid_operand(token);
-        printf("One operand\n");
+        is_valid_operand(token, 1);
     }
 }
 
@@ -251,7 +250,7 @@ boolean is_valid_param(char * number){
     return isValidParam;
 }
 
-boolean is_valid_two_operands(char * operand){
+boolean is_valid_operand(char * operand, int paramNum){
     int i=0;
     int tokenCounter = 0;
     char * pt;
@@ -278,20 +277,16 @@ boolean is_valid_two_operands(char * operand){
         printf("OPERAND TYPE : %d\n", operandType);
         operand = strtok(NULL, ",\n");
         /* Decode the type  */
-        if (tokenCounter > 2) {
+        if (tokenCounter > paramNum) {
             fprintf(stderr, "Error: Too many arguments\n");
             return False;
         }
     }
-    if (tokenCounter == 1) {
+    if (tokenCounter < paramNum) {
         fprintf(stderr, "Error: Too few arguments\n");
         return False;
     }
     return True;
-}
-
-boolean is_valid_operand(char * operand){
-
 }
 
 int get_operand_type(char * operand) {

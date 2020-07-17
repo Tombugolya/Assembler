@@ -3,7 +3,7 @@
 #include "../Common/common.h"
 
 typedef struct label {
-    char * labelName;
+    char labelName[MAX_LABEL_CHARS];
     int address;
     line_type type;
     boolean external;
@@ -12,6 +12,7 @@ typedef struct label {
 } Label;
 
 void add_to_label_chart(Label**, char[], int, line_type, boolean, boolean);
-
+void print_label_chart(Label**);
+boolean is_unique_label(Label**, char*);
 
 #endif /* LABEL_CHART_H */

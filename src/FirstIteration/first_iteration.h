@@ -2,7 +2,6 @@
 #define FIRST_ITERATION_H
 #include <ctype.h>
 #include "../Common/common.h"
-#define MAX_LABEL_CHARS 32
 #define MAX_LINE_CHARS 82
 
 void first_iteration(char *, FILE *);
@@ -13,8 +12,7 @@ boolean is_comment(const char *);
 boolean is_extern();
 boolean is_valid_data_name(char *);
 boolean is_valid_param(char *);
-boolean is_valid_two_operands(char *);
-boolean is_valid_operand(char *);
+boolean is_valid_operand(char *, int);
 boolean is_register(char *);
 int get_operand_type(char *);
 void process_data_line(const char[], char*, boolean);
