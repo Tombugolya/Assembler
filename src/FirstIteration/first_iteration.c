@@ -110,7 +110,7 @@ boolean is_command(char * command_name){
     fprintf(stderr, "Error: Unknown command \"%s\"\n", command_name);
     return False;
 }
-boolean is_register (char * regis){
+boolean is_register(char * regis){
     if (
         strcmp(regis, "r0") == 0 ||
         strcmp(regis, "r1") == 0 ||
@@ -195,7 +195,7 @@ void process_extern_line(const char token[], char * line){
     token = strtok(NULL, delimiters);
     if (is_label(token)){
         printf("Good Label!!! %s\n", token);
-        add_to_label_chart(&head, label, 0, DATA, False, True);
+        is_unique_label(&head, label) ? add_to_label_chart(&head, label, 0, DATA, False, True)  : update_label_value(&head, label, 0);
     } else {
         fprintf(stderr, "Error: \"%s\" is not a valid label\n", token);
     }

@@ -43,3 +43,14 @@ boolean is_unique_label(Label** label, char * labelName) {
     }
     return True;
 }
+
+void update_label_value(Label** label, char * labelName, int value) {
+    Label * current = * label;
+    while (current != NULL) {
+        if (strcmp(current -> labelName, labelName) == 0) {
+            current -> address = value;
+            return;
+        }
+        current = current -> next;
+    }
+}
