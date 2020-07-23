@@ -3,13 +3,14 @@
 
 int IC = 100;
 int DC = 0;
+int registry;
 boolean errors_exist = False;
 boolean symbol_flag;
 char label[MAX_LABEL_CHARS];
 char * type;
 char * command;
 const char delimiters[] = " \t\n";
-Label* head;
+Label * head;
 void first_iteration(char * filename, FILE * file){
     head = NULL;
     int line_counter = 0;
@@ -24,7 +25,9 @@ void first_iteration(char * filename, FILE * file){
         memset(label, 0, MAX_LABEL_CHARS);
         token = strtok(line, delimiters);
         while(token != NULL) {
+/*
             printf("String: %s\t\tLine no.%d\t\tToken No.%d\n\n\n", token, line_counter, ++token_counter);
+*/
             if (is_label(token)) {
                 symbol_flag = True;
             }
@@ -41,6 +44,7 @@ void first_iteration(char * filename, FILE * file){
             token = strtok(NULL, delimiters);
         }
     }
+    update_label_char(&head, IC);
     print_label_chart(&head);
 }
 
@@ -55,7 +59,9 @@ boolean is_label(const char *token){
         else if (!symbol_flag) {
             memcpy(label, token, len - 1);
             label[len-1] = '\0';
+/*
             printf("LABEL IS %s\n", label);
+*/
             return True;
         }
         else {
@@ -120,8 +126,11 @@ boolean is_register(char * regis){
         strcmp(regis, "r5") == 0 ||
         strcmp(regis, "r6") == 0 ||
         strcmp(regis, "r7") == 0
-    )
+    ) {
+        *regis++;
+        registry = atoi(regis);
         return True;
+    }
     return False;
 }
 boolean is_comment(const char token[]){
@@ -146,13 +155,13 @@ boolean is_valid_data_name(char * data_name){
     }
     return False;
 }
-void process_data_line(const char * token, char * line, boolean is_symbol){
+void process_data_line(const char * token, char * line, boolean isLabel){
     size_t len;
     int i = 0;
     char * stringContent;
     char * saveContent;
     if (strcmp(type, "string") == 0){
-        if (is_symbol && is_unique_label(&head, label))
+        if (isLabel && is_unique_label(&head, label))
             add_to_label_chart(&head, label, DC, STRING, False, False);
         token = strtok(NULL, delimiters);
         if (token[0]=='"' && token[len = (strlen(token) - 1)]=='"') {
@@ -170,7 +179,7 @@ void process_data_line(const char * token, char * line, boolean is_symbol){
             fprintf(stderr, "Error: No opening and closing brackets in > %s  \n", token);
         }
     } else { /* .data */
-        if (is_symbol && is_unique_label(&head, label))
+        if (isLabel && is_unique_label(&head, label))
             add_to_label_chart(&head, label, DC, DATA, False, False);
         token = strtok(NULL, ",\n");
         while (token != NULL){
@@ -194,17 +203,23 @@ void process_extern_line(const char token[], char * line){
     }
     token = strtok(NULL, delimiters);
     if (is_label(token)){
+/*
         printf("Good Label!!! %s\n", token);
+*/
         is_unique_label(&head, label) ? add_to_label_chart(&head, label, 0, DATA, False, True)  : update_label_value(&head, label, 0);
     } else {
         fprintf(stderr, "Error: \"%s\" is not a valid label\n", token);
     }
 }
-void process_command_line(char token[], char * line, boolean is_symbol){
-    if (is_symbol && is_unique_label(&head, label)) {
+void process_command_line(char token[], char * line, boolean isLabel){
+    if (isLabel && is_unique_label(&head, label)) {
+/*
         printf("Is a symbol\n");
+*/
         add_to_label_chart(&head, label, IC, CODE, False, False);
     }
+    printf("IC: %d\n", IC);
+    IC++;
     if (
         strcmp(command, "mov") == 0 ||
         strcmp(command, "cmp") == 0 ||

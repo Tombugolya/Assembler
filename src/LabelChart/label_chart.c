@@ -25,6 +25,21 @@ void add_to_label_chart(Label ** label, char name[], int address, line_type type
     }
 }
 
+void update_label_value(Label** label, char * labelName, int value) {
+    Label * current = * label;
+    while (current != NULL) {
+        if (strcmp(current -> labelName, labelName) == 0) {
+            current -> address = value;
+            return;
+        }
+        current = current -> next;
+    }
+}
+
+void update_label_char(Label** label, int IC) {
+
+}
+
 void print_label_chart(Label ** label) {
     Label * current = * label;
     printf("NAME\t\tADDRESS\tTYPE\tENTRY\tEXTERN\n");
@@ -42,15 +57,4 @@ boolean is_unique_label(Label** label, char * labelName) {
         current = current -> next;
     }
     return True;
-}
-
-void update_label_value(Label** label, char * labelName, int value) {
-    Label * current = * label;
-    while (current != NULL) {
-        if (strcmp(current -> labelName, labelName) == 0) {
-            current -> address = value;
-            return;
-        }
-        current = current -> next;
-    }
 }

@@ -13,7 +13,7 @@ typedef struct label {
 
 void add_to_label_chart(Label**, char[], int, line_type, boolean, boolean);
 void print_label_chart(Label**);
-boolean is_unique_label(Label**, char*);
 void update_label_value(Label**, char*, int);
-
+void update_label_char(Label**, int);
+boolean is_unique_label(Label**, char*);
 #endif /* LABEL_CHART_H */
