@@ -3,11 +3,11 @@
 
 /* TODO: Add DCData linked list that will contain all of the data. IC you can decode in real time and DC afterwards with the linked list */
 /* TODO: add isEntry option to first iteration that will either add to label chart or enable isEntry on the label chart or skip in the first iteration */
-int IC = 100;
-int DC = 0;
-int line_counter;
-boolean errors_exist = False;
-boolean symbol_flag;
+int IC;
+int DC;
+int lineCount;
+boolean errorsExist;
+boolean isLabelFlag;
 char label[MAX_LABEL_CHARS];
 char *type = NULL;
 const Operation *commandPointer = NULL;
@@ -15,17 +15,28 @@ const Regis *regisPointer = NULL;
 const char delimiters[] = " \t\n";
 Label *head = NULL;
 
-void firstIteration(char * filename, FILE * file){
+void resetValues() {
+    IC = 100;
+    DC = 0;
+    lineCount = 0;
+    errorsExist = False;
+    isLabelFlag = False;
+    memset(label, 0, sizeof label);
+    commandPointer = NULL;
+    regisPointer = NULL;
     head = NULL;
-    int token_counter;
-    line_counter = 0;
+}
+
+void firstIteration(char * filename, FILE * file){
     char line[MAX_LINE_CHARS];
     char * token = NULL;
-    errors_exist = False;
+    int token_counter;
+    resetValues();
+
     while(fgets(line, sizeof(line), file)){
-        symbol_flag = False;
+        isLabelFlag = False;
         token_counter = 0;
-        line_counter++;
+        lineCount++;
         memset(label, 0, MAX_LABEL_CHARS);
         token = strtok(line, delimiters);
         while(token != NULL) {
@@ -33,7 +44,7 @@ void firstIteration(char * filename, FILE * file){
             printf("String: %s\t\tLine no.%d\t\tToken No.%d\n\n\n", token, line_counter, ++token_counter);
 */
             if (isLabel(token, True)) {
-                symbol_flag = True;
+                isLabelFlag = True;
             }
             else if (isComment(token)){
                 while(strcmp(token, "\n") != 0){
@@ -42,57 +53,59 @@ void firstIteration(char * filename, FILE * file){
                 token = strtok(NULL, delimiters);
             }
             else if (isData(token))
-                isExtern() ? processExternLine(line, token) : processDataLine(line, token, symbol_flag);
+                isExtern() ? processExternLine(line, token) : processDataLine(line, token, isLabelFlag);
             else if (isInstruction(token))
-                processInstructionLine(line, token, symbol_flag);
+                processInstructionLine(line, token, isLabelFlag);
             token = strtok(NULL, delimiters);
         }
     }
     updateLabelChart(&head, IC);
     printLabelChart(&head);
+    if (errorsExist)
+        exit(1);
 }
 
-boolean isLabel(const char *token, boolean toCheckColon){
-    size_t len = strlen(token);
-    if (isalpha(token[0]) && (toCheckColon ? token[len - 1] == ':' : True)) {
+boolean isLabel(const char *labelName, boolean toCheckColon){
+    size_t len = strlen(labelName);
+    if (isalpha(labelName[0]) && (toCheckColon ? labelName[len - 1] == ':' : True)) {
         if (len >= MAX_LABEL_CHARS)
-            errors_exist = errorReport(LABEL_TOO_LONG, line_counter, token);
-        else if (!symbol_flag) {
-            memcpy(label, token,  (toCheckColon ? len - 1 : len));
+            errorsExist = errorReport(LABEL_TOO_LONG, lineCount, labelName);
+        else if (!isLabelFlag) {
+            memcpy(label, labelName, (toCheckColon ? len - 1 : len));
             label[len] = '\0';
             return True;
         }
         else
-            errors_exist = errorReport(TOO_MANY_LABELS, line_counter, token);
+            errorsExist = errorReport(TOO_MANY_LABELS, lineCount, labelName);
     }
     return False;
 }
-boolean isData(char token[]){
-    size_t len = strlen(token);
-    char * data_name;
-    data_name = (char *) malloc(len - 1);
-    strncpy(data_name, token + 1, len -1);
-    data_name[len - 1] = '\0';
-    if (token[0] == '.') {
-        if (isValidDataName(data_name)) {
-            /*free(data_name);*/
+boolean isData(char dataName[]){
+    size_t len = strlen(dataName);
+    char * name;
+    name = (char *) malloc(len - 1);
+    strncpy(name, dataName + 1, len - 1);
+    name[len - 1] = '\0';
+    if (dataName[0] == '.') {
+        if (isValidDataName(name)) {
+            /*free(name);*/
             return True;
         }
         else
-            errors_exist = errorReport(UNKNOWN_DATA_COMMAND, line_counter, token);
+            errorsExist = errorReport(UNKNOWN_DATA_COMMAND, lineCount, dataName);
     }
-    /*free(data_name);*/
+    /*free(name);*/
     return False;
 }
-boolean isInstruction(char * command_name){
+boolean isInstruction(char * commandName){
     int i;
     for (i=0; i < OPERATION_NUM ; i++){
-        if (strcmp(command_name, operations[i].name) == 0 ) {
+        if (strcmp(commandName, operations[i].name) == 0 ) {
             commandPointer = &operations[i];
             return True;
         }
     }
-    errors_exist = errorReport(UNKNOWN_OPERATION_COMMAND, line_counter, command_name);
+    errorsExist = errorReport(UNKNOWN_OPERATION_COMMAND, lineCount, commandName);
     return False;
 }
 boolean isRegister(char * regis){
@@ -105,8 +118,8 @@ boolean isRegister(char * regis){
     }
     return False;
 }
-boolean isComment(const char token[]){
-    if (token[0] == ';')
+boolean isComment(const char commentSymbol[]){
+    if (commentSymbol[0] == ';')
         return True;
     return False;
 }
@@ -114,20 +127,20 @@ boolean isExtern(){
     boolean bool = strcmp(type, "extern") == 0 ?  True : False;
     return bool;
 }
-boolean isValidDataName(char * data_name){
+boolean isValidDataName(char * dataName){
     if (
-        strcmp(data_name, "string") == 0 ||
-        strcmp(data_name, "data") == 0 ||
-        strcmp(data_name, "entry") == 0 ||
-        strcmp(data_name, "extern") == 0
+        strcmp(dataName, "string") == 0 ||
+        strcmp(dataName, "data") == 0 ||
+        strcmp(dataName, "entry") == 0 ||
+        strcmp(dataName, "extern") == 0
     ) {
-        type = malloc(sizeof(data_name));
-        strcpy(type, data_name);
+        type = malloc(sizeof(dataName));
+        strcpy(type, dataName);
         return True;
     }
     return False;
 }
-void processDataLine(const char * token, char * line, boolean isLabel){
+void processDataLine(const char * arguments, char * line, boolean isLabel){
     size_t len;
     int i = 0;
     char * stringContent;
@@ -135,10 +148,10 @@ void processDataLine(const char * token, char * line, boolean isLabel){
     if (strcmp(type, "string") == 0){
         if (isLabel && isUniqueLabel(&head, label))
             addToLabelChart(&head, label, DC, STRING, False, False);
-        token = strtok(NULL, delimiters);
-        if (token[0]=='"' && token[len = (strlen(token) - 1)]=='"') {
+        arguments = strtok(NULL, delimiters);
+        if (arguments[0] == '"' && arguments[len = (strlen(arguments) - 1)] == '"') {
             stringContent = malloc(len);
-            strncpy(stringContent, token + 1, len-1);
+            strncpy(stringContent, arguments + 1, len - 1);
             stringContent[len - 1] = '\0';
             for (i ; i < strlen(stringContent) ; i++){
                 printf("%d: %c\n", DC, stringContent[i]);
@@ -148,45 +161,45 @@ void processDataLine(const char * token, char * line, boolean isLabel){
             DC++;
             /* Decode */
         } else {
-            errors_exist = errorReport(NO_QUOTATIONS, line_counter, token);
+            errorsExist = errorReport(NO_QUOTATIONS, lineCount, arguments);
         }
     } else { /* .data */
         if (isLabel && isUniqueLabel(&head, label))
             addToLabelChart(&head, label, DC, DATA, False, False);
-        token = strtok(NULL, ",\n");
-        while (token != NULL){
-            saveContent = malloc(strlen(token));
-            strcpy(saveContent, token);
+        arguments = strtok(NULL, ",\n");
+        while (arguments != NULL){
+            saveContent = malloc(strlen(arguments));
+            strcpy(saveContent, arguments);
             saveContent[strlen(saveContent)] = '\0';
             if (isValidNumber(saveContent)) {
                 /* Decode */
                 printf("%d: %d\n",DC ,atoi(saveContent));
                 DC++;
             }
-            token = strtok(NULL, ",\n");
+            arguments = strtok(NULL, ",\n");
         }
     }
     printf("SIZE OF DC: %d\n\n", DC);
 }
-void processExternLine(const char token[], char * line){
-    if (symbol_flag) {
-        errors_exist = errorReport(EXTERN_AFTER_LABEL, line_counter, token);
+void processExternLine(const char arguments[], char * line){
+    if (isLabelFlag) {
+        errorsExist = errorReport(EXTERN_AFTER_LABEL, lineCount, arguments);
         return;
     }
-    token = strtok(NULL, delimiters);
-    if (isLabel(token, False))
+    arguments = strtok(NULL, delimiters);
+    if (isLabel(arguments, False))
         isUniqueLabel(&head, label) ? addToLabelChart(&head, label, 0, DATA, False, True) : updateLabelValue(&head, label, 0);
     else
-        errors_exist = errorReport(INVALID_LABEL, line_counter, token);
+        errorsExist = errorReport(INVALID_LABEL, lineCount, arguments);
 
 }
-void processInstructionLine(char token[], char * line, boolean isLabel){
+void processInstructionLine(char arguments[], char * line, boolean isLabel){
     if (isLabel && isUniqueLabel(&head, label))
         addToLabelChart(&head, label, IC, CODE, False, False);
     printf("IC: %d\n", IC);
     IC++;
     if (commandPointer -> operands > 0)
-        isValidOperand(token, commandPointer -> operands);
+        isValidOperand(arguments, commandPointer -> operands);
 
 }
 
@@ -199,7 +212,7 @@ boolean isValidNumber(char * number){
         if (i==0 && number[i] == '-')
             isValidParam = True;
         else if (number[i] != ' ' && number[i] != '\t' && !isdigit(number[i])) {
-            errors_exist = errorReport(INVALID_NUMBER, line_counter, number);
+            errorsExist = errorReport(INVALID_NUMBER, lineCount, number);
             return False;
         }
     }
@@ -209,13 +222,13 @@ boolean isValidNumber(char * number){
     while (number[0] == ' ' || number[0] == '\t')
         *number++;
     if (strcmp(number, "") != 0) {
-        errors_exist = errorReport(MISSING_COMMAS, line_counter, number);
+        errorsExist = errorReport(MISSING_COMMAS, lineCount, number);
         isValidParam = False;
     }
     return isValidParam;
 }
 
-boolean isValidOperand(char * operand, int paramNum){
+boolean isValidOperand(char * operand, int maxParamNum){
     int i=0;
     int tokenCounter = 0;
     char * pt = NULL;
@@ -233,7 +246,7 @@ boolean isValidOperand(char * operand, int paramNum){
             while (pt[0] == ' ' || pt[0] == '\t')
                 *pt++;
             if (strcmp(pt, "") != 0) {
-                errors_exist = errorReport(NOT_COMMA_SEPARATED, line_counter);
+                errorsExist = errorReport(NOT_COMMA_SEPARATED, lineCount);
                 return False;
             }
         }
@@ -241,16 +254,16 @@ boolean isValidOperand(char * operand, int paramNum){
         if (operandType != REGISTER)
             printf("Reserved address for operand %d\n", IC++);
         if (!isValidAddressingMode(operandType, tokenCounter))
-            errors_exist = errorReport(INVALID_OPERAND_TYPE, line_counter, operandType, commandPointer -> name);
+            errorsExist = errorReport(INVALID_OPERAND_TYPE, lineCount, operandType, commandPointer -> name);
         operand = strtok(NULL, ",\n");
         /* Decode the type  */
-        if (tokenCounter > paramNum) {
-            errors_exist = errorReport(TOO_MANY_ARGUMENTS, line_counter);
+        if (tokenCounter > maxParamNum) {
+            errorsExist = errorReport(TOO_MANY_ARGUMENTS, lineCount);
             return False;
         }
     }
-    if (tokenCounter < paramNum) {
-        errors_exist = errorReport(TOO_FEW_ARGUMENTS, line_counter);
+    if (tokenCounter < maxParamNum) {
+        errorsExist = errorReport(TOO_FEW_ARGUMENTS, lineCount);
         return False;
     }
     return True;

@@ -4,7 +4,7 @@
 #include "../Common/common.h"
 
 void firstIteration(char *, FILE *);
-boolean isLabel(const char token[], boolean);
+boolean isLabel(const char labelName[], boolean);
 boolean isData(char *);
 boolean isInstruction(char *);
 boolean isComment(const char *);
@@ -18,4 +18,5 @@ addressing_mode getOperandAddressingMode(char *);
 void processDataLine(const char[], char*, boolean);
 void processExternLine(const char[], char*);
 void processInstructionLine(char[], char*, boolean);
+void resetValues();
 #endif /* FIRST_ITERATION_H */
