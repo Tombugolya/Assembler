@@ -1,6 +1,6 @@
 #include "functions.h"
 
-char * get_filename(char * file){
+char * getFilename(char * file){
     size_t len = strlen(file);
     char * last_three;
     char * filename;
@@ -17,14 +17,14 @@ char * get_filename(char * file){
             return filename;
         }
     }
-    fprintf(stderr, "Error: \"%s\" is not an .as file\n", file);
+    errorReport(INVALID_AS_FILE, 0, file);
     return NULL;
 }
 
-FILE * get_file(char * file){
+FILE * getFile(char * file){
     FILE * opened_file = fopen(file, "r");
     if (opened_file  == NULL) {
-        fprintf(stderr, "Error: Cannot locate file \"%s\"\n", file);
+        errorReport(FILE_NOT_FOUND, 0, file);
         return opened_file;
     }
     return opened_file;

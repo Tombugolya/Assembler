@@ -2,13 +2,13 @@
 #define LABEL_CHART_H
 #include "../Common/common.h"
 
-typedef struct label {
+typedef struct Label {
     char labelName[MAX_LABEL_CHARS];
     int address;
     line_type type;
     boolean external;
     boolean entry;
-    struct label* next;
+    struct Label* next;
 } Label;
 
 void addToLabelChart(Label**, char*, int, line_type, boolean, boolean);

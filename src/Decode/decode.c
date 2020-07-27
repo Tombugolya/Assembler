@@ -1,8 +1,8 @@
 #include "decode.h"
 
-void decode_to_binary(int opCode, line_type type, addressing_mode first, ...) {
+void decodeInstruction(int opCode, line_type type, addressing_mode first, ...) {
     if (type == CODE) {
-        machineOperation test;
+        InstructionCode test;
         test.opCode = opCode;
         test.originAddress = 0;
         test.originOperand = 0;
@@ -12,15 +12,15 @@ void decode_to_binary(int opCode, line_type type, addressing_mode first, ...) {
         test.absolute = 0;
         test.relocatable = 0;
         test.external = 0;
-        write_hexadecimal(test, "filename");
+        writeHexadecimal(test, "filename");
     } else if ( type == STRING ) {
-        dataCode test;
+        DataCode test;
     } else { /* type == DATA { */
-        operandCode test;
+        OperandCode test;
     }
 }
 
-void write_hexadecimal(machineOperation bitField, char * filename) {
+void writeHexadecimal(InstructionCode bitField, char * filename) {
     /* Write on a file */
     printf("%d\t%d\t%d\n%d\t%d\t%d\n%d\t%d\t%d\n%x\n\n",
         bitField.opCode,

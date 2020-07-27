@@ -3,19 +3,19 @@
 #include <ctype.h>
 #include "../Common/common.h"
 
-void first_iteration(char *, FILE *);
-boolean is_label(const char token[], boolean);
-boolean is_data(char *);
-boolean is_command(char *);
-boolean is_comment(const char *);
-boolean is_extern();
-boolean is_valid_data_name(char *);
+void firstIteration(char *, FILE *);
+boolean isLabel(const char token[], boolean);
+boolean isData(char *);
+boolean isInstruction(char *);
+boolean isComment(const char *);
+boolean isExtern();
+boolean isRegister(char *);
+boolean isValidDataName(char *);
 boolean isValidNumber(char *);
-boolean is_valid_operand(char *, int);
+boolean isValidOperand(char *, int);
 boolean isValidAddressingMode(addressing_mode mode, int operandNum);
-boolean is_register(char *);
 addressing_mode getOperandAddressingMode(char *);
-void process_data_line(const char[], char*, boolean);
-void process_extern_line(const char[], char*);
-void process_command_line(char[], char*, boolean);
+void processDataLine(const char[], char*, boolean);
+void processExternLine(const char[], char*);
+void processInstructionLine(char[], char*, boolean);
 #endif /* FIRST_ITERATION_H */

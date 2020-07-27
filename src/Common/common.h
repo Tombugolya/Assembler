@@ -4,16 +4,20 @@
 #include <stdlib.h>
 #include <string.h>
 #include "../ErrorReport/error_report.h"
+
 #define MAX_LINE_CHARS 82   /* '\n' + '\0' */
 #define OPERATION_NUM 16
 #define MAX_APPLICABLE_MODES 3
 #define REGISTER_NUM 8
+
 typedef enum {
     CODE = 0, DATA = 1, STRING = 2
 } line_type;
+
 typedef enum {
     IMMEDIATE = 0, DIRECT = 1, INDIRECT = 2, REGISTER = 3, end = -1
 } addressing_mode;
+
 typedef enum {
     MOV = 0,
     CMP = 1,
@@ -26,19 +30,21 @@ typedef enum {
     RTS = 14,
     STOP = 15
 } opcodes;
-typedef struct config {
+
+typedef struct Operation {
     char *name;
     opcodes opCode;
     int function;
     int operands;
     addressing_mode modesDest[MAX_APPLICABLE_MODES];
     addressing_mode modesOrigin[MAX_APPLICABLE_MODES];
-} operation;
+} Operation;
 
-typedef struct regis {
+typedef struct Regis {
     char * name;
     int value;
-} regis;
-extern const regis registers[REGISTER_NUM];
-extern const operation operations[OPERATION_NUM];
+} Regis;
+
+extern const Regis registers[REGISTER_NUM];
+extern const Operation operations[OPERATION_NUM];
 #endif /* COMMON_H */

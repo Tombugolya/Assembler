@@ -2,7 +2,8 @@
 #define ASSEMBLER_DECODE_H
 #include <stdarg.h>
 #include "../Common/common.h"
-typedef struct machineOperation {
+
+typedef struct InstructionCode {
     unsigned int external       : 1;
     unsigned int relocatable    : 1;
     unsigned int absolute       : 1;
@@ -12,20 +13,19 @@ typedef struct machineOperation {
     unsigned int originOperand  : 3;
     unsigned int originAddress  : 2;
     unsigned int opCode         : 6;
-} machineOperation;
+} InstructionCode;
 
-typedef struct operandCode {
+typedef struct OperandCode {
     unsigned int external       : 1;
     unsigned int relocatable    : 1;
     unsigned int absolute       : 1;
-    unsigned int dataLine       : 21;
-} operandCode;
+    unsigned int dataCode       : 21;
+} OperandCode;
 
-typedef struct dataCode {
-    unsigned int dataLine       : 24;
-} dataCode;
+typedef struct DataCode {
+    unsigned int dataCode       : 24;
+} DataCode;
 
-int test(int);
-void decode_to_binary(int, line_type, addressing_mode, ... );
-void write_hexadecimal( machineOperation, char * );
+void decodeInstruction(int, line_type, addressing_mode, ... );
+void writeHexadecimal(InstructionCode, char * );
 #endif //ASSEMBLER_DECODE_H

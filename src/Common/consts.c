@@ -1,6 +1,6 @@
 #include "common.h"
 
-const regis registers[] = {
+const Regis registers[] = {
         {"r0", 0},
         {"r1", 1},
         {"r2", 2},
@@ -11,7 +11,7 @@ const regis registers[] = {
         {"r7", 7},
 };
 
-const operation operations[] = {
+const Operation operations[] = {
         {"mov", MOV, 0, 2 ,{DIRECT, REGISTER, end},
          {DIRECT, REGISTER, IMMEDIATE}},
 

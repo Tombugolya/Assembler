@@ -1,7 +1,9 @@
 #ifndef MAIN_H
 #define MAIN_H
 #include <stdio.h>
+
 enum {INPUT = 1};
-void file_management(int, char *[]);
-void process_files(int, char *[]);
+
+void fileManagement(int, char *[]);
+void processFiles(int, char *[]);
 #endif /* MAIN_H */

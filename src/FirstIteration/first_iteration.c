@@ -1,7 +1,6 @@
 #include "first_iteration.h"
 #include "../LabelChart/label_chart.h"
 
-
 /* TODO: Add DCData linked list that will contain all of the data. IC you can decode in real time and DC afterwards with the linked list */
 /* TODO: add isEntry option to first iteration that will either add to label chart or enable isEntry on the label chart or skip in the first iteration */
 int IC = 100;
@@ -11,11 +10,12 @@ boolean errors_exist = False;
 boolean symbol_flag;
 char label[MAX_LABEL_CHARS];
 char *type = NULL;
-const operation *commandPointer = NULL;
-const regis *regisPointer = NULL;
+const Operation *commandPointer = NULL;
+const Regis *regisPointer = NULL;
 const char delimiters[] = " \t\n";
 Label *head = NULL;
-void first_iteration(char * filename, FILE * file){
+
+void firstIteration(char * filename, FILE * file){
     head = NULL;
     int token_counter;
     line_counter = 0;
@@ -32,19 +32,19 @@ void first_iteration(char * filename, FILE * file){
 /*
             printf("String: %s\t\tLine no.%d\t\tToken No.%d\n\n\n", token, line_counter, ++token_counter);
 */
-            if (is_label(token, True)) {
+            if (isLabel(token, True)) {
                 symbol_flag = True;
             }
-            else if (is_comment(token)){
+            else if (isComment(token)){
                 while(strcmp(token, "\n") != 0){
                     *token++;
                 }
                 token = strtok(NULL, delimiters);
             }
-            else if (is_data(token))
-                is_extern() ? process_extern_line(line, token) : process_data_line(line, token, symbol_flag);
-            else if (is_command(token))
-                process_command_line(line, token, symbol_flag);
+            else if (isData(token))
+                isExtern() ? processExternLine(line, token) : processDataLine(line, token, symbol_flag);
+            else if (isInstruction(token))
+                processInstructionLine(line, token, symbol_flag);
             token = strtok(NULL, delimiters);
         }
     }
@@ -52,7 +52,7 @@ void first_iteration(char * filename, FILE * file){
     printLabelChart(&head);
 }
 
-boolean is_label(const char *token, boolean toCheckColon){
+boolean isLabel(const char *token, boolean toCheckColon){
     size_t len = strlen(token);
     if (isalpha(token[0]) && (toCheckColon ? token[len - 1] == ':' : True)) {
         if (len >= MAX_LABEL_CHARS)
@@ -67,14 +67,14 @@ boolean is_label(const char *token, boolean toCheckColon){
     }
     return False;
 }
-boolean is_data(char token[]){
+boolean isData(char token[]){
     size_t len = strlen(token);
     char * data_name;
     data_name = (char *) malloc(len - 1);
     strncpy(data_name, token + 1, len -1);
     data_name[len - 1] = '\0';
     if (token[0] == '.') {
-        if (is_valid_data_name(data_name)) {
+        if (isValidDataName(data_name)) {
             /*free(data_name);*/
             return True;
         }
@@ -84,7 +84,7 @@ boolean is_data(char token[]){
     /*free(data_name);*/
     return False;
 }
-boolean is_command(char * command_name){
+boolean isInstruction(char * command_name){
     int i;
     for (i=0; i < OPERATION_NUM ; i++){
         if (strcmp(command_name, operations[i].name) == 0 ) {
@@ -95,7 +95,7 @@ boolean is_command(char * command_name){
     errors_exist = errorReport(UNKNOWN_OPERATION_COMMAND, line_counter, command_name);
     return False;
 }
-boolean is_register(char * regis){
+boolean isRegister(char * regis){
     int i;
     for (i=0 ; i<REGISTER_NUM ; i++){
         if (strcmp(regis, registers[i].name) == 0) {
@@ -105,16 +105,16 @@ boolean is_register(char * regis){
     }
     return False;
 }
-boolean is_comment(const char token[]){
+boolean isComment(const char token[]){
     if (token[0] == ';')
         return True;
     return False;
 }
-boolean is_extern(){
+boolean isExtern(){
     boolean bool = strcmp(type, "extern") == 0 ?  True : False;
     return bool;
 }
-boolean is_valid_data_name(char * data_name){
+boolean isValidDataName(char * data_name){
     if (
         strcmp(data_name, "string") == 0 ||
         strcmp(data_name, "data") == 0 ||
@@ -127,7 +127,7 @@ boolean is_valid_data_name(char * data_name){
     }
     return False;
 }
-void process_data_line(const char * token, char * line, boolean isLabel){
+void processDataLine(const char * token, char * line, boolean isLabel){
     size_t len;
     int i = 0;
     char * stringContent;
@@ -168,25 +168,25 @@ void process_data_line(const char * token, char * line, boolean isLabel){
     }
     printf("SIZE OF DC: %d\n\n", DC);
 }
-void process_extern_line(const char token[], char * line){
+void processExternLine(const char token[], char * line){
     if (symbol_flag) {
         errors_exist = errorReport(EXTERN_AFTER_LABEL, line_counter, token);
         return;
     }
     token = strtok(NULL, delimiters);
-    if (is_label(token, False))
+    if (isLabel(token, False))
         isUniqueLabel(&head, label) ? addToLabelChart(&head, label, 0, DATA, False, True) : updateLabelValue(&head, label, 0);
     else
-        errors_exist = errorReport(NOT_VALID_LABEL, line_counter, token);
+        errors_exist = errorReport(INVALID_LABEL, line_counter, token);
 
 }
-void process_command_line(char token[], char * line, boolean isLabel){
+void processInstructionLine(char token[], char * line, boolean isLabel){
     if (isLabel && isUniqueLabel(&head, label))
         addToLabelChart(&head, label, IC, CODE, False, False);
     printf("IC: %d\n", IC);
     IC++;
     if (commandPointer -> operands > 0)
-        is_valid_operand(token, commandPointer -> operands);
+        isValidOperand(token, commandPointer -> operands);
 
 }
 
@@ -199,7 +199,7 @@ boolean isValidNumber(char * number){
         if (i==0 && number[i] == '-')
             isValidParam = True;
         else if (number[i] != ' ' && number[i] != '\t' && !isdigit(number[i])) {
-            errors_exist = errorReport(NOT_VALID_NUMBER, line_counter, number);
+            errors_exist = errorReport(INVALID_NUMBER, line_counter, number);
             return False;
         }
     }
@@ -215,7 +215,7 @@ boolean isValidNumber(char * number){
     return isValidParam;
 }
 
-boolean is_valid_operand(char * operand, int paramNum){
+boolean isValidOperand(char * operand, int paramNum){
     int i=0;
     int tokenCounter = 0;
     char * pt = NULL;
@@ -273,7 +273,7 @@ addressing_mode getOperandAddressingMode(char * operand) {
         if (isValidNumber(operand))
             return IMMEDIATE;
         return end;
-    } else if (is_register(operand)) {
+    } else if (isRegister(operand)) {
         return REGISTER;
     } else if (operand[0] == '&') {
         return INDIRECT;

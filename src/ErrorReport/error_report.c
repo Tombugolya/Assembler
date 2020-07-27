@@ -38,12 +38,12 @@ boolean errorReport(error_code err, int lineNumber, ... ){
             fprintf(stderr, "Error in line.%d: Label needs to appear after \".extern\"\n",
                     lineNumber);
             break;
-        case NOT_VALID_LABEL:
+        case INVALID_LABEL:
             fprintf(stderr, "Error in line.%d: \"%s\" is not a valid label\n",
                     lineNumber,
                     va_arg(args, char*));
             break;
-        case NOT_VALID_NUMBER:
+        case INVALID_NUMBER:
             fprintf(stderr, "Error in line.%d: \"%s\" is not a valid number\n",
                     lineNumber,
                     va_arg(args, char*));
@@ -69,6 +69,12 @@ boolean errorReport(error_code err, int lineNumber, ... ){
             mode = va_arg(args, addressing_mode);
             fprintf(stderr, "Error in line.%d: Operand addressing mode no. %d does not suit the criteria for command %s\n",
                     lineNumber, mode, va_arg(args, char *));
+            break;
+        case INVALID_AS_FILE:
+            fprintf(stderr, "Error: \"%s\" is not an .as file\n", va_arg(args, char *));
+            break;
+        case FILE_NOT_FOUND:
+            fprintf(stderr, "Error: Cannot locate file \"%s\"\n", va_arg(args, char *));
             break;
         default:
             fprintf(stderr, "UH OH! GENERAL ERROR, CREATE A CODE FOR THIS\n");

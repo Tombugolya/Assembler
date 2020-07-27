@@ -4,25 +4,25 @@
 
 int main(int argc, char *argv[]) {
     int i;
-    file_management(argc, argv);
+    fileManagement(argc, argv);
     return 0;
 }
 
-void file_management(int argc, char *argv[]){
+void fileManagement(int argc, char *argv[]){
     if (argc > 1)
-        process_files(argc, argv);
+        processFiles(argc, argv);
     else
         errorReport(NO_FILES, 0);
 }
 
-void process_files(int argc, char *argv[]){
+void processFiles(int argc, char *argv[]){
     int i;
     char * filename;
     FILE * file;
     for (i = INPUT ; i < argc ; i++){
-        filename = get_filename(argv[i]);
-        file = get_file(argv[i]);
+        filename = getFilename(argv[i]);
+        file = getFile(argv[i]);
         if (filename && file)
-            first_iteration(filename, file);
+            firstIteration(filename, file);
     }
 }
