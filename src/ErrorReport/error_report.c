@@ -15,46 +15,55 @@ boolean errorReport(error_code err, int lineNumber, ... ){
                     MAX_LABEL_CHARS - 1);
             break;
         case TOO_MANY_LABELS:
-            fprintf(stderr,
-                    "Error in line.%d: Unexpected appearance of an extra label \"%s\", only one label can appear per line\n",
+            fprintf(stderr,"Error in line.%d: Unexpected appearance of an extra label \"%s\", only one label can appear per line\n",
                     lineNumber,
                     va_arg(args, char*));
             break;
         case UNKNOWN_DATA_COMMAND:
-            fprintf(stderr, "Error in line.%d: Unknown data command \"%s\"\n", lineNumber,
+            fprintf(stderr, "Error in line.%d: Unknown data command \"%s\"\n",
+                    lineNumber,
                     va_arg(args, char*));
             break;
         case UNKNOWN_OPERATION_COMMAND:
-            fprintf(stderr, "Error in line.%d: Unknown command \"%s\"\n", lineNumber,
+            fprintf(stderr, "Error in line.%d: Unknown command \"%s\"\n",
+                    lineNumber,
                     va_arg(args, char*));
             break;
         case NO_QUOTATIONS:
-            fprintf(stderr, "Error in line.%d: No opening and closing quotations in > %s  \n", lineNumber,
+            fprintf(stderr, "Error in line.%d: No opening and closing quotations in > %s  \n",
+                    lineNumber,
                     va_arg(args, char*));
             break;
         case EXTERN_AFTER_LABEL:
-            fprintf(stderr, "Error in line.%d: Label needs to appear after \".extern\"\n", lineNumber);
+            fprintf(stderr, "Error in line.%d: Label needs to appear after \".extern\"\n",
+                    lineNumber);
             break;
         case NOT_VALID_LABEL:
-            fprintf(stderr, "Error in line.%d: \"%s\" is not a valid label\n", lineNumber,
+            fprintf(stderr, "Error in line.%d: \"%s\" is not a valid label\n",
+                    lineNumber,
                     va_arg(args, char*));
             break;
         case NOT_VALID_NUMBER:
-            fprintf(stderr, "Error in line.%d: \"%s\" is not a valid number\n", lineNumber,
+            fprintf(stderr, "Error in line.%d: \"%s\" is not a valid number\n",
+                    lineNumber,
                     va_arg(args, char*));
             break;
         case MISSING_COMMAS:
-            fprintf(stderr, "Error in line.%d: Missing comma before \"%s\"\n", lineNumber,
+            fprintf(stderr, "Error in line.%d: Missing comma before \"%s\"\n",
+                    lineNumber,
                     va_arg(args, char*));
             break;
         case NOT_COMMA_SEPARATED:
-            fprintf(stderr, "Error in line.%d: Not comma separated value\n", lineNumber);
+            fprintf(stderr, "Error in line.%d: Not comma separated value\n",
+                    lineNumber);
             break;
         case TOO_MANY_ARGUMENTS:
-            fprintf(stderr, "Error in line.%d: Too many arguments\n", lineNumber);
+            fprintf(stderr, "Error in line.%d: Too many arguments\n",
+                    lineNumber);
             break;
         case TOO_FEW_ARGUMENTS:
-            fprintf(stderr, "Error in line.%d: Too few arguments\n", lineNumber);
+            fprintf(stderr, "Error in line.%d: Too few arguments\n",
+                    lineNumber);
             break;
         case INVALID_OPERAND_TYPE:
             mode = va_arg(args, addressing_mode);

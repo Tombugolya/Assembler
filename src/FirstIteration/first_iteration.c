@@ -1,6 +1,9 @@
 #include "first_iteration.h"
 #include "../LabelChart/label_chart.h"
 
+
+/* TODO: Add DCData linked list that will contain all of the data. IC you can decode in real time and DC afterwards with the linked list */
+/* TODO: add isEntry option to first iteration that will either add to label chart or enable isEntry on the label chart or skip in the first iteration */
 int IC = 100;
 int DC = 0;
 int line_counter;
@@ -236,7 +239,7 @@ boolean is_valid_operand(char * operand, int paramNum){
         }
         operandType = getOperandAddressingMode(operand);
         if (operandType != REGISTER)
-            printf("Reserved address for operand %d\n", ++IC);
+            printf("Reserved address for operand %d\n", IC++);
         if (!isValidAddressingMode(operandType, tokenCounter))
             errors_exist = errorReport(INVALID_OPERAND_TYPE, line_counter, operandType, commandPointer -> name);
         operand = strtok(NULL, ",\n");
