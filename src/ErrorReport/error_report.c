@@ -3,6 +3,7 @@
 boolean errorReport(error_code err, int lineNumber, ... ){
     va_list args;
     va_start(args, lineNumber);
+    addressing_mode mode;
     switch (err) {
         case NO_FILES:
             fprintf(stderr, "Error: No files attached\n");
@@ -56,7 +57,9 @@ boolean errorReport(error_code err, int lineNumber, ... ){
             fprintf(stderr, "Error in line.%d: Too few arguments\n", lineNumber);
             break;
         case INVALID_OPERAND_TYPE:
-            fprintf(stderr, "Error in line.%d: Operand addressing mode does not suit the criteria for this command\n", lineNumber);
+            mode = va_arg(args, addressing_mode);
+            fprintf(stderr, "Error in line.%d: Operand addressing mode no. %d does not suit the criteria for command %s\n",
+                    lineNumber, mode, va_arg(args, char *));
             break;
         default:
             fprintf(stderr, "UH OH! GENERAL ERROR, CREATE A CODE FOR THIS\n");

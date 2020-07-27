@@ -4,21 +4,20 @@
 int IC = 100;
 int DC = 0;
 int line_counter;
-int registry;
 boolean errors_exist = False;
 boolean symbol_flag;
 char label[MAX_LABEL_CHARS];
-char * type = NULL;
+char *type = NULL;
 const operation *commandPointer = NULL;
-const regis * regisPointer = NULL;
+const regis *regisPointer = NULL;
 const char delimiters[] = " \t\n";
-Label * head = NULL;
+Label *head = NULL;
 void first_iteration(char * filename, FILE * file){
     head = NULL;
     int token_counter;
     line_counter = 0;
     char line[MAX_LINE_CHARS];
-    char * token;
+    char * token = NULL;
     errors_exist = False;
     while(fgets(line, sizeof(line), file)){
         symbol_flag = False;
@@ -53,17 +52,15 @@ void first_iteration(char * filename, FILE * file){
 boolean is_label(const char *token, boolean toCheckColon){
     size_t len = strlen(token);
     if (isalpha(token[0]) && (toCheckColon ? token[len - 1] == ':' : True)) {
-        if (len >= MAX_LABEL_CHARS) {
+        if (len >= MAX_LABEL_CHARS)
             errors_exist = errorReport(LABEL_TOO_LONG, line_counter, token);
-        }
         else if (!symbol_flag) {
             memcpy(label, token,  (toCheckColon ? len - 1 : len));
             label[len] = '\0';
             return True;
         }
-        else {
+        else
             errors_exist = errorReport(TOO_MANY_LABELS, line_counter, token);
-        }
     }
     return False;
 }
@@ -174,23 +171,15 @@ void process_extern_line(const char token[], char * line){
         return;
     }
     token = strtok(NULL, delimiters);
-    if (is_label(token, False)){
-/*
-        printf("Good Label!!! %s\n", token);
-*/
-        isUniqueLabel(&head, label) ? addToLabelChart(&head, label, 0, DATA, False, True) : updateLabelValue(&head,
-                                                                                                             label, 0);
-    } else {
+    if (is_label(token, False))
+        isUniqueLabel(&head, label) ? addToLabelChart(&head, label, 0, DATA, False, True) : updateLabelValue(&head, label, 0);
+    else
         errors_exist = errorReport(NOT_VALID_LABEL, line_counter, token);
-    }
+
 }
 void process_command_line(char token[], char * line, boolean isLabel){
-    if (isLabel && isUniqueLabel(&head, label)) {
-/*
-        printf("Is a symbol\n");
-*/
+    if (isLabel && isUniqueLabel(&head, label))
         addToLabelChart(&head, label, IC, CODE, False, False);
-    }
     printf("IC: %d\n", IC);
     IC++;
     if (commandPointer -> operands > 0)
@@ -245,12 +234,11 @@ boolean is_valid_operand(char * operand, int paramNum){
                 return False;
             }
         }
-        printf("%s\n", operand);
         operandType = getOperandAddressingMode(operand);
-        printf("OPERAND TYPE : %d\n", operandType);
-        /* TODO: cmp #-2, #2 should work -> look at isValidAddressingMode + at the parsing of this function */
+        if (operandType != REGISTER)
+            printf("Reserved address for operand %d\n", ++IC);
         if (!isValidAddressingMode(operandType, tokenCounter))
-            errors_exist = errorReport(INVALID_OPERAND_TYPE, line_counter);
+            errors_exist = errorReport(INVALID_OPERAND_TYPE, line_counter, operandType, commandPointer -> name);
         operand = strtok(NULL, ",\n");
         /* Decode the type  */
         if (tokenCounter > paramNum) {
@@ -267,15 +255,14 @@ boolean is_valid_operand(char * operand, int paramNum){
 boolean isValidAddressingMode(addressing_mode mode, int operandNum){
     int i;
     const addressing_mode * modes;
-    boolean isValid = True;
     if (operandNum == 1)
         modes = commandPointer->modesDest;
     else if (operandNum == 2)
         modes = commandPointer->modesOrigin;
     for (i = 0; i < MAX_APPLICABLE_MODES; i++) {
-        if (mode != modes[i]) isValid = False;
+        if (mode == modes[i]) return True;
     }
-    return isValid;
+    return False;
 }
 addressing_mode getOperandAddressingMode(char * operand) {
     if (operand[0] == '#'){
