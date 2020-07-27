@@ -11,9 +11,9 @@ typedef struct label {
     struct label* next;
 } Label;
 
-void add_to_label_chart(Label**, char[], int, line_type, boolean, boolean);
-void print_label_chart(Label**);
-void update_label_value(Label**, char*, int);
-void update_label_char(Label**, int);
-boolean is_unique_label(Label**, char*);
+void addToLabelChart(Label**, char*, int, line_type, boolean, boolean);
+void printLabelChart(Label**);
+void updateLabelValue(Label**, char*, int);
+void updateLabelChart(Label**, int);
+boolean isUniqueLabel(Label**, char*);
 #endif /* LABEL_CHART_H */

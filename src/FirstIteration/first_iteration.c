@@ -3,18 +3,20 @@
 
 int IC = 100;
 int DC = 0;
+int line_counter;
 int registry;
 boolean errors_exist = False;
 boolean symbol_flag;
 char label[MAX_LABEL_CHARS];
-char * type;
-char * command;
+char * type = NULL;
+const operation *commandPointer = NULL;
+const regis * regisPointer = NULL;
 const char delimiters[] = " \t\n";
-Label * head;
+Label * head = NULL;
 void first_iteration(char * filename, FILE * file){
     head = NULL;
-    int line_counter = 0;
     int token_counter;
+    line_counter = 0;
     char line[MAX_LINE_CHARS];
     char * token;
     errors_exist = False;
@@ -28,7 +30,7 @@ void first_iteration(char * filename, FILE * file){
 /*
             printf("String: %s\t\tLine no.%d\t\tToken No.%d\n\n\n", token, line_counter, ++token_counter);
 */
-            if (is_label(token)) {
+            if (is_label(token, True)) {
                 symbol_flag = True;
             }
             else if (is_comment(token)){
@@ -44,31 +46,23 @@ void first_iteration(char * filename, FILE * file){
             token = strtok(NULL, delimiters);
         }
     }
-    update_label_char(&head, IC);
-    print_label_chart(&head);
+    updateLabelChart(&head, IC);
+    printLabelChart(&head);
 }
 
-boolean is_label(const char *token){
+boolean is_label(const char *token, boolean toCheckColon){
     size_t len = strlen(token);
-    if (isalpha(token[0]) && token[len - 1] == ':' ) {
+    if (isalpha(token[0]) && (toCheckColon ? token[len - 1] == ':' : True)) {
         if (len >= MAX_LABEL_CHARS) {
-            fprintf(stderr, "Error: Label name \"%s\" is too long, up to %d characters are allowed\n", token,
-                    MAX_LABEL_CHARS - 1);
-            errors_exist = True;
+            errors_exist = errorReport(LABEL_TOO_LONG, line_counter, token);
         }
         else if (!symbol_flag) {
-            memcpy(label, token, len - 1);
-            label[len-1] = '\0';
-/*
-            printf("LABEL IS %s\n", label);
-*/
+            memcpy(label, token,  (toCheckColon ? len - 1 : len));
+            label[len] = '\0';
             return True;
         }
         else {
-            fprintf(stderr,
-                    "Error: Unexpected appearance of an extra label \"%s\", only one label can appear per line\n",
-                    token);
-            errors_exist = True;
+            errors_exist = errorReport(TOO_MANY_LABELS, line_counter, token);
         }
     }
     return False;
@@ -85,51 +79,29 @@ boolean is_data(char token[]){
             return True;
         }
         else
-            fprintf(stderr, "Error: Unknown data command \"%s\"\n", token);
+            errors_exist = errorReport(UNKNOWN_DATA_COMMAND, line_counter, token);
     }
     /*free(data_name);*/
     return False;
 }
 boolean is_command(char * command_name){
-    if (
-        strcmp(command_name, "mov") == 0 ||
-        strcmp(command_name, "cmp") == 0 ||
-        strcmp(command_name, "add") == 0 ||
-        strcmp(command_name, "sub") == 0 ||
-        strcmp(command_name, "lea") == 0 ||
-        strcmp(command_name, "clr") == 0 ||
-        strcmp(command_name, "not") == 0 ||
-        strcmp(command_name, "inc") == 0 ||
-        strcmp(command_name, "dec") == 0 ||
-        strcmp(command_name, "jmp") == 0 ||
-        strcmp(command_name, "bne") == 0 ||
-        strcmp(command_name, "jsr") == 0 ||
-        strcmp(command_name, "red") == 0 ||
-        strcmp(command_name, "prn") == 0 ||
-        strcmp(command_name, "rts") == 0 ||
-        strcmp(command_name, "stop") == 0
-    ) {
-        command = malloc(sizeof(command_name));
-        strcpy(command, command_name);
-        return True;
+    int i;
+    for (i=0; i < OPERATION_NUM ; i++){
+        if (strcmp(command_name, operations[i].name) == 0 ) {
+            commandPointer = &operations[i];
+            return True;
+        }
     }
-    fprintf(stderr, "Error: Unknown command \"%s\"\n", command_name);
+    errors_exist = errorReport(UNKNOWN_OPERATION_COMMAND, line_counter, command_name);
     return False;
 }
 boolean is_register(char * regis){
-    if (
-        strcmp(regis, "r0") == 0 ||
-        strcmp(regis, "r1") == 0 ||
-        strcmp(regis, "r2") == 0 ||
-        strcmp(regis, "r3") == 0 ||
-        strcmp(regis, "r4") == 0 ||
-        strcmp(regis, "r5") == 0 ||
-        strcmp(regis, "r6") == 0 ||
-        strcmp(regis, "r7") == 0
-    ) {
-        *regis++;
-        registry = atoi(regis);
-        return True;
+    int i;
+    for (i=0 ; i<REGISTER_NUM ; i++){
+        if (strcmp(regis, registers[i].name) == 0) {
+            regisPointer = &registers[i];
+            return True;
+        }
     }
     return False;
 }
@@ -161,8 +133,8 @@ void process_data_line(const char * token, char * line, boolean isLabel){
     char * stringContent;
     char * saveContent;
     if (strcmp(type, "string") == 0){
-        if (isLabel && is_unique_label(&head, label))
-            add_to_label_chart(&head, label, DC, STRING, False, False);
+        if (isLabel && isUniqueLabel(&head, label))
+            addToLabelChart(&head, label, DC, STRING, False, False);
         token = strtok(NULL, delimiters);
         if (token[0]=='"' && token[len = (strlen(token) - 1)]=='"') {
             stringContent = malloc(len);
@@ -176,17 +148,17 @@ void process_data_line(const char * token, char * line, boolean isLabel){
             DC++;
             /* Decode */
         } else {
-            fprintf(stderr, "Error: No opening and closing brackets in > %s  \n", token);
+            errors_exist = errorReport(NO_QUOTATIONS, line_counter, token);
         }
     } else { /* .data */
-        if (isLabel && is_unique_label(&head, label))
-            add_to_label_chart(&head, label, DC, DATA, False, False);
+        if (isLabel && isUniqueLabel(&head, label))
+            addToLabelChart(&head, label, DC, DATA, False, False);
         token = strtok(NULL, ",\n");
         while (token != NULL){
             saveContent = malloc(strlen(token));
             strcpy(saveContent, token);
             saveContent[strlen(saveContent)] = '\0';
-            if (is_valid_param(saveContent)) {
+            if (isValidNumber(saveContent)) {
                 /* Decode */
                 printf("%d: %d\n",DC ,atoi(saveContent));
                 DC++;
@@ -198,49 +170,35 @@ void process_data_line(const char * token, char * line, boolean isLabel){
 }
 void process_extern_line(const char token[], char * line){
     if (symbol_flag) {
-        fprintf(stderr, "Error: Label needs to appear after \".extern\"\n");
+        errors_exist = errorReport(EXTERN_AFTER_LABEL, line_counter, token);
         return;
     }
     token = strtok(NULL, delimiters);
-    if (is_label(token)){
+    if (is_label(token, False)){
 /*
         printf("Good Label!!! %s\n", token);
 */
-        is_unique_label(&head, label) ? add_to_label_chart(&head, label, 0, DATA, False, True)  : update_label_value(&head, label, 0);
+        isUniqueLabel(&head, label) ? addToLabelChart(&head, label, 0, DATA, False, True) : updateLabelValue(&head,
+                                                                                                             label, 0);
     } else {
-        fprintf(stderr, "Error: \"%s\" is not a valid label\n", token);
+        errors_exist = errorReport(NOT_VALID_LABEL, line_counter, token);
     }
 }
 void process_command_line(char token[], char * line, boolean isLabel){
-    if (isLabel && is_unique_label(&head, label)) {
+    if (isLabel && isUniqueLabel(&head, label)) {
 /*
         printf("Is a symbol\n");
 */
-        add_to_label_chart(&head, label, IC, CODE, False, False);
+        addToLabelChart(&head, label, IC, CODE, False, False);
     }
     printf("IC: %d\n", IC);
     IC++;
-    if (
-        strcmp(command, "mov") == 0 ||
-        strcmp(command, "cmp") == 0 ||
-        strcmp(command, "add") == 0 ||
-        strcmp(command, "sub") == 0 ||
-        strcmp(command, "lea") == 0
-    ) {
-        is_valid_operand(token, 2);
-    }
-    else if (
-        strcmp(command, "rts") == 0 ||
-        strcmp(command, "stop") == 0
-    ) {
-        printf("No operands\n");
-    }
-    else {
-        is_valid_operand(token, 1);
-    }
+    if (commandPointer -> operands > 0)
+        is_valid_operand(token, commandPointer -> operands);
+
 }
 
-boolean is_valid_param(char * number){
+boolean isValidNumber(char * number){
     int i=0;
     boolean isValidParam = True;
     while (number[0] == ' ' || number[0] == '\t')
@@ -249,7 +207,7 @@ boolean is_valid_param(char * number){
         if (i==0 && number[i] == '-')
             isValidParam = True;
         else if (number[i] != ' ' && number[i] != '\t' && !isdigit(number[i])) {
-            fprintf(stderr, "Error: \"%s\" is not a valid number\n", number);
+            errors_exist = errorReport(NOT_VALID_NUMBER, line_counter, number);
             return False;
         }
     }
@@ -259,7 +217,7 @@ boolean is_valid_param(char * number){
     while (number[0] == ' ' || number[0] == '\t')
         *number++;
     if (strcmp(number, "") != 0) {
-        fprintf(stderr, "Error: Missing comma before \"%s\"\n", number);
+        errors_exist = errorReport(MISSING_COMMAS, line_counter, number);
         isValidParam = False;
     }
     return isValidParam;
@@ -268,7 +226,7 @@ boolean is_valid_param(char * number){
 boolean is_valid_operand(char * operand, int paramNum){
     int i=0;
     int tokenCounter = 0;
-    char * pt;
+    char * pt = NULL;
     boolean isValidParam = True;
     int operandType;
     while (operand[0] == ' ' || operand[0] == '\t')
@@ -283,33 +241,48 @@ boolean is_valid_operand(char * operand, int paramNum){
             while (pt[0] == ' ' || pt[0] == '\t')
                 *pt++;
             if (strcmp(pt, "") != 0) {
-                fprintf(stderr, "Error: Not comma separated value\n");
+                errors_exist = errorReport(NOT_COMMA_SEPARATED, line_counter);
                 return False;
             }
         }
         printf("%s\n", operand);
-        operandType = get_operand_type(operand);
+        operandType = getOperandAddressingMode(operand);
         printf("OPERAND TYPE : %d\n", operandType);
+        /* TODO: cmp #-2, #2 should work -> look at isValidAddressingMode + at the parsing of this function */
+        if (!isValidAddressingMode(operandType, tokenCounter))
+            errors_exist = errorReport(INVALID_OPERAND_TYPE, line_counter);
         operand = strtok(NULL, ",\n");
         /* Decode the type  */
         if (tokenCounter > paramNum) {
-            fprintf(stderr, "Error: Too many arguments\n");
+            errors_exist = errorReport(TOO_MANY_ARGUMENTS, line_counter);
             return False;
         }
     }
     if (tokenCounter < paramNum) {
-        fprintf(stderr, "Error: Too few arguments\n");
+        errors_exist = errorReport(TOO_FEW_ARGUMENTS, line_counter);
         return False;
     }
     return True;
 }
-
-int get_operand_type(char * operand) {
+boolean isValidAddressingMode(addressing_mode mode, int operandNum){
+    int i;
+    const addressing_mode * modes;
+    boolean isValid = True;
+    if (operandNum == 1)
+        modes = commandPointer->modesDest;
+    else if (operandNum == 2)
+        modes = commandPointer->modesOrigin;
+    for (i = 0; i < MAX_APPLICABLE_MODES; i++) {
+        if (mode != modes[i]) isValid = False;
+    }
+    return isValid;
+}
+addressing_mode getOperandAddressingMode(char * operand) {
     if (operand[0] == '#'){
         *operand++;
-        if (is_valid_param(operand))
+        if (isValidNumber(operand))
             return IMMEDIATE;
-        return ERROR;
+        return end;
     } else if (is_register(operand)) {
         return REGISTER;
     } else if (operand[0] == '&') {

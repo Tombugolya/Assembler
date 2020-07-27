@@ -1,6 +1,6 @@
 #include "label_chart.h"
 
-void add_to_label_chart(Label ** label, char name[], int address, line_type type, boolean is_entry, boolean is_extern) {
+void addToLabelChart(Label ** label, char * name, int address, line_type type, boolean is_entry, boolean is_extern) {
     Label * current;
     if(* label == NULL) {
         * label = (Label *)malloc(sizeof(Label));
@@ -25,7 +25,7 @@ void add_to_label_chart(Label ** label, char name[], int address, line_type type
     }
 }
 
-void update_label_value(Label** label, char * labelName, int value) {
+void updateLabelValue(Label** label, char * labelName, int value) {
     Label * current = * label;
     while (current != NULL) {
         if (strcmp(current -> labelName, labelName) == 0) {
@@ -36,11 +36,17 @@ void update_label_value(Label** label, char * labelName, int value) {
     }
 }
 
-void update_label_char(Label** label, int IC) {
-
+void updateLabelChart(Label** label, int IC) {
+    Label * current = * label;
+    while (current != NULL) {
+        if (current -> type != CODE && !current -> external) {
+            current -> address += IC;
+        }
+        current = current -> next;
+    }
 }
 
-void print_label_chart(Label ** label) {
+void printLabelChart(Label ** label) {
     Label * current = * label;
     printf("NAME\t\tADDRESS\tTYPE\tENTRY\tEXTERN\n");
     while (current != NULL) {
@@ -49,7 +55,7 @@ void print_label_chart(Label ** label) {
     }
 }
 
-boolean is_unique_label(Label** label, char * labelName) {
+boolean isUniqueLabel(Label** label, char * labelName) {
     Label * current = * label;
     while (current != NULL) {
         if (strcmp(current -> labelName, labelName) == 0)

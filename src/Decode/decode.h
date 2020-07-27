@@ -2,7 +2,6 @@
 #define ASSEMBLER_DECODE_H
 #include <stdarg.h>
 #include "../Common/common.h"
-#define MASK 0xffffff
 typedef struct machineOperation {
     unsigned int external       : 1;
     unsigned int relocatable    : 1;
@@ -15,11 +14,18 @@ typedef struct machineOperation {
     unsigned int opCode         : 6;
 } machineOperation;
 
-typedef struct machineData {
+typedef struct operandCode {
+    unsigned int external       : 1;
+    unsigned int relocatable    : 1;
+    unsigned int absolute       : 1;
+    unsigned int dataLine       : 21;
+} operandCode;
+
+typedef struct dataCode {
     unsigned int dataLine       : 24;
-} machineData;
+} dataCode;
 
 int test(int);
-void decode_to_binary( int, line_type, addressing_modes, ... );
+void decode_to_binary(int, line_type, addressing_mode, ... );
 void write_hexadecimal( machineOperation, char * );
 #endif //ASSEMBLER_DECODE_H

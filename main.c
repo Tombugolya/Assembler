@@ -3,6 +3,7 @@
 #include "src/FirstIteration/first_iteration.h"
 
 int main(int argc, char *argv[]) {
+    int i;
     file_management(argc, argv);
     return 0;
 }
@@ -11,7 +12,7 @@ void file_management(int argc, char *argv[]){
     if (argc > 1)
         process_files(argc, argv);
     else
-        fprintf(stderr, "Error: No files attached\n");
+        errorReport(NO_FILES, 0);
 }
 
 void process_files(int argc, char *argv[]){

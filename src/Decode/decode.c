@@ -1,6 +1,6 @@
 #include "decode.h"
 
-void decode_to_binary(int opCode, line_type type, addressing_modes first, ...) {
+void decode_to_binary(int opCode, line_type type, addressing_mode first, ...) {
     if (type == CODE) {
         machineOperation test;
         test.opCode = opCode;
@@ -12,14 +12,12 @@ void decode_to_binary(int opCode, line_type type, addressing_modes first, ...) {
         test.absolute = 0;
         test.relocatable = 0;
         test.external = 0;
-
         write_hexadecimal(test, "filename");
     } else if ( type == STRING ) {
-        machineData test;
+        dataCode test;
     } else { /* type == DATA { */
-
+        operandCode test;
     }
-
 }
 
 void write_hexadecimal(machineOperation bitField, char * filename) {
