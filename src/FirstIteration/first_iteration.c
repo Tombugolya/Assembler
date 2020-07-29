@@ -1,6 +1,6 @@
 #include "first_iteration.h"
 #include "../LabelChart/label_chart.h"
-
+#include "../LinkedListOfDataCommands/data_commands.h"
 /* TODO: Add DCData linked list that will contain all of the data. IC you can decode in real time and DC afterwards with the linked list */
 /* TODO: add isEntry option to first iteration that will either add to label chart or enable isEntry on the label chart or skip in the first iteration */
 int IC;
@@ -13,8 +13,8 @@ char *type = NULL;
 const Operation *commandPointer = NULL;
 const Regis *regisPointer = NULL;
 const char delimiters[] = " \t\n";
-Label *head = NULL;
-
+Label *labelHead = NULL;
+DataCommands *dataHead = NULL;
 void resetValues() {
     IC = 100;
     DC = 0;
@@ -24,7 +24,8 @@ void resetValues() {
     memset(label, 0, sizeof label);
     commandPointer = NULL;
     regisPointer = NULL;
-    head = NULL;
+    labelHead = NULL;
+    dataHead = NULL;
 }
 
 void firstIteration(char * filename, FILE * file){
@@ -59,8 +60,8 @@ void firstIteration(char * filename, FILE * file){
             token = strtok(NULL, delimiters);
         }
     }
-    updateLabelChart(&head, IC);
-    printLabelChart(&head);
+    updateLabelChart(&labelHead, IC);
+    printLabelChart(&labelHead);
     if (errorsExist)
         exit(1);
 }
@@ -143,20 +144,23 @@ boolean isValidDataName(char * dataName){
 void processDataLine(const char * arguments, char * line, boolean isLabel){
     size_t len;
     int i = 0;
+    int num;
     char * stringContent;
     char * saveContent;
     if (strcmp(type, "string") == 0){
-        if (isLabel && isUniqueLabel(&head, label))
-            addToLabelChart(&head, label, DC, STRING, False, False);
+        if (isLabel && isUniqueLabel(&labelHead, label))
+            addToLabelChart(&labelHead, label, DC, STRING, False, False);
         arguments = strtok(NULL, delimiters);
         if (arguments[0] == '"' && arguments[len = (strlen(arguments) - 1)] == '"') {
             stringContent = malloc(len);
             strncpy(stringContent, arguments + 1, len - 1);
             stringContent[len - 1] = '\0';
             for (i ; i < strlen(stringContent) ; i++){
+                addToDataCommands(&dataHead, DC, STRING, stringContent[i]);
                 printf("%d: %c\n", DC, stringContent[i]);
                 DC++;
             }
+            addToDataCommands(&dataHead, DC, STRING, '\0');
             printf("%d: \\0\n", DC);
             DC++;
             /* Decode */
@@ -164,8 +168,8 @@ void processDataLine(const char * arguments, char * line, boolean isLabel){
             errorsExist = errorReport(NO_QUOTATIONS, lineCount, arguments);
         }
     } else { /* .data */
-        if (isLabel && isUniqueLabel(&head, label))
-            addToLabelChart(&head, label, DC, DATA, False, False);
+        if (isLabel && isUniqueLabel(&labelHead, label))
+            addToLabelChart(&labelHead, label, DC, DATA, False, False);
         arguments = strtok(NULL, ",\n");
         while (arguments != NULL){
             saveContent = malloc(strlen(arguments));
@@ -173,7 +177,9 @@ void processDataLine(const char * arguments, char * line, boolean isLabel){
             saveContent[strlen(saveContent)] = '\0';
             if (isValidNumber(saveContent)) {
                 /* Decode */
-                printf("%d: %d\n",DC ,atoi(saveContent));
+                num = atoi(saveContent);
+                addToDataCommands(&dataHead, DC, DATA, num);
+                printf("%d: %d\n",DC ,num);
                 DC++;
             }
             arguments = strtok(NULL, ",\n");
@@ -188,14 +194,14 @@ void processExternLine(const char arguments[], char * line){
     }
     arguments = strtok(NULL, delimiters);
     if (isLabel(arguments, False))
-        isUniqueLabel(&head, label) ? addToLabelChart(&head, label, 0, DATA, False, True) : updateLabelValue(&head, label, 0);
+        isUniqueLabel(&labelHead, label) ? addToLabelChart(&labelHead, label, 0, DATA, False, True) : updateLabelValue(&labelHead, label, 0);
     else
         errorsExist = errorReport(INVALID_LABEL, lineCount, arguments);
 
 }
 void processInstructionLine(char arguments[], char * line, boolean isLabel){
-    if (isLabel && isUniqueLabel(&head, label))
-        addToLabelChart(&head, label, IC, CODE, False, False);
+    if (isLabel && isUniqueLabel(&labelHead, label))
+        addToLabelChart(&labelHead, label, IC, CODE, False, False);
     printf("IC: %d\n", IC);
     IC++;
     if (commandPointer -> operands > 0)
