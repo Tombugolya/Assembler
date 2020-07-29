@@ -4,9 +4,9 @@ void decodeInstruction(int opCode, line_type type, addressing_mode first, ...) {
     if (type == CODE) {
         InstructionCode test;
         test.opCode = opCode;
-        test.originAddress = 0;
+        test.originMode = 0;
         test.originOperand = 0;
-        test.destAddress = 0;
+        test.destMode = 0;
         test.destOperand = 0;
         test.function = 0;
         test.absolute = 0;
@@ -15,8 +15,20 @@ void decodeInstruction(int opCode, line_type type, addressing_mode first, ...) {
         writeHexadecimal(test, "filename");
     } else if ( type == STRING ) {
         DataCode test;
-    } else { /* type == DATA { */
+    } else { /* type == NUMBER { */
         OperandCode test;
+    }
+}
+
+void decodeData(DataCommands ** list){
+    DataCode code;
+    DataCommands * current = *list;
+    while (current != NULL){
+        if (current -> type == STRING)
+            code.dataCode = current -> character;
+        else if (current -> type == NUMBER)
+            code.dataCode = current -> num;
+        current = current -> next;
     }
 }
 
@@ -24,9 +36,9 @@ void writeHexadecimal(InstructionCode bitField, char * filename) {
     /* Write on a file */
     printf("%d\t%d\t%d\n%d\t%d\t%d\n%d\t%d\t%d\n%x\n\n",
         bitField.opCode,
-        bitField.originAddress,
+        bitField.originMode,
         bitField.originOperand,
-        bitField.destAddress,
+        bitField.destMode,
         bitField.destOperand,
         bitField.function,
         bitField.absolute,

@@ -11,14 +11,19 @@
 #define REGISTER_NUM 8
 
 typedef enum {
-    CODE = 0, DATA = 1, STRING = 2
+    CODE = 0, NUMBER = 1, STRING = 2
 } line_type;
 
 typedef enum {
-    IMMEDIATE = 0, DIRECT = 1, INDIRECT = 2, REGISTER = 3, end = -1
+    ABSOLUTE, RELOCATABLE, EXTERNAL
+} characterizationType;
+
+typedef enum {
+    IMMEDIATE = 0, DIRECT = 1, INDIRECT = 2, REGISTER = 3, end = 0
 } addressing_mode;
 
 typedef enum {
+    EMPTY = -1,
     MOV = 0,
     CMP = 1,
     ADD = 2, SUB = 2,
@@ -39,6 +44,16 @@ typedef struct Operation {
     addressing_mode modesDest[MAX_APPLICABLE_MODES];
     addressing_mode modesOrigin[MAX_APPLICABLE_MODES];
 } Operation;
+
+typedef struct InstructionData {
+    int address;
+    opcodes opCode;
+    int function;
+    addressing_mode dest;
+    addressing_mode origin;
+    int regisDest;
+    int regisOrigin;
+} InstructionData;
 
 typedef struct Regis {
     char * name;

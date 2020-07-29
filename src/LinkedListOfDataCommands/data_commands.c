@@ -41,3 +41,11 @@ void printDataCommands(DataCommands** list) {
         current = current -> next;
     }
 }
+
+void updateDataCommands(DataCommands** list, int IC) {
+    DataCommands * current = * list;
+    while (current != NULL) {
+        current -> address += IC;
+        current = current -> next;
+    }
+}

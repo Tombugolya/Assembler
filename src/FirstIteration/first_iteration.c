@@ -1,8 +1,10 @@
 #include "first_iteration.h"
 #include "../LabelChart/label_chart.h"
 #include "../LinkedListOfDataCommands/data_commands.h"
-/* TODO: Add DCData linked list that will contain all of the data. IC you can decode in real time and DC afterwards with the linked list */
+#include "../Decode/decode.h"
 /* TODO: add isEntry option to first iteration that will either add to label chart or enable isEntry on the label chart or skip in the first iteration */
+const char delimiters[] = " \t\n";
+static const InstructionData EmptyStruct = {0, EMPTY, 0, end, end, 0, 0};
 int IC;
 int DC;
 int lineCount;
@@ -12,9 +14,10 @@ char label[MAX_LABEL_CHARS];
 char *type = NULL;
 const Operation *commandPointer = NULL;
 const Regis *regisPointer = NULL;
-const char delimiters[] = " \t\n";
+InstructionData instruction;
 Label *labelHead = NULL;
 DataCommands *dataHead = NULL;
+
 void resetValues() {
     IC = 100;
     DC = 0;
@@ -61,9 +64,22 @@ void firstIteration(char * filename, FILE * file){
         }
     }
     updateLabelChart(&labelHead, IC);
-    printLabelChart(&labelHead);
+    /*printLabelChart(&labelHead);*/
+    updateDataCommands(&dataHead, IC);
+    /*printDataCommands(&dataHead);*/
+    decodeData(&dataHead);
+
     if (errorsExist)
         exit(1);
+}
+
+void printInstruction(){
+    printf("OK!\n");
+    printf("Address\topCode\tfunc\tdeMode\tregDest\torMode\tregOrigin\n");
+    printf("%d\t%d\t%d\t%d\t%d\t%d\t%d\n", instruction.address,
+           instruction.opCode, instruction.function,
+           instruction.dest, instruction.regisDest,
+           instruction.origin, instruction.regisOrigin);
 }
 
 boolean isLabel(const char *labelName, boolean toCheckColon){
@@ -81,6 +97,7 @@ boolean isLabel(const char *labelName, boolean toCheckColon){
     }
     return False;
 }
+
 boolean isData(char dataName[]){
     size_t len = strlen(dataName);
     char * name;
@@ -98,6 +115,7 @@ boolean isData(char dataName[]){
     /*free(name);*/
     return False;
 }
+
 boolean isInstruction(char * commandName){
     int i;
     for (i=0; i < OPERATION_NUM ; i++){
@@ -109,6 +127,7 @@ boolean isInstruction(char * commandName){
     errorsExist = errorReport(UNKNOWN_OPERATION_COMMAND, lineCount, commandName);
     return False;
 }
+
 boolean isRegister(char * regis){
     int i;
     for (i=0 ; i<REGISTER_NUM ; i++){
@@ -119,15 +138,18 @@ boolean isRegister(char * regis){
     }
     return False;
 }
+
 boolean isComment(const char commentSymbol[]){
     if (commentSymbol[0] == ';')
         return True;
     return False;
 }
+
 boolean isExtern(){
     boolean bool = strcmp(type, "extern") == 0 ?  True : False;
     return bool;
 }
+
 boolean isValidDataName(char * dataName){
     if (
         strcmp(dataName, "string") == 0 ||
@@ -141,6 +163,7 @@ boolean isValidDataName(char * dataName){
     }
     return False;
 }
+
 void processDataLine(const char * arguments, char * line, boolean isLabel){
     size_t len;
     int i = 0;
@@ -169,7 +192,7 @@ void processDataLine(const char * arguments, char * line, boolean isLabel){
         }
     } else { /* .data */
         if (isLabel && isUniqueLabel(&labelHead, label))
-            addToLabelChart(&labelHead, label, DC, DATA, False, False);
+            addToLabelChart(&labelHead, label, DC, NUMBER, False, False);
         arguments = strtok(NULL, ",\n");
         while (arguments != NULL){
             saveContent = malloc(strlen(arguments));
@@ -178,7 +201,7 @@ void processDataLine(const char * arguments, char * line, boolean isLabel){
             if (isValidNumber(saveContent)) {
                 /* Decode */
                 num = atoi(saveContent);
-                addToDataCommands(&dataHead, DC, DATA, num);
+                addToDataCommands(&dataHead, DC, NUMBER, num);
                 printf("%d: %d\n",DC ,num);
                 DC++;
             }
@@ -187,6 +210,7 @@ void processDataLine(const char * arguments, char * line, boolean isLabel){
     }
     printf("SIZE OF DC: %d\n\n", DC);
 }
+
 void processExternLine(const char arguments[], char * line){
     if (isLabelFlag) {
         errorsExist = errorReport(EXTERN_AFTER_LABEL, lineCount, arguments);
@@ -194,19 +218,25 @@ void processExternLine(const char arguments[], char * line){
     }
     arguments = strtok(NULL, delimiters);
     if (isLabel(arguments, False))
-        isUniqueLabel(&labelHead, label) ? addToLabelChart(&labelHead, label, 0, DATA, False, True) : updateLabelValue(&labelHead, label, 0);
+        isUniqueLabel(&labelHead, label) ? addToLabelChart(&labelHead, label, 0, NUMBER, False, True) : updateLabelValue(&labelHead, label, 0);
     else
         errorsExist = errorReport(INVALID_LABEL, lineCount, arguments);
 
 }
+
 void processInstructionLine(char arguments[], char * line, boolean isLabel){
+    instruction = EmptyStruct;
     if (isLabel && isUniqueLabel(&labelHead, label))
         addToLabelChart(&labelHead, label, IC, CODE, False, False);
-    printf("IC: %d\n", IC);
+    instruction.address = IC;
+    instruction.opCode = commandPointer -> opCode;
+    instruction.function = commandPointer -> function;
+    /*printf("IC: %d\n", IC);*/
     IC++;
     if (commandPointer -> operands > 0)
         isValidOperand(arguments, commandPointer -> operands);
-
+    else { /* No operands */
+    }
 }
 
 boolean isValidNumber(char * number){
@@ -235,16 +265,14 @@ boolean isValidNumber(char * number){
 }
 
 boolean isValidOperand(char * operand, int maxParamNum){
-    int i=0;
-    int tokenCounter = 0;
+    int paramNum = 0;
     char * pt = NULL;
-    boolean isValidParam = True;
     int operandType;
     while (operand[0] == ' ' || operand[0] == '\t')
         *operand++;
     operand = strtok(NULL, ",\n");
     while (operand != NULL) {
-        tokenCounter++;
+        paramNum++;
         while (operand[0] == ' ' || operand[0] == '\t')
             *operand++;
         pt = strpbrk(operand, " \t");
@@ -257,23 +285,28 @@ boolean isValidOperand(char * operand, int maxParamNum){
             }
         }
         operandType = getOperandAddressingMode(operand);
+        printf("%s\n", operand);
         if (operandType != REGISTER)
-            printf("Reserved address for operand %d\n", IC++);
-        if (!isValidAddressingMode(operandType, tokenCounter))
+            /*printf("Reserved address for operand %d\n", IC++);*/;
+        else {
+            if (paramNum == 1) instruction.regisDest = regisPointer->value;
+            else if (paramNum == 2) instruction.regisOrigin = regisPointer -> value;
+        }
+        if (!isValidAddressingMode(operandType, paramNum))
             errorsExist = errorReport(INVALID_OPERAND_TYPE, lineCount, operandType, commandPointer -> name);
         operand = strtok(NULL, ",\n");
-        /* Decode the type  */
-        if (tokenCounter > maxParamNum) {
+        if (paramNum > maxParamNum) {
             errorsExist = errorReport(TOO_MANY_ARGUMENTS, lineCount);
             return False;
         }
     }
-    if (tokenCounter < maxParamNum) {
+    if (paramNum < maxParamNum) {
         errorsExist = errorReport(TOO_FEW_ARGUMENTS, lineCount);
         return False;
     }
     return True;
 }
+
 boolean isValidAddressingMode(addressing_mode mode, int operandNum){
     int i;
     const addressing_mode * modes;
@@ -282,10 +315,19 @@ boolean isValidAddressingMode(addressing_mode mode, int operandNum){
     else if (operandNum == 2)
         modes = commandPointer->modesOrigin;
     for (i = 0; i < MAX_APPLICABLE_MODES; i++) {
-        if (mode == modes[i]) return True;
+        if (mode == modes[i]) {
+            if (operandNum == 1) {
+                instruction.dest = modes[i];
+            }
+            else if (operandNum == 2) {
+                instruction.origin = modes[i];
+            }
+            return True;
+        }
     }
     return False;
 }
+
 addressing_mode getOperandAddressingMode(char * operand) {
     if (operand[0] == '#'){
         *operand++;
