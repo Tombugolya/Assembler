@@ -76,6 +76,9 @@ boolean errorReport(error_code err, int lineNumber, ... ){
         case FILE_NOT_FOUND:
             fprintf(stderr, "Error: Cannot locate file \"%s\"\n", va_arg(args, char *));
             break;
+        case EMPTY_NUMBER:
+            fprintf(stderr, "Error in line.%d: Expected a valid whole number after '#'\n", lineNumber);
+            break;
         default:
             fprintf(stderr, "UH OH! GENERAL ERROR, CREATE A CODE FOR THIS\n");
             break;

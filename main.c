@@ -3,7 +3,6 @@
 #include "src/FirstIteration/first_iteration.h"
 
 int main(int argc, char *argv[]) {
-    int i;
     fileManagement(argc, argv);
     return 0;
 }

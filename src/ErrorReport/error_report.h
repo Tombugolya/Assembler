@@ -25,7 +25,8 @@ typedef enum {
     TOO_FEW_ARGUMENTS,
     INVALID_OPERAND_TYPE,
     INVALID_AS_FILE,
-    FILE_NOT_FOUND
+    FILE_NOT_FOUND,
+    EMPTY_NUMBER
 } error_code;
 
 boolean errorReport(error_code, int, ...);

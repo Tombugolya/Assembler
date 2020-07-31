@@ -10,7 +10,7 @@ char * getFilename(char * file){
     if (len > 3) {
         last_three = &file[len - FILE_TYPE_LEN];
         for(i=0 ; last_three[i] ; i++)
-            last_three[i] = tolower(last_three[i]);
+            last_three[i] = (char) tolower(last_three[i]);
         if (strcmp(last_three, FILE_TYPE) == 0) {
             memcpy(filename, file, len - FILE_TYPE_LEN);
             filename[len - FILE_TYPE_LEN] = '\0';
