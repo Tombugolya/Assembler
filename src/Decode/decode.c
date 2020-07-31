@@ -36,8 +36,8 @@ void writeHexadecimal(InstructionCode bitField, int address, char * name) {
     fileName = malloc(strlen(name));
     strcpy(fileName, name);
     strcat(fileName, ".ob");
-    filePointer = fopen(fileName, "w");
-    fprintf(filePointer, "%d\t%x\n",
+    filePointer = fopen(fileName, "a");
+    fprintf(filePointer, "%08d\t%06x\n",
            address,
            bitField
     );
