@@ -11,4 +11,5 @@
 
 char * getFilename(char *);
 FILE * getFile(char *);
+char * trimWhiteSpace(char *);
 #endif /* FUNCTIONS_H */

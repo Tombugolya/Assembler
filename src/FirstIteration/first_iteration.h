@@ -17,6 +17,6 @@ boolean isValidAddressingMode(addressing_mode mode, int operandNum);
 addressing_mode getOperandAddressingMode(char *);
 void processDataLine(const char[], boolean);
 void processExternLine(const char[]);
-void processInstructionLine(char[], boolean);
+void processInstructionLine(char[], boolean, char *);
 void resetValues();
 #endif /* FIRST_ITERATION_H */

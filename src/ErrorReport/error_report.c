@@ -79,6 +79,10 @@ boolean errorReport(error_code err, int lineNumber, ... ){
         case EMPTY_NUMBER:
             fprintf(stderr, "Error in line.%d: Expected a valid whole number after '#'\n", lineNumber);
             break;
+        case INVALID_MODE:
+            fprintf(stderr, "Error in line.%d: \"%s\" does not match any valid addressing mode\n",
+                    lineNumber, va_arg(args, char *));
+            break;
         default:
             fprintf(stderr, "UH OH! GENERAL ERROR, CREATE A CODE FOR THIS\n");
             break;

@@ -26,7 +26,8 @@ typedef enum {
     INVALID_OPERAND_TYPE,
     INVALID_AS_FILE,
     FILE_NOT_FOUND,
-    EMPTY_NUMBER
+    EMPTY_NUMBER,
+    INVALID_MODE
 } error_code;
 
 boolean errorReport(error_code, int, ...);

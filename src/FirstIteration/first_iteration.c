@@ -4,7 +4,7 @@
 #include "../Decode/decode.h"
 /* TODO: add isEntry option to first iteration that will either add to label chart or enable isEntry on the label chart or skip in the first iteration */
 const char delimiters[] = " \t\n";
-static const InstructionData EmptyStruct = {0, EMPTY, 0, end, end, 0, 0};
+static const InstructionData EmptyStruct = {0, EMPTY, 0, 0, 0, 0, 0};
 int IC;
 int DC;
 int lineCount;
@@ -35,7 +35,6 @@ void firstIteration(char * filename, FILE * file){
     char line[MAX_LINE_CHARS];
     char * token = NULL;
     resetValues();
-
     while(fgets(line, sizeof(line), file)){
         isLabelFlag = False;
         lineCount++;
@@ -52,7 +51,7 @@ void firstIteration(char * filename, FILE * file){
             else if (isData(token))
                 isExtern() ? processExternLine(line) : processDataLine(line, isLabelFlag);
             else if (isInstruction(token))
-                processInstructionLine(line, isLabelFlag);
+                processInstructionLine(line, isLabelFlag, filename);
             token = strtok(NULL, delimiters);
         }
     }
@@ -63,16 +62,15 @@ void firstIteration(char * filename, FILE * file){
     decodeData(&dataHead);
 
     if (errorsExist)
-        exit(1);
+        return;
 }
 
 void printInstruction(){
-    printf("OK!\n");
     printf("Address\topCode\tfunc\tdeMode\tregDest\torMode\tregOrigin\n");
     printf("%d\t%d\t%d\t%d\t%d\t%d\t%d\n", instruction.address,
            instruction.opCode, instruction.function,
-           instruction.dest, instruction.regisDest,
-           instruction.origin, instruction.regisOrigin);
+           instruction.destMode, instruction.regisDest,
+           instruction.originMode, instruction.regisOrigin);
 }
 
 boolean isLabel(const char *labelName, boolean toCheckColon){
@@ -123,7 +121,7 @@ boolean isInstruction(char * commandName){
 
 boolean isRegister(char * regis){
     int i;
-    for (i=0 ; i<REGISTER_NUM ; i++){
+    for (i=0 ; i < REGISTER_NUM ; i++){
         if (strcmp(regis, registers[i].name) == 0) {
             regisPointer = &registers[i];
             return True;
@@ -184,7 +182,7 @@ void processDataLine(const char * arguments, boolean isLabel){
         } else {
             errorsExist = errorReport(NO_QUOTATIONS, lineCount, arguments);
         }
-    } else { /* .data */
+    } else if (strcmp(type, "data") == 0) { /* .data */
         if (isLabel && isUniqueLabel(&labelHead, label))
             addToLabelChart(&labelHead, label, DC, NUMBER, False, False);
         arguments = strtok(NULL, ",\n");
@@ -201,8 +199,9 @@ void processDataLine(const char * arguments, boolean isLabel){
             }
             arguments = strtok(NULL, ",\n");
         }
-    }
-    printf("SIZE OF DC: %d\n\n", DC);
+    } else /* .entry */
+        ;
+    printf("SIZE OF DC: %d\n", DC);
 }
 
 void processExternLine(const char arguments[]){
@@ -218,42 +217,38 @@ void processExternLine(const char arguments[]){
 
 }
 
-void processInstructionLine(char arguments[], boolean isLabel){
+void processInstructionLine(char arguments[], boolean isLabel, char * filename){
     instruction = EmptyStruct;
     if (isLabel && isUniqueLabel(&labelHead, label))
         addToLabelChart(&labelHead, label, IC, CODE, False, False);
     instruction.address = IC;
     instruction.opCode = commandPointer -> opCode;
     instruction.function = commandPointer -> function;
-    /*printf("IC: %d\n", IC);*/
     IC++;
-    if (commandPointer -> operands > 0)
-        isValidOperand(arguments, commandPointer -> operands);
+    if (commandPointer -> operands > 0) {
+        if (isValidOperand(arguments, commandPointer->operands)) {
+            printInstruction();
+            decodeInstruction(instruction, filename);
+        }
+        else
+            fprintf(stderr, "Errors returned in line %d\n", lineCount);
+    }
     else { /* No operands */
+        printInstruction();
     }
 }
 
 boolean isValidNumber(char * number){
     int i;
     boolean isValidParam = True;
-    while (number[0] == ' ' || number[0] == '\t')
-        number++;
+    number = trimWhiteSpace(number);
     for(i=0; i < strlen(number) ; i++) {
-        if (i==0 && number[i] == '-')
+        if (i==0 && (number[i] == '-' || number[i] == '+'))
             isValidParam = True;
         else if (number[i] != ' ' && number[i] != '\t' && !isdigit(number[i])) {
             errorsExist = errorReport(INVALID_NUMBER, lineCount, number);
             return False;
         }
-    }
-    number = strpbrk(number, " ");
-    if (number == NULL)
-        return isValidParam;
-    while (number[0] == ' ' || number[0] == '\t')
-        number++;
-    if (strcmp(number, "") != 0) {
-        errorsExist = errorReport(MISSING_COMMAS, lineCount, number);
-        isValidParam = False;
     }
     return isValidParam;
 }
@@ -262,31 +257,21 @@ boolean isValidOperand(char * operand, int maxParamNum){
     int paramNum = 0;
     char *pt = NULL;
     int operandType;
-    while (operand[0] == ' ' || operand[0] == '\t')
-        operand++;
     operand = strtok(NULL, ",\n");
     while (operand != NULL) {
         paramNum++;
-        if (paramNum > maxParamNum) {
-            errorsExist = errorReport(TOO_MANY_ARGUMENTS, lineCount);
-            return False;
-        }
-        while (operand[0] == ' ' || operand[0] == '\t')
-            operand++;
+        if (paramNum > maxParamNum)
+            return errorsExist = errorReport(TOO_MANY_ARGUMENTS, lineCount);
+        operand = trimWhiteSpace(operand);
         pt = strpbrk(operand, " \t");
-        if (pt != NULL) {
-            while (pt[0] == ' ' || pt[0] == '\t')
-                pt++;
-            if (strcmp(pt, "") != 0) {
-                errorsExist = errorReport(NOT_COMMA_SEPARATED, lineCount);
-                return False;
-            }
-        }
+        if (pt != NULL)
+            return errorsExist = errorReport(NOT_COMMA_SEPARATED, lineCount);
         operandType = getOperandAddressingMode(operand);
-        printf("%s\n", operand);
-        if (operandType != REGISTER)
-            /*printf("Reserved address for operand %d\n", IC++);*/;
-        else {
+        if (operandType == end)
+            return False;
+        if (operandType != REGISTER) {
+            printf("Reserved address for operand %d\n", IC++);
+        } else {
             if (paramNum == 1) instruction.regisDest = regisPointer->value;
             else if (paramNum == 2) instruction.regisOrigin = regisPointer -> value;
         }
@@ -311,10 +296,10 @@ boolean isValidAddressingMode(addressing_mode mode, int operandNum){
     for (i = 0; i < MAX_APPLICABLE_MODES; i++) {
         if (mode == modes[i]) {
             if (operandNum == 1) {
-                instruction.dest = modes[i];
+                instruction.destMode = modes[i];
             }
             else if (operandNum == 2) {
-                instruction.origin = modes[i];
+                instruction.originMode = modes[i];
             }
             return True;
         }
@@ -323,6 +308,7 @@ boolean isValidAddressingMode(addressing_mode mode, int operandNum){
 }
 
 addressing_mode getOperandAddressingMode(char * operand) {
+    operand = trimWhiteSpace(operand);
     if (operand[0] == '#'){
         if (isdigit(operand[1]) || operand[1] == '-') {
             operand++;
@@ -330,11 +316,12 @@ addressing_mode getOperandAddressingMode(char * operand) {
                 return IMMEDIATE;
         }
         errorsExist = errorReport(EMPTY_NUMBER, lineCount);
-        return end;
     } else if (isRegister(operand)) {
         return REGISTER;
     } else if (operand[0] == '&') {
         return INDIRECT;
-    } else
+    } else if (isLabel(operand, False))
         return DIRECT;
+    errorsExist = errorReport(INVALID_MODE, lineCount, operand);
+    return end;
 }

@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "../ErrorReport/error_report.h"
+#include "../UtilFunctions/functions.h"
 
 #define MAX_LINE_CHARS 82   /* '\n' + '\0' */
 #define OPERATION_NUM 16
@@ -19,7 +20,7 @@ typedef enum {
 } characterizationType;
 
 typedef enum {
-    IMMEDIATE = 0, DIRECT = 1, INDIRECT = 2, REGISTER = 3, end = 0
+    IMMEDIATE = 0, DIRECT = 1, INDIRECT = 2, REGISTER = 3, end = -1
 } addressing_mode;
 
 typedef enum {
@@ -49,8 +50,8 @@ typedef struct InstructionData {
     int address;
     opcodes opCode;
     int function;
-    addressing_mode dest;
-    addressing_mode origin;
+    addressing_mode destMode;
+    addressing_mode originMode;
     int regisDest;
     int regisOrigin;
 } InstructionData;
