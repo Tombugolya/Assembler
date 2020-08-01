@@ -12,4 +12,6 @@
 char * getFilename(char *);
 FILE * getFile(char *);
 char * trimWhiteSpace(char *);
+void removeFiles(char *);
+void printBin(unsigned int, unsigned int, char *);
 #endif /* FUNCTIONS_H */

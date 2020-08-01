@@ -20,7 +20,9 @@ void processFiles(int argc, char *argv[]){
     for (i = INPUT ; i < argc ; i++){
         filename = getFilename(argv[i]);
         file = getFile(argv[i]);
-        if (filename && file)
+        if (filename && file) {
+            removeFiles(filename);
             firstIteration(filename, file);
+        }
     }
 }

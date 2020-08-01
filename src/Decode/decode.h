@@ -8,9 +8,9 @@ typedef struct InstructionCode {
     unsigned int relocatable    : 1;
     unsigned int absolute       : 1;
     unsigned int function       : 5;
-    unsigned int regisDest    : 3;
+    unsigned int regisDest      : 3;
     unsigned int destMode       : 2;
-    unsigned int regisOrigin  : 3;
+    unsigned int regisOrigin    : 3;
     unsigned int originMode     : 2;
     unsigned int opCode         : 6;
 } InstructionCode;
@@ -27,6 +27,7 @@ typedef struct DataCode {
 } DataCode;
 
 void decodeInstruction(InstructionData, char *);
-void decodeData(DataCommands **);
-void writeHexadecimal(InstructionCode, int, char * );
+void writeICDC(char *, int, int);
+void writeData(DataCommands **, char *);
+void writeHexadecimal(int, int, char * );
 #endif //ASSEMBLER_DECODE_H

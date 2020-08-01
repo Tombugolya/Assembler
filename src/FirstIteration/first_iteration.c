@@ -35,6 +35,7 @@ void firstIteration(char * filename, FILE * file){
     char line[MAX_LINE_CHARS];
     char * token = NULL;
     resetValues();
+    createObFile(filename);
     while(fgets(line, sizeof(line), file)){
         isLabelFlag = False;
         lineCount++;
@@ -59,10 +60,21 @@ void firstIteration(char * filename, FILE * file){
     /*printLabelChart(&labelHead);*/
     updateDataCommands(&dataHead, IC);
     /*printDataCommands(&dataHead);*/
-    decodeData(&dataHead);
-
+    writeICDC(filename, IC-100, DC);
+    writeData(&dataHead, filename);
     if (errorsExist)
         return;
+}
+
+void createObFile(char * name) {
+    FILE * filePointer;
+    char *fileName;
+    fileName = malloc(strlen(name));
+    strcpy(fileName, name);
+    strcat(fileName, ".ob");
+    filePointer = fopen(fileName, "w");
+    fprintf(filePointer,"%*d\t%*d\n", 8, 10, 6, 10);
+    fclose(filePointer);
 }
 
 void printInstruction(){
@@ -155,7 +167,7 @@ boolean isValidDataName(char * dataName){
     return False;
 }
 
-void processDataLine(const char * arguments, boolean isLabel){
+void processDataLine(char * arguments, boolean isLabel){
     size_t len;
     int i;
     int num;
@@ -165,7 +177,8 @@ void processDataLine(const char * arguments, boolean isLabel){
     if (strcmp(type, "string") == 0){
         if (isLabel && isUniqueLabel(&labelHead, label))
             addToLabelChart(&labelHead, label, DC, STRING, False, False);
-        arguments = strtok(NULL, delimiters);
+        arguments = strtok(NULL, "\n");
+        arguments = trimWhiteSpace(arguments);
         if (arguments[0] == '"' && arguments[len = (strlen(arguments) - 1)] == '"') {
             stringContent = malloc(len);
             strncpy(stringContent, arguments + 1, len - 1);
@@ -235,6 +248,7 @@ void processInstructionLine(char arguments[], boolean isLabel, char * filename){
     }
     else { /* No operands */
         printInstruction();
+        decodeInstruction(instruction, filename);
     }
 }
 

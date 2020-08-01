@@ -4,6 +4,7 @@
 #include "../Common/common.h"
 
 void firstIteration(char *, FILE *);
+void createObFile(char *);
 boolean isLabel(const char labelName[], boolean);
 boolean isData(char *);
 boolean isInstruction(char *);
@@ -15,7 +16,7 @@ boolean isValidNumber(char *);
 boolean isValidOperand(char *, int);
 boolean isValidAddressingMode(addressing_mode mode, int operandNum);
 addressing_mode getOperandAddressingMode(char *);
-void processDataLine(const char[], boolean);
+void processDataLine(char *, boolean);
 void processExternLine(const char[]);
 void processInstructionLine(char[], boolean, char *);
 void resetValues();

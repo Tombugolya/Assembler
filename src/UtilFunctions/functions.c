@@ -40,3 +40,32 @@ char * trimWhiteSpace(char *str) {
     end[1] = '\0';
     return str;
 }
+
+void removeFiles(char *name) {
+    char *obFile;
+    char *entFile;
+    char *extFile;
+    obFile = malloc(strlen(name));
+    entFile = malloc(strlen(name));
+    extFile = malloc(strlen(name));
+    strcpy(obFile, name);
+    strcpy(entFile, name);
+    strcpy(extFile, name);
+    strcat(obFile, ".ob");
+    strcat(entFile, ".ent");
+    strcat(extFile, ".ext");
+    remove(obFile);
+    remove(entFile);
+    remove(extFile);
+}
+
+void printBin(unsigned int x, unsigned int bits, char * string) {
+    unsigned int mask = (unsigned) 1 << (bits - 1);
+    while (mask) {
+        if (x & mask)
+            strcat(string, "1");
+        else
+            strcat(string, "0");
+        mask = mask >> (unsigned) 1;
+    }
+}
