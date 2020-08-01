@@ -59,7 +59,7 @@ void removeFiles(char *name) {
     remove(extFile);
 }
 
-void printBin(unsigned int x, unsigned int bits, char * string) {
+void appendToBinaryString(unsigned int x, unsigned int bits, char * string) {
     unsigned int mask = (unsigned) 1 << (bits - 1);
     while (mask) {
         if (x & mask)

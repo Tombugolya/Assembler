@@ -10,8 +10,12 @@ int DC;
 int lineCount;
 boolean errorsExist;
 boolean isLabelFlag;
+boolean reserveFlagDest;
+boolean reserveFlagOrigin;
 char label[MAX_LABEL_CHARS];
 char *type = NULL;
+char *destPointer = NULL;
+char *originPointer = NULL;
 const Operation *commandPointer = NULL;
 const Regis *regisPointer = NULL;
 InstructionData instruction;
@@ -108,14 +112,11 @@ boolean isData(char dataName[]){
     strncpy(name, dataName + 1, len - 1);
     name[len - 1] = '\0';
     if (dataName[0] == '.') {
-        if (isValidDataName(name)) {
-            /*free(name);*/
+        if (isValidDataName(name))
             return True;
-        }
         else
             errorsExist = errorReport(UNKNOWN_DATA_COMMAND, lineCount, dataName);
     }
-    /*free(name);*/
     return False;
 }
 
@@ -185,17 +186,14 @@ void processDataLine(char * arguments, boolean isLabel){
             stringContent[len - 1] = '\0';
             for (i=0 ; i < strlen(stringContent) ; i++){
                 addToDataCommands(&dataHead, DC, STRING, stringContent[i]);
-                printf("%d: %c\n", DC, stringContent[i]);
                 DC++;
             }
             addToDataCommands(&dataHead, DC, STRING, '\0');
-            printf("%d: \\0\n", DC);
             DC++;
-            /* Decode */
         } else {
             errorsExist = errorReport(NO_QUOTATIONS, lineCount, arguments);
         }
-    } else if (strcmp(type, "data") == 0) { /* .data */
+    } else if (strcmp(type, "data") == 0) {
         if (isLabel && isUniqueLabel(&labelHead, label))
             addToLabelChart(&labelHead, label, DC, NUMBER, False, False);
         arguments = strtok(NULL, ",\n");
@@ -214,7 +212,6 @@ void processDataLine(char * arguments, boolean isLabel){
         }
     } else /* .entry */
         ;
-    printf("SIZE OF DC: %d\n", DC);
 }
 
 void processExternLine(const char arguments[]){
@@ -231,6 +228,10 @@ void processExternLine(const char arguments[]){
 }
 
 void processInstructionLine(char arguments[], boolean isLabel, char * filename){
+    destPointer = NULL;
+    originPointer = NULL;
+    reserveFlagDest = False;
+    reserveFlagOrigin = False;
     instruction = EmptyStruct;
     if (isLabel && isUniqueLabel(&labelHead, label))
         addToLabelChart(&labelHead, label, IC, CODE, False, False);
@@ -242,6 +243,8 @@ void processInstructionLine(char arguments[], boolean isLabel, char * filename){
         if (isValidOperand(arguments, commandPointer->operands)) {
             printInstruction();
             decodeInstruction(instruction, filename);
+            if (destPointer) reserveFlagDest ? reserveOperand(destPointer, filename, IC++) : writeOperand(destPointer, filename, IC++);
+            if (originPointer) reserveFlagOrigin ? reserveOperand(originPointer, filename, IC++) : writeOperand(originPointer, filename, IC++);
         }
         else
             fprintf(stderr, "Errors returned in line %d\n", lineCount);
@@ -250,6 +253,69 @@ void processInstructionLine(char arguments[], boolean isLabel, char * filename){
         printInstruction();
         decodeInstruction(instruction, filename);
     }
+}
+
+/*TODO: Make First/Second "Param" struct, the struct should consist of 'Value', 'Reserve', 'Type', 'Address'*/
+/*TODO: Potentially you might want to change all of the 'filename' parameters to be the file, instead of opening and closing it every function call*/
+boolean isValidOperand(char * operand, int maxParamNum){
+    int paramNum = 0;
+    char *pt = NULL;
+    int operandType;
+    operand = strtok(NULL, ",\n");
+    while (operand != NULL) {
+        paramNum++;
+        if (paramNum > maxParamNum)
+            return errorsExist = errorReport(TOO_MANY_ARGUMENTS, lineCount);
+        operand = trimWhiteSpace(operand);
+        pt = strpbrk(operand, " \t");
+        if (pt != NULL)
+            return errorsExist = errorReport(NOT_COMMA_SEPARATED, lineCount);
+        operandType = getOperandAddressingMode(operand);
+        if (!isValidAddressingMode(operandType, paramNum))
+            return errorsExist = errorReport(INVALID_OPERAND_TYPE, lineCount, operandType, commandPointer->name);
+        switch (operandType){
+            case IMMEDIATE:
+                operand++;
+                if (FIRST_PARAM) {
+                    destPointer = operand;
+                    reserveFlagDest = False;
+                }
+                if (SECOND_PARAM) {
+                    originPointer = operand;
+                    reserveFlagOrigin = False;
+                }
+                break;
+            case INDIRECT:
+            case DIRECT:
+                if (FIRST_PARAM) {
+                    destPointer = operand;
+                    reserveFlagDest = True;
+                }
+                if (SECOND_PARAM) {
+                    originPointer = operand;
+                    reserveFlagOrigin = True;
+                }
+                break;
+            case REGISTER:
+                if (FIRST_PARAM) {
+                    instruction.regisDest = regisPointer->value;
+                    reserveFlagDest = False;
+                }
+                if (SECOND_PARAM) {
+                    instruction.regisOrigin = regisPointer->value;
+                    reserveFlagOrigin = False;
+                }
+                break;
+            default:
+                return False;
+        }
+        operand = strtok(NULL, ",\n");
+    }
+    if (paramNum < maxParamNum) {
+        errorsExist = errorReport(TOO_FEW_ARGUMENTS, lineCount);
+        return False;
+    }
+    return True;
 }
 
 boolean isValidNumber(char * number){
@@ -265,39 +331,6 @@ boolean isValidNumber(char * number){
         }
     }
     return isValidParam;
-}
-
-boolean isValidOperand(char * operand, int maxParamNum){
-    int paramNum = 0;
-    char *pt = NULL;
-    int operandType;
-    operand = strtok(NULL, ",\n");
-    while (operand != NULL) {
-        paramNum++;
-        if (paramNum > maxParamNum)
-            return errorsExist = errorReport(TOO_MANY_ARGUMENTS, lineCount);
-        operand = trimWhiteSpace(operand);
-        pt = strpbrk(operand, " \t");
-        if (pt != NULL)
-            return errorsExist = errorReport(NOT_COMMA_SEPARATED, lineCount);
-        operandType = getOperandAddressingMode(operand);
-        if (operandType == end)
-            return False;
-        if (operandType != REGISTER) {
-            printf("Reserved address for operand %d\n", IC++);
-        } else {
-            if (paramNum == 1) instruction.regisDest = regisPointer->value;
-            else if (paramNum == 2) instruction.regisOrigin = regisPointer -> value;
-        }
-        if (!isValidAddressingMode(operandType, paramNum))
-            errorsExist = errorReport(INVALID_OPERAND_TYPE, lineCount, operandType, commandPointer -> name);
-        operand = strtok(NULL, ",\n");
-    }
-    if (paramNum < maxParamNum) {
-        errorsExist = errorReport(TOO_FEW_ARGUMENTS, lineCount);
-        return False;
-    }
-    return True;
 }
 
 boolean isValidAddressingMode(addressing_mode mode, int operandNum){
@@ -324,7 +357,7 @@ boolean isValidAddressingMode(addressing_mode mode, int operandNum){
 addressing_mode getOperandAddressingMode(char * operand) {
     operand = trimWhiteSpace(operand);
     if (operand[0] == '#'){
-        if (isdigit(operand[1]) || operand[1] == '-') {
+        if (isdigit(operand[1]) || operand[1] == '-' || operand[1] == '+' ) {
             operand++;
             if (isValidNumber(operand))
                 return IMMEDIATE;
@@ -333,7 +366,9 @@ addressing_mode getOperandAddressingMode(char * operand) {
     } else if (isRegister(operand)) {
         return REGISTER;
     } else if (operand[0] == '&') {
-        return INDIRECT;
+        operand++;
+        if (isLabel(operand, False))
+            return INDIRECT;
     } else if (isLabel(operand, False))
         return DIRECT;
     errorsExist = errorReport(INVALID_MODE, lineCount, operand);

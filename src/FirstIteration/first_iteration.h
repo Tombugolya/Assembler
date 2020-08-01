@@ -2,7 +2,8 @@
 #define FIRST_ITERATION_H
 #include <ctype.h>
 #include "../Common/common.h"
-
+#define FIRST_PARAM paramNum == 1
+#define SECOND_PARAM paramNum == 2
 void firstIteration(char *, FILE *);
 void createObFile(char *);
 boolean isLabel(const char labelName[], boolean);

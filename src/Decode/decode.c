@@ -5,19 +5,51 @@ void decodeInstruction(InstructionData data, char *filename) {
     char binary[25];
     char *ptr;
     binary[0] = '\0';
-    printBin(data.opCode, 6, binary);
-    printBin(data.originMode, 2, binary);
-    printBin(data.regisOrigin, 3, binary);
-    printBin(data.destMode, 2, binary);
-    printBin(data.regisDest, 3, binary);
-    printBin(data.function,5, binary);
-    printBin(1, 1, binary);
-    printBin(0, 1, binary);
-    printBin(0, 1, binary);
+    appendToBinaryString(data.opCode, 6, binary);
+    appendToBinaryString(data.originMode, 2, binary);
+    appendToBinaryString(data.regisOrigin, 3, binary);
+    appendToBinaryString(data.destMode, 2, binary);
+    appendToBinaryString(data.regisDest, 3, binary);
+    appendToBinaryString(data.function,5, binary);
+    appendToBinaryString(1, 1, binary);
+    appendToBinaryString(0, 1, binary);
+    appendToBinaryString(0, 1, binary);
     binary[24] = '\0';
     num=strtol(binary, &ptr, 2);
     printf("%s\n",binary);
     writeHexadecimal(num, data.address, filename);
+}
+void writeOperand(char *value, char *name, int address) {
+    FILE *filePointer;
+    char *fileName;
+    char *ptr;
+    char binary[25];
+    int num;
+    fileName = malloc(strlen(name));
+    strcpy(fileName, name);
+    strcat(fileName, ".ob");
+    filePointer = fopen(fileName, "a");
+    binary[0] = '\0';
+    num = strtol(value, &ptr, 10);
+    appendToBinaryString(num, 21, binary);
+    appendToBinaryString(1, 1, binary);
+    appendToBinaryString(0, 1, binary);
+    appendToBinaryString(0, 1, binary);
+    binary[24] = '\0';
+    num=strtol(binary, &ptr, 2);
+    fprintf(filePointer, "%08d\t%06x\n", address, num);
+    fclose(filePointer);
+}
+
+void reserveOperand(char *value, char *name, int address) {
+    FILE *filePointer;
+    char *fileName;
+    fileName = malloc(strlen(name));
+    strcpy(fileName, name);
+    strcat(fileName, ".ob");
+    filePointer = fopen(fileName, "a");
+    fprintf(filePointer, "%d\t%s\n", address, value);
+    fclose(filePointer);
 }
 
 void writeICDC(char *name, int IC, int DC){
@@ -49,7 +81,7 @@ void writeData(DataCommands ** list, char *name){
             code.dataCode = current->character;
         else if (current -> type == NUMBER)
             code.dataCode = current->num;
-        printBin(code.dataCode, 24, binary);
+        appendToBinaryString(code.dataCode, 24, binary);
         binary[24] = '\0';
         num=strtol(binary, &ptr, 2);
         printf("%s\n",binary);
@@ -59,7 +91,7 @@ void writeData(DataCommands ** list, char *name){
     }
     fclose(filePointer);
 }
-/* TODO: Understand how to leave spot for the reserved..*/
+
 void writeHexadecimal(int num, int address, char * name) {
     FILE *filePointer;
     char *fileName;
