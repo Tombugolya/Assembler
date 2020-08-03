@@ -19,7 +19,7 @@ void decodeInstruction(InstructionData data, char *filename) {
     printf("%s\n",binary);
     writeHexadecimal(num, data.address, filename);
 }
-void writeOperand(char *value, char *name, int address) {
+void writeOperand(Operand operand, char *name) {
     FILE *filePointer;
     char *fileName;
     char *ptr;
@@ -30,25 +30,25 @@ void writeOperand(char *value, char *name, int address) {
     strcat(fileName, ".ob");
     filePointer = fopen(fileName, "a");
     binary[0] = '\0';
-    num = strtol(value, &ptr, 10);
+    num = strtol(operand.value, &ptr, 10);
     appendToBinaryString(num, 21, binary);
     appendToBinaryString(1, 1, binary);
     appendToBinaryString(0, 1, binary);
     appendToBinaryString(0, 1, binary);
     binary[24] = '\0';
     num=strtol(binary, &ptr, 2);
-    fprintf(filePointer, "%08d\t%06x\n", address, num);
+    fprintf(filePointer, "%08d\t%06x\n", operand.address, num);
     fclose(filePointer);
 }
 
-void reserveOperand(char *value, char *name, int address) {
+void reserveOperand(Operand operand, char *name) {
     FILE *filePointer;
     char *fileName;
     fileName = malloc(strlen(name));
     strcpy(fileName, name);
     strcat(fileName, ".ob");
     filePointer = fopen(fileName, "a");
-    fprintf(filePointer, "%d\t%s\n", address, value);
+    fprintf(filePointer, "%d\t%s\n", operand.address, operand.value);
     fclose(filePointer);
 }
 

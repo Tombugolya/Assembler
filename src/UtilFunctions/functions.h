@@ -5,6 +5,7 @@
 #include <ctype.h>
 #include <stdlib.h>
 #include "../Common/common.h"
+#include "../ErrorReport/error_report.h"
 
 #define FILE_TYPE ".as"
 #define FILE_TYPE_LEN strlen(FILE_TYPE)

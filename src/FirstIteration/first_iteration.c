@@ -1,26 +1,22 @@
 #include "first_iteration.h"
-#include "../LabelChart/label_chart.h"
-#include "../LinkedListOfDataCommands/data_commands.h"
-#include "../Decode/decode.h"
 /* TODO: add isEntry option to first iteration that will either add to label chart or enable isEntry on the label chart or skip in the first iteration */
 const char delimiters[] = " \t\n";
-static const InstructionData EmptyStruct = {0, EMPTY, 0, 0, 0, 0, 0};
+static const InstructionData EmptyInstruction = {0, EMPTY, 0, 0, 0, 0, 0};
+static const Operand EmptyOperand = {"\0", 0, 0, False, 0};
+const Operation *commandPointer = NULL;
+const Regis *regisPointer = NULL;
 int IC;
 int DC;
 int lineCount;
-boolean errorsExist;
-boolean isLabelFlag;
-boolean reserveFlagDest;
-boolean reserveFlagOrigin;
 char label[MAX_LABEL_CHARS];
 char *type = NULL;
-char *destPointer = NULL;
-char *originPointer = NULL;
-const Operation *commandPointer = NULL;
-const Regis *regisPointer = NULL;
+boolean errorsExist;
+boolean isLabelFlag;
 InstructionData instruction;
 Label *labelHead = NULL;
 DataCommands *dataHead = NULL;
+Operand dest;
+Operand origin;
 
 void resetValues() {
     IC = 100;
@@ -228,11 +224,9 @@ void processExternLine(const char arguments[]){
 }
 
 void processInstructionLine(char arguments[], boolean isLabel, char * filename){
-    destPointer = NULL;
-    originPointer = NULL;
-    reserveFlagDest = False;
-    reserveFlagOrigin = False;
-    instruction = EmptyStruct;
+    instruction = EmptyInstruction;
+    dest = EmptyOperand;
+    origin = EmptyOperand;
     if (isLabel && isUniqueLabel(&labelHead, label))
         addToLabelChart(&labelHead, label, IC, CODE, False, False);
     instruction.address = IC;
@@ -243,8 +237,10 @@ void processInstructionLine(char arguments[], boolean isLabel, char * filename){
         if (isValidOperand(arguments, commandPointer->operands)) {
             printInstruction();
             decodeInstruction(instruction, filename);
-            if (destPointer) reserveFlagDest ? reserveOperand(destPointer, filename, IC++) : writeOperand(destPointer, filename, IC++);
-            if (originPointer) reserveFlagOrigin ? reserveOperand(originPointer, filename, IC++) : writeOperand(originPointer, filename, IC++);
+            if (dest.address)
+                dest.reserve ? reserveOperand(dest, filename) : writeOperand(dest, filename);
+            if (origin.address)
+                origin.reserve ? reserveOperand(origin, filename) : writeOperand(origin, filename);
         }
         else
             fprintf(stderr, "Errors returned in line %d\n", lineCount);
@@ -255,12 +251,13 @@ void processInstructionLine(char arguments[], boolean isLabel, char * filename){
     }
 }
 
-/*TODO: Make First/Second "Param" struct, the struct should consist of 'Value', 'Reserve', 'Type', 'Address'*/
+/*TODO: Operand Struct should potentially have a 'Active' parameter too */
 /*TODO: Potentially you might want to change all of the 'filename' parameters to be the file, instead of opening and closing it every function call*/
 boolean isValidOperand(char * operand, int maxParamNum){
     int paramNum = 0;
     char *pt = NULL;
-    int operandType;
+    addressing_mode operandType;
+    Operand *pointer;
     operand = strtok(NULL, ",\n");
     while (operand != NULL) {
         paramNum++;
@@ -273,38 +270,29 @@ boolean isValidOperand(char * operand, int maxParamNum){
         operandType = getOperandAddressingMode(operand);
         if (!isValidAddressingMode(operandType, paramNum))
             return errorsExist = errorReport(INVALID_OPERAND_TYPE, lineCount, operandType, commandPointer->name);
+        if (FIRST_PARAM) pointer = &dest;
+        if (SECOND_PARAM) pointer = &origin;
         switch (operandType){
             case IMMEDIATE:
                 operand++;
-                if (FIRST_PARAM) {
-                    destPointer = operand;
-                    reserveFlagDest = False;
-                }
-                if (SECOND_PARAM) {
-                    originPointer = operand;
-                    reserveFlagOrigin = False;
-                }
+                (*pointer).value = operand;
+                (*pointer).reserve = False;
+                (*pointer).address = IC++;
+                (*pointer).mode = operandType;
+                printf("INFO: str %s\tres %d\tadd %d\tmode %d\n", pointer->value, pointer->reserve, pointer->address, pointer->mode);
                 break;
             case INDIRECT:
             case DIRECT:
-                if (FIRST_PARAM) {
-                    destPointer = operand;
-                    reserveFlagDest = True;
-                }
-                if (SECOND_PARAM) {
-                    originPointer = operand;
-                    reserveFlagOrigin = True;
-                }
+                (*pointer).value = operand;
+                (*pointer).reserve = True;
+                (*pointer).address = IC++;
+                (*pointer).mode = operandType;
+                printf("INFO: str %s\tres %d\tadd %d\tmode %d\n", pointer->value, pointer->reserve, pointer->address, pointer->mode);
                 break;
             case REGISTER:
-                if (FIRST_PARAM) {
-                    instruction.regisDest = regisPointer->value;
-                    reserveFlagDest = False;
-                }
-                if (SECOND_PARAM) {
-                    instruction.regisOrigin = regisPointer->value;
-                    reserveFlagOrigin = False;
-                }
+                if (FIRST_PARAM) instruction.regisDest = regisPointer->value;
+                if (SECOND_PARAM) instruction.regisOrigin = regisPointer->value;
+                (*pointer).reserve = False;
                 break;
             default:
                 return False;

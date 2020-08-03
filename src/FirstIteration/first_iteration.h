@@ -2,6 +2,11 @@
 #define FIRST_ITERATION_H
 #include <ctype.h>
 #include "../Common/common.h"
+#include "../UtilFunctions/functions.h"
+#include "../LabelChart/label_chart.h"
+#include "../LinkedListOfDataCommands/data_commands.h"
+#include "../Decode/decode.h"
+#include "../ErrorReport/error_report.h"
 #define FIRST_PARAM paramNum == 1
 #define SECOND_PARAM paramNum == 2
 void firstIteration(char *, FILE *);

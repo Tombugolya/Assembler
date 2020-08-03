@@ -3,21 +3,20 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../ErrorReport/error_report.h"
-#include "../UtilFunctions/functions.h"
 
+#define MAX_LABEL_CHARS 32
 #define MAX_LINE_CHARS 82   /* '\n' + '\0' */
 #define OPERATION_NUM 16
 #define MAX_APPLICABLE_MODES 3
 #define REGISTER_NUM 8
 
 typedef enum {
-    CODE = 0, NUMBER = 1, STRING = 2
-} line_type;
+    False, True
+} boolean;
 
 typedef enum {
-    ABSOLUTE, RELOCATABLE, EXTERNAL
-} characterizationType;
+    CODE = 0, NUMBER = 1, STRING = 2
+} line_type;
 
 typedef enum {
     IMMEDIATE = 0, DIRECT = 1, INDIRECT = 2, REGISTER = 3, end = -1
@@ -55,6 +54,14 @@ typedef struct InstructionData {
     int regisDest;
     int regisOrigin;
 } InstructionData;
+
+typedef struct Operand {
+    char * value;
+    int address;
+    int paramNum;
+    boolean reserve;
+    addressing_mode mode;
+} Operand;
 
 typedef struct Regis {
     char * name;

@@ -3,11 +3,7 @@
 #include <stdarg.h>
 #include "../Common/common.h"
 
-#define MAX_LABEL_CHARS 32  /* ':'  + '\0' */
-
-typedef enum {
-    False, True
-} boolean;
+  /* ':'  + '\0' */
 
 typedef enum {
     NO_FILES,
