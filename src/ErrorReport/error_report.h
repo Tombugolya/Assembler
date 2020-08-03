@@ -3,8 +3,6 @@
 #include <stdarg.h>
 #include "../Common/common.h"
 
-  /* ':'  + '\0' */
-
 typedef enum {
     NO_FILES,
     LABEL_TOO_LONG,
@@ -22,9 +20,11 @@ typedef enum {
     INVALID_OPERAND_TYPE,
     INVALID_AS_FILE,
     FILE_NOT_FOUND,
-    EMPTY_NUMBER,
-    INVALID_MODE
+    INVALID_MODE,
+    RESERVED_NAME,
+    NOT_UNIQUE_LABEL
 } error_code;
 
-boolean errorReport(error_code, int, ...);
+boolean errorReport(error_code err, int lineNumber, ...);
+
 #endif //ASSEMBLER_ERROR_REPORT_H

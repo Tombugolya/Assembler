@@ -1,6 +1,6 @@
 #include "data_commands.h"
 
-void addToDataCommands(DataCommands** list, int address, line_type type, int value) {
+void addToDataCommands(DataCommands **list, int address, line_type type, int value) {
     DataCommands *current;
     if(*list == NULL) {
         *list = (DataCommands *)malloc(sizeof(DataCommands));
@@ -33,7 +33,7 @@ void addToDataCommands(DataCommands** list, int address, line_type type, int val
     }
 }
 
-void printDataCommands(DataCommands** list) {
+void printDataCommands(DataCommands **list) {
     DataCommands * current = * list;
     printf("ADDRESS\t\tNUM\tCHAR\tTYPE\n");
     while (current != NULL) {
@@ -42,7 +42,7 @@ void printDataCommands(DataCommands** list) {
     }
 }
 
-void updateDataCommands(DataCommands** list, int IC) {
+void updateDataCommands(DataCommands **list, int IC) {
     DataCommands * current = * list;
     while (current != NULL) {
         current -> address += IC;

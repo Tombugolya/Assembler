@@ -7,23 +7,49 @@
 #include "../LinkedListOfDataCommands/data_commands.h"
 #include "../Decode/decode.h"
 #include "../ErrorReport/error_report.h"
-#define FIRST_PARAM paramNum == 1
-#define SECOND_PARAM paramNum == 2
-void firstIteration(char *, FILE *);
-void createObFile(char *);
-boolean isLabel(const char labelName[], boolean);
-boolean isData(char *);
-boolean isInstruction(char *);
-boolean isComment(const char *);
+#define FIRST_OPERAND operandNum == 1
+#define SECOND_OPERAND operandNum == 2
+
+void firstIteration(char *filename, FILE *file);
+
+boolean isLabel(char *labelName, boolean toCheckColon);
+
+boolean isData(char *dataName);
+
+boolean isInstruction(char *commandName, boolean report);
+
+boolean isComment(const char *commentSymbol);
+
 boolean isExtern();
-boolean isRegister(char *);
-boolean isValidDataName(char *);
-boolean isValidNumber(char *);
-boolean isValidOperand(char *, int);
+
+boolean isRegister(char *regis, boolean assign);
+
+boolean isValidDataName(char *dataName);
+
+boolean isValidNumber(char *number);
+
+boolean isValidOperand(char *operand, int maxParamNum);
+
 boolean isValidAddressingMode(addressing_mode mode, int operandNum);
-addressing_mode getOperandAddressingMode(char *);
-void processDataLine(char *, boolean);
-void processExternLine(const char[]);
-void processInstructionLine(char[], boolean, char *);
+
+addressing_mode getOperandAddressingMode(char *operand);
+
+void processDeclarationLine(char *arguments);
+
+void processString(char *arguments);
+
+void processData(char *arguments);
+
+void processExternLine(char *arguments);
+
+void processInstructionLine(char *arguments, char *filename);
+
+void handleOperands(char *filename);
+
+void assignOperandValues(Operand *operand, boolean reserve, addressing_mode, char *value);
+
+void assignInstructionValues();
+
 void resetValues();
+
 #endif /* FIRST_ITERATION_H */

@@ -8,10 +8,16 @@ typedef struct DataCode {
     unsigned int dataCode       : 24;
 } DataCode;
 
-void decodeInstruction(InstructionData, char *);
-void writeOperand(Operand, char *);
-void reserveOperand(Operand, char *);
-void writeICDC(char *, int, int);
-void writeData(DataCommands **, char *);
-void writeHexadecimal(int, int, char * );
+void decodeInstruction(InstructionData data, char *filename);
+
+void writeOperand(Operand operand, char *name);
+
+void reserveOperand(Operand operand, char *name);
+
+void writeICDC(char *name, int IC, int DC);
+
+void writeData(DataCommands **list, char *name);
+
+void writeHexadecimal(int num, int address, char *name);
+
 #endif //ASSEMBLER_DECODE_H

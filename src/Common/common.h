@@ -15,7 +15,7 @@ typedef enum {
 } boolean;
 
 typedef enum {
-    CODE = 0, NUMBER = 1, STRING = 2
+    INSTRUCTION = 1, DATA = 2, STRING = 3, ENTRY = 4, EXTERN = 5
 } line_type;
 
 typedef enum {
@@ -58,8 +58,8 @@ typedef struct InstructionData {
 typedef struct Operand {
     char * value;
     int address;
-    int paramNum;
     boolean reserve;
+    boolean active;
     addressing_mode mode;
 } Operand;
 
@@ -69,5 +69,7 @@ typedef struct Regis {
 } Regis;
 
 extern const Regis registers[REGISTER_NUM];
+
 extern const Operation operations[OPERATION_NUM];
+
 #endif /* COMMON_H */

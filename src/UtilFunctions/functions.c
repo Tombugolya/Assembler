@@ -1,6 +1,6 @@
 #include "functions.h"
 
-char * getFilename(char * file){
+char * getFilename(char *file){
     size_t len = strlen(file);
     char * last_three;
     char * filename;
@@ -21,7 +21,7 @@ char * getFilename(char * file){
     return NULL;
 }
 
-FILE * getFile(char * file){
+FILE * getFile(char *file){
     FILE * opened_file = fopen(file, "r");
     if (opened_file  == NULL) {
         errorReport(FILE_NOT_FOUND, 0, file);
@@ -39,6 +39,17 @@ char * trimWhiteSpace(char *str) {
     while(end > str && isspace((unsigned char)*end)) end--;
     end[1] = '\0';
     return str;
+}
+
+void createObFile(char *name) {
+    FILE * filePointer;
+    char *fileName;
+    fileName = malloc(strlen(name));
+    strcpy(fileName, name);
+    strcat(fileName, ".ob");
+    filePointer = fopen(fileName, "w");
+    fprintf(filePointer,"%*d\t%*d\n", 8, 10, 6, 10);
+    fclose(filePointer);
 }
 
 void removeFiles(char *name) {
@@ -59,7 +70,7 @@ void removeFiles(char *name) {
     remove(extFile);
 }
 
-void appendToBinaryString(unsigned int x, unsigned int bits, char * string) {
+void appendToBinaryString(unsigned int x, unsigned int bits, char *string) {
     unsigned int mask = (unsigned) 1 << (bits - 1);
     while (mask) {
         if (x & mask)

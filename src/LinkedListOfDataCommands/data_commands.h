@@ -10,7 +10,10 @@ typedef struct DataCommands {
     struct DataCommands* next;
 } DataCommands;
 
-void addToDataCommands(DataCommands**, int, line_type, int);
-void printDataCommands(DataCommands**);
-void updateDataCommands(DataCommands**, int);
+void addToDataCommands(DataCommands **list, int address, line_type type, int value);
+
+void printDataCommands(DataCommands **list);
+
+void updateDataCommands(DataCommands **list, int IC);
+
 #endif //ASSEMBLER_DATA_COMMANDS_H

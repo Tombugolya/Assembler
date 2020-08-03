@@ -1,6 +1,7 @@
 #ifndef LABEL_CHART_H
 #define LABEL_CHART_H
 #include "../Common/common.h"
+#include "../ErrorReport/error_report.h"
 
 typedef struct Label {
     char labelName[MAX_LABEL_CHARS];
@@ -11,9 +12,14 @@ typedef struct Label {
     struct Label* next;
 } Label;
 
-void addToLabelChart(Label**, char*, int, line_type, boolean, boolean);
-void printLabelChart(Label**);
-void updateLabelValue(Label**, char*, int);
-void updateLabelChart(Label**, int);
-boolean isUniqueLabel(Label**, char*);
+void addToLabelChart(Label **label, char *name, int address, line_type type, boolean is_entry, boolean is_extern);
+
+void printLabelChart(Label **label);
+
+void updateLabelValue(Label **label, char *labelName, int value);
+
+void updateLabelChart(Label **label, int IC);
+
+boolean isUniqueLabel(Label **label, char *labelName, boolean report);
+
 #endif /* LABEL_CHART_H */

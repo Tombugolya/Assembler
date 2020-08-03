@@ -1,6 +1,6 @@
 #include "label_chart.h"
 
-void addToLabelChart(Label ** label, char * name, int address, line_type type, boolean is_entry, boolean is_extern) {
+void addToLabelChart(Label **label, char *name, int address, line_type type, boolean is_entry, boolean is_extern) {
     Label * current;
     if(* label == NULL) {
         * label = (Label *)malloc(sizeof(Label));
@@ -25,8 +25,8 @@ void addToLabelChart(Label ** label, char * name, int address, line_type type, b
     }
 }
 
-void updateLabelValue(Label** label, char * labelName, int value) {
-    Label * current = * label;
+void updateLabelValue(Label** label, char *labelName, int value) {
+    Label *current = *label;
     while (current != NULL) {
         if (strcmp(current -> labelName, labelName) == 0) {
             current -> address = value;
@@ -36,17 +36,17 @@ void updateLabelValue(Label** label, char * labelName, int value) {
     }
 }
 
-void updateLabelChart(Label** label, int IC) {
+void updateLabelChart(Label **label, int IC) {
     Label * current = * label;
     while (current != NULL) {
-        if (current -> type != CODE && !current -> external) {
+        if (current -> type != INSTRUCTION && !current -> external) {
             current -> address += IC;
         }
         current = current -> next;
     }
 }
 
-void printLabelChart(Label ** label) {
+void printLabelChart(Label **label) {
     Label * current = * label;
     printf("NAME\t\tADDRESS\tTYPE\tENTRY\tEXTERN\n");
     while (current != NULL) {
@@ -55,11 +55,13 @@ void printLabelChart(Label ** label) {
     }
 }
 
-boolean isUniqueLabel(Label** label, char * labelName) {
+boolean isUniqueLabel(Label **label, char *labelName, boolean report) {
     Label * current = * label;
     while (current != NULL) {
-        if (strcmp(current -> labelName, labelName) == 0)
+        if (strcmp(current -> labelName, labelName) == 0) {
+            if (report) errorReport(NOT_UNIQUE_LABEL, 0, labelName);
             return False;
+        }
         current = current -> next;
     }
     return True;

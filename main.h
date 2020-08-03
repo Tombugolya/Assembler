@@ -4,6 +4,8 @@
 
 enum {INPUT = 1};
 
-void fileManagement(int, char *[]);
-void processFiles(int, char *[]);
+void fileManagement(int argc, char **argv);
+
+void processFiles(int argc, char **argv);
+
 #endif /* MAIN_H */

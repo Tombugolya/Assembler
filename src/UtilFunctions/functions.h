@@ -10,9 +10,16 @@
 #define FILE_TYPE ".as"
 #define FILE_TYPE_LEN strlen(FILE_TYPE)
 
-char * getFilename(char *);
-FILE * getFile(char *);
-char * trimWhiteSpace(char *);
-void removeFiles(char *);
-void appendToBinaryString(unsigned int, unsigned int, char *);
+char * getFilename(char *file);
+
+FILE * getFile(char *file);
+
+char * trimWhiteSpace(char *str);
+
+void createObFile(char *name);
+
+void removeFiles(char *name);
+
+void appendToBinaryString(unsigned int x, unsigned int bits, char *string);
+
 #endif /* FUNCTIONS_H */

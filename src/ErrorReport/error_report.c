@@ -30,7 +30,7 @@ boolean errorReport(error_code err, int lineNumber, ... ){
                     va_arg(args, char*));
             break;
         case NO_QUOTATIONS:
-            fprintf(stderr, "Error in line.%d: No opening and closing quotations in > %s  \n",
+            fprintf(stderr, "Error in line.%d: quotations are not covering the entire string > %s  \n",
                     lineNumber,
                     va_arg(args, char*));
             break;
@@ -76,15 +76,20 @@ boolean errorReport(error_code err, int lineNumber, ... ){
         case FILE_NOT_FOUND:
             fprintf(stderr, "Error: Cannot locate file \"%s\"\n", va_arg(args, char *));
             break;
-        case EMPTY_NUMBER:
-            fprintf(stderr, "Error in line.%d: Expected a valid whole number after '#'\n", lineNumber);
-            break;
         case INVALID_MODE:
             fprintf(stderr, "Error in line.%d: \"%s\" does not match any valid addressing mode\n",
                     lineNumber, va_arg(args, char *));
             break;
+        case RESERVED_NAME:
+            fprintf(stderr, "Error in line.%d: \"%s\" is a reserved name and cannot be used\n",
+                    lineNumber, va_arg(args, char *));
+            break;
+        case NOT_UNIQUE_LABEL:
+            fprintf(stderr, "Error: Label with the name \"%s\" is already used \n",
+                    va_arg(args, char *));
+            break;
         default:
-            fprintf(stderr, "UH OH! GENERAL ERROR, CREATE A CODE FOR THIS\n");
+            fprintf(stderr, "UH OH! You forgot to put the break!\n");
             break;
     }
     va_end(args);
