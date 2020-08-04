@@ -264,11 +264,11 @@ boolean isValidOperand(char * operand, int maxParamNum) {
         switch (operandMode){
             case IMMEDIATE:
                 operand++;
-                assignOperandValues(pointer, False, operandMode, operand);
+                assignOperandValues(pointer, False, operand);
                 break;
             case INDIRECT:
             case DIRECT:
-                assignOperandValues(pointer, True, operandMode, operand);
+                assignOperandValues(pointer, True, operand);
                 break;
             case REGISTER:
                 if (FIRST_OPERAND) instruction.regisDest = regisPointer->value;
