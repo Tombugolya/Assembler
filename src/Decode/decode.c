@@ -19,6 +19,7 @@ void decodeInstruction(InstructionData data, char *filename) {
     printf("%d\t%s\n",data.address, binary);
     writeHexadecimal(num, data.address, filename);
 }
+
 void writeOperand(Operand operand, char *name) {
     FILE *filePointer;
     char *fileName;
@@ -27,7 +28,7 @@ void writeOperand(Operand operand, char *name) {
     int num;
     fileName = malloc(strlen(name));
     strcpy(fileName, name);
-    strcat(fileName, ".ob");
+    strcat(fileName, ".test");
     filePointer = fopen(fileName, "a");
     binary[0] = '\0';
     num = strtol(operand.value, &ptr, 10);
@@ -41,15 +42,49 @@ void writeOperand(Operand operand, char *name) {
     fclose(filePointer);
 }
 
+void writeDistance(FILE *file, int addressOrigin, int addressDestination) {
+    int distance = addressOrigin - addressDestination;
+    int num;
+    char binary[25];
+    char *ptr;
+    binary[0] = '\0';
+    appendToBinaryString(distance, 21, binary);
+    appendToBinaryString(0, 1, binary);
+    appendToBinaryString(1, 1, binary);
+    appendToBinaryString(0, 1, binary);
+    binary[24] = '\0';
+    printf("BINARY DISTANCE: %s\n", binary);
+    num = strtol(binary, &ptr, 2);
+    fprintf(file, "%08d\t%06x\n", addressOrigin, num);
+}
+
+void writeExternal(FILE *file, int addressOrigin) {
+    fprintf(file, "%08d\t%06x\n", addressOrigin, 1);
+}
+
+void writeAddress(FILE *file, int addressOrigin, int labelAddress) {
+    int num;
+    char binary[25];
+    char *ptr;
+    binary[0] = '\0';
+    appendToBinaryString(labelAddress, 21, binary);
+    appendToBinaryString(0, 1, binary);
+    appendToBinaryString(1, 1, binary);
+    appendToBinaryString(0, 1, binary);
+    binary[24] = '\0';
+    num = strtol(binary, &ptr, 2);
+    fprintf(file, "%08d\t%06x\n", addressOrigin, num);
+}
+
 void reserveOperand(Operand operand, char *name) {
     FILE *filePointer;
     char *fileName;
     fileName = malloc(strlen(name));
     strcpy(fileName, name);
-    strcat(fileName, ".ob");
+    strcat(fileName, ".test");
     filePointer = fopen(fileName, "a");
-    printf("%d\t%s\n", operand.address, operand.value);
-    fprintf(filePointer, "%d\t%s\n", operand.address, operand.value);
+    printf("%c%d\t%s\n", RESERVED_SIGN, operand.address, operand.value);
+    fprintf(filePointer, "%c%d\t%s\n", RESERVED_SIGN, operand.address, operand.value);
     fclose(filePointer);
 }
 
@@ -58,16 +93,16 @@ void writeICDC(char *name, int IC, int DC){
     char *fileName;
     fileName = malloc(strlen(name));
     strcpy(fileName, name);
-    strcat(fileName, ".ob");
+    strcat(fileName, ".test");
     filePointer = fopen(fileName, "r+");
     fprintf(filePointer,"%*d\t%*d\n", 8, IC, 6, DC);
     fclose(filePointer);
 }
 
-void writeData(DataCommands **list, char *name){
+void writeData(DeclarationCommands **list, char *name){
     FILE *filePointer;
     DataCode code;
-    DataCommands *current = *list;
+    DeclarationCommands *current = *list;
     char *fileName;
     char *ptr;
     char binary[25];
@@ -75,7 +110,7 @@ void writeData(DataCommands **list, char *name){
     binary[0] = '\0';
     fileName = malloc(strlen(name));
     strcpy(fileName, name);
-    strcat(fileName, ".ob");
+    strcat(fileName, ".test");
     filePointer = fopen(fileName, "a");
     while (current != NULL){
         if (current -> type == STRING)
@@ -98,11 +133,39 @@ void writeHexadecimal(int num, int address, char *name) {
     char *fileName;
     fileName = malloc(strlen(name));
     strcpy(fileName, name);
-    strcat(fileName, ".ob");
+    strcat(fileName, ".test");
     filePointer = fopen(fileName, "a");
     fprintf(filePointer, "%08d\t%06x\n",
            address,
            num
+    );
+    fclose(filePointer);
+}
+
+void writeToExtFile(char *filename, char *labelName, int address) {
+    FILE *filePointer;
+    char *fileName;
+    fileName = malloc(strlen(filename));
+    strcpy(fileName, filename);
+    strcat(fileName, ".ext");
+    filePointer = fopen(fileName, "a");
+    fprintf(filePointer, "%s\t%08d\n",
+            labelName,
+            address
+    );
+    fclose(filePointer);
+}
+
+void writeToEntFile(char *filename, char *labelName, int address) {
+    FILE *filePointer;
+    char *fileName;
+    fileName = malloc(strlen(filename));
+    strcpy(fileName, filename);
+    strcat(fileName, ".ent");
+    filePointer = fopen(fileName, "a");
+    fprintf(filePointer, "%s\t%08d\n",
+            labelName,
+            address
     );
     fclose(filePointer);
 }

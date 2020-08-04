@@ -19,7 +19,7 @@ boolean errorReport(error_code err, int lineNumber, ... ){
                     lineNumber,
                     va_arg(args, char*));
             break;
-        case UNKNOWN_DATA_COMMAND:
+        case UNKNOWN_DECLARATION_COMMAND:
             fprintf(stderr, "Error in line.%d: Unknown data command \"%s\"\n",
                     lineNumber,
                     va_arg(args, char*));
@@ -86,6 +86,14 @@ boolean errorReport(error_code err, int lineNumber, ... ){
             break;
         case NOT_UNIQUE_LABEL:
             fprintf(stderr, "Error: Label with the name \"%s\" is already used \n",
+                    va_arg(args, char *));
+            break;
+        case NONEXISTENT_LABEL:
+            fprintf(stderr, "Error: Label with the name \"%s\" does not exist \n",
+                    va_arg(args, char *));
+            break;
+        case EXTERNAL_DISTANCE_INVALID:
+            fprintf(stderr, "Error: Label with the name \"%s\" is external so it's distance cannot be calculated \n",
                     va_arg(args, char *));
             break;
         default:

@@ -14,12 +14,21 @@ typedef struct Label {
 
 void addToLabelChart(Label **label, char *name, int address, line_type type, boolean is_entry, boolean is_extern);
 
+int getLabelAddress(Label **label, char *labelName);
+
 void printLabelChart(Label **label);
 
-void updateLabelValue(Label **label, char *labelName, int value);
+void updateLabelAddress(Label **label, char *labelName, int value);
+
+void updateLabelIsEntry(Label **label, char *labelName, boolean isEntry);
 
 void updateLabelChart(Label **label, int IC);
 
 boolean isUniqueLabel(Label **label, char *labelName, boolean report);
+
+boolean labelIsExternal(Label **label, char *labelName);
+
+boolean labelIsEntry(Label **label, char *labelName);
+
 
 #endif /* LABEL_CHART_H */

@@ -1,8 +1,7 @@
 #include "first_iteration.h"
 /* TODO: add isEntry option to first iteration that will either add to label chart or enable isEntry on the label chart or skip in the first iteration */
-const char delimiters[] = " \t\n";
-static const InstructionData EmptyInstruction = {0, EMPTY, 0, 0, 0, 0, 0};
-static const Operand EmptyOperand = {"\0", 0, 0, False, 0};
+static const InstructionData EmptyInstruction = {0, 0, 0, 0, 0, 0, 0};
+static const Operand EmptyOperand = {False,"\0", 0, 0, False};
 const Operation *commandPointer = NULL;
 const Regis *regisPointer = NULL;
 int IC;
@@ -14,7 +13,7 @@ boolean errorsExist;
 boolean isLabelFlag;
 InstructionData instruction;
 Label *labelHead = NULL;
-DataCommands *dataHead = NULL;
+DeclarationCommands *declarationsHead = NULL;
 Operand dest;
 Operand origin;
 
@@ -28,14 +27,14 @@ void resetValues() {
     commandPointer = NULL;
     regisPointer = NULL;
     labelHead = NULL;
-    dataHead = NULL;
+    declarationsHead = NULL;
 }
 
 void firstIteration(char *filename, FILE *file){
     char line[MAX_LINE_CHARS];
     char *token = NULL;
     resetValues();
-    createObFile(filename);
+    createTestFile(filename);
     while(fgets(line, sizeof(line), file)) {
         isLabelFlag = False;
         lineCount++;
@@ -48,30 +47,26 @@ void firstIteration(char *filename, FILE *file){
                 token = NULL;
                 break;
             }
-            else if (isData(token))
+            else if (isDeclaration(token)) {
                 isExtern() ? processExternLine(line) : processDeclarationLine(line);
+                break;
+            }
             else if (isInstruction(token, True))
                 processInstructionLine(line, filename);
             token = strtok(NULL, delimiters);
         }
     }
     updateLabelChart(&labelHead, IC);
-    updateDataCommands(&dataHead, IC);
+    updateDeclarationCommands(&declarationsHead, IC);
     writeICDC(filename, IC-100, DC);
-    writeData(&dataHead, filename);
+    writeData(&declarationsHead, filename);
     if (errorsExist) {
         removeFiles(filename);
         return;
-    }
+    } else
+        second_iteration(filename, file, labelHead);
 }
 
-void printInstruction() {
-    printf("Address\topCode\tfunc\tdeMode\tregDest\torMode\tregOrigin\n");
-    printf("%d\t%d\t%d\t%d\t%d\t%d\t%d\n", instruction.address,
-           instruction.opCode, instruction.function,
-           instruction.destMode, instruction.regisDest,
-           instruction.originMode, instruction.regisOrigin);
-}
 
 boolean isLabel(char *labelName, boolean toCheckColon) {
     size_t len = strlen(labelName);
@@ -79,7 +74,7 @@ boolean isLabel(char *labelName, boolean toCheckColon) {
         if (toCheckColon) labelName[len-1] = '\0';
         if (len >= MAX_LABEL_CHARS)
             errorsExist = errorReport(LABEL_TOO_LONG, lineCount, labelName);
-        else if (isRegister(labelName, False) || isInstruction(labelName, False) || isValidDataName(labelName))
+        else if (isRegister(labelName, False) || isInstruction(labelName, False) || isValidDeclarationName(labelName))
             errorsExist = errorReport(RESERVED_NAME, lineCount, labelName);
         else if (!isLabelFlag) {
             memcpy(label, labelName, (toCheckColon ? len - 1 : len));
@@ -92,24 +87,24 @@ boolean isLabel(char *labelName, boolean toCheckColon) {
     return False;
 }
 
-boolean isData(char *dataName) {
-    size_t len = strlen(dataName);
+boolean isDeclaration(char *declarationName) {
+    size_t len = strlen(declarationName);
     char *name = NULL;
     name = (char *) malloc(len - 1);
-    strncpy(name, dataName + 1, len - 1);
+    strncpy(name, declarationName + 1, len - 1);
     name[len - 1] = '\0';
-    if (dataName[0] == '.') {
-        if (isValidDataName(name))
+    if (declarationName[0] == '.') {
+        if (isValidDeclarationName(name))
             return True;
         else
-            errorsExist = errorReport(UNKNOWN_DATA_COMMAND, lineCount, dataName);
+            errorsExist = errorReport(UNKNOWN_DECLARATION_COMMAND, lineCount, declarationName);
     }
     return False;
 }
 
-boolean isInstruction(char * commandName, boolean report) {
+boolean isInstruction(char *commandName, boolean report) {
     int i;
-    for (i=0; i < OPERATION_NUM ; i++){
+    for (i=0; i < OPERATION_NUM ; i++) {
         if (strcmp(commandName, operations[i].name) == 0 ) {
             commandPointer = &operations[i];
             return True;
@@ -121,7 +116,7 @@ boolean isInstruction(char * commandName, boolean report) {
 
 boolean isRegister(char *regis, boolean assign) {
     int i;
-    for (i=0 ; i < REGISTER_NUM ; i++){
+    for (i=0 ; i < REGISTER_NUM ; i++) {
         if (strcmp(regis, registers[i].name) == 0) {
             if (assign) regisPointer = &registers[i];
             return True;
@@ -141,14 +136,14 @@ boolean isExtern() {
     return bool;
 }
 
-boolean isValidDataName(char *dataName) {
-    if (strcmp(dataName, "string") == 0)
+boolean isValidDeclarationName(char *declarationName) {
+    if (strcmp(declarationName, "string") == 0)
         type = STRING;
-    else if (strcmp(dataName, "data") == 0)
+    else if (strcmp(declarationName, "data") == 0)
         type = DATA;
-    else if (strcmp(dataName, "entry") == 0)
+    else if (strcmp(declarationName, "entry") == 0)
         type = ENTRY;
-    else if (strcmp(dataName, "extern") == 0)
+    else if (strcmp(declarationName, "extern") == 0)
         type = EXTERN;
     else
         return False;
@@ -182,8 +177,8 @@ void processString(char *arguments) {
         strncpy(stringContent, arguments + 1, len - 1);
         stringContent[len - 1] = '\0';
         for (i=0 ; i < strlen(stringContent) ; i++)
-            addToDataCommands(&dataHead, DC++, STRING, stringContent[i]);
-        addToDataCommands(&dataHead, DC++, STRING, '\0');
+            addToDeclarationCommands(&declarationsHead, DC++, STRING, stringContent[i]);
+        addToDeclarationCommands(&declarationsHead, DC++, STRING, '\0');
     } else {
         errorsExist = errorReport(NO_QUOTATIONS, lineCount, arguments);
     }
@@ -200,7 +195,7 @@ void processData(char *arguments) {
         saveContent[strlen(saveContent)] = '\0';
         if (isValidNumber(saveContent)) {
             num = strtol(saveContent, &endPtr, 10);
-            addToDataCommands(&dataHead, DC, DATA, num);
+            addToDeclarationCommands(&declarationsHead, DC, DATA, num);
             DC++;
         }
         arguments = strtok(NULL, ",\n");
@@ -214,7 +209,8 @@ void processExternLine(char *arguments) {
     }
     arguments = strtok(NULL, delimiters);
     if (isLabel(arguments, False))
-        isUniqueLabel(&labelHead, label, False) ? addToLabelChart(&labelHead, label, 0, DATA, False, True) : updateLabelValue(&labelHead, label, 0);
+        isUniqueLabel(&labelHead, arguments, False) ? addToLabelChart(&labelHead, arguments, 0, DATA, False, True) : updateLabelAddress(
+                &labelHead, label, 0);
     else
         errorsExist = errorReport(INVALID_LABEL, lineCount, arguments);
 }
@@ -259,7 +255,7 @@ boolean isValidOperand(char * operand, int maxParamNum) {
         pt = strpbrk(operand, " \t");
         if (pt != NULL)
             return !(errorsExist = errorReport(NOT_COMMA_SEPARATED, lineCount));
-        if ((operandMode = getOperandAddressingMode(operand)) == end)
+        if ((operandMode = getOperandAddressingMode(operand)) == ERROR)
             return False;
         if (!isValidAddressingMode(operandMode, operandNum))
             return !(errorsExist = errorReport(INVALID_OPERAND_TYPE, lineCount, operandMode, commandPointer->name));
@@ -336,20 +332,19 @@ addressing_mode getOperandAddressingMode(char *operand) {
         return DIRECT;
     else
         errorsExist = errorReport(INVALID_MODE, lineCount, operand);
-    return end;
+    return ERROR;
 }
 
-void assignOperandValues(Operand *operand, boolean reserve, addressing_mode mode, char *value) {
+void assignOperandValues(Operand *operand, boolean reserve, char *value) {
     (*operand).active = True;
     (*operand).value = value;
-    (*operand).mode = mode;
     (*operand).reserve = reserve;
     (*operand).address = IC++;
 }
 
 void assignInstructionValues() {
-    instruction.address = IC;
+    instruction.address = IC++;
     instruction.opCode = commandPointer -> opCode;
     instruction.function = commandPointer -> function;
-    IC++;
+;
 }

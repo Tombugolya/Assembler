@@ -1,5 +1,7 @@
 #include "common.h"
 
+const char *delimiters = " \t\n"; /* These are essentially the whitespaces that we are trying to read-through*/
+
 const Regis registers[] = {
         {"r0", 0},
         {"r1", 1},
@@ -12,7 +14,7 @@ const Regis registers[] = {
 };
 
 const Operation operations[] = {
-        {"mov", MOV, 0, 2 ,{DIRECT, REGISTER, end},
+        {"mov", MOV, 0, 2 ,{DIRECT, REGISTER, end}, /* 'end' just pads the length of 3 array */
          {DIRECT, REGISTER, IMMEDIATE}},
 
         {"cmp", CMP, 0, 2 ,{DIRECT, REGISTER, IMMEDIATE},

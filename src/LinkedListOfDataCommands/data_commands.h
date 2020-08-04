@@ -2,18 +2,18 @@
 #define ASSEMBLER_DATA_COMMANDS_H
 #include "../Common/common.h"
 
-typedef struct DataCommands {
+typedef struct DeclarationCommands {
     int address;
     int num;
     int character;
     line_type type;
-    struct DataCommands* next;
-} DataCommands;
+    struct DeclarationCommands* next;
+} DeclarationCommands;
 
-void addToDataCommands(DataCommands **list, int address, line_type type, int value);
+void addToDeclarationCommands(DeclarationCommands **list, int address, line_type type, int value);
 
-void printDataCommands(DataCommands **list);
+void printDeclarationCommands(DeclarationCommands **list);
 
-void updateDataCommands(DataCommands **list, int IC);
+void updateDeclarationCommands(DeclarationCommands **list, int IC);
 
 #endif //ASSEMBLER_DATA_COMMANDS_H

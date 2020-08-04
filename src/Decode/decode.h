@@ -14,10 +14,20 @@ void writeOperand(Operand operand, char *name);
 
 void reserveOperand(Operand operand, char *name);
 
+void writeDistance(FILE *file, int addressOrigin, int addressDestination);
+
+void writeExternal(FILE *file, int address);
+
+void writeAddress(FILE *file, int addressOrigin, int labelAddress);
+
 void writeICDC(char *name, int IC, int DC);
 
-void writeData(DataCommands **list, char *name);
+void writeData(DeclarationCommands **list, char *name);
 
 void writeHexadecimal(int num, int address, char *name);
+
+void writeToExtFile(char *filename, char *labelName, int address);
+
+void writeToEntFile(char *filename, char *labelName, int address);
 
 #endif //ASSEMBLER_DECODE_H

@@ -22,7 +22,7 @@ char * getFilename(char *file){
 }
 
 FILE * getFile(char *file){
-    FILE * opened_file = fopen(file, "r");
+    FILE *opened_file = fopen(file, "r");
     if (opened_file  == NULL) {
         errorReport(FILE_NOT_FOUND, 0, file);
         return opened_file;
@@ -41,12 +41,12 @@ char * trimWhiteSpace(char *str) {
     return str;
 }
 
-void createObFile(char *name) {
+void createTestFile(char *name) {
     FILE * filePointer;
     char *fileName;
     fileName = malloc(strlen(name));
     strcpy(fileName, name);
-    strcat(fileName, ".ob");
+    strcat(fileName, ".test");
     filePointer = fopen(fileName, "w");
     fprintf(filePointer,"%*d\t%*d\n", 8, 10, 6, 10);
     fclose(filePointer);
@@ -56,27 +56,33 @@ void removeFiles(char *name) {
     char *obFile;
     char *entFile;
     char *extFile;
+    char *testFile;
     obFile = malloc(strlen(name));
     entFile = malloc(strlen(name));
     extFile = malloc(strlen(name));
+    testFile = malloc(strlen(name));
     strcpy(obFile, name);
     strcpy(entFile, name);
     strcpy(extFile, name);
+    strcpy(testFile, name);
     strcat(obFile, ".ob");
     strcat(entFile, ".ent");
     strcat(extFile, ".ext");
+    strcat(testFile, ".ext");
     remove(obFile);
     remove(entFile);
     remove(extFile);
+    remove(testFile);
+
 }
 
-void appendToBinaryString(unsigned int x, unsigned int bits, char *string) {
+void appendToBinaryString(unsigned int num, unsigned int bits, char *str) {
     unsigned int mask = (unsigned) 1 << (bits - 1);
     while (mask) {
-        if (x & mask)
-            strcat(string, "1");
+        if (num & mask)
+            strcat(str, "1");
         else
-            strcat(string, "0");
+            strcat(str, "0");
         mask = mask >> (unsigned) 1;
     }
 }

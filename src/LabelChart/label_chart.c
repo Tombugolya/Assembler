@@ -25,11 +25,32 @@ void addToLabelChart(Label **label, char *name, int address, line_type type, boo
     }
 }
 
-void updateLabelValue(Label** label, char *labelName, int value) {
+int getLabelAddress(Label **label, char *labelName) {
+    Label *current = *label;
+    while (current != NULL) {
+        if (strcmp(current -> labelName, labelName) == 0)
+            return current -> address;
+        current = current -> next;
+    }
+    return 0;
+}
+
+void updateLabelAddress(Label **label, char *labelName, int value) {
     Label *current = *label;
     while (current != NULL) {
         if (strcmp(current -> labelName, labelName) == 0) {
             current -> address = value;
+            return;
+        }
+        current = current -> next;
+    }
+}
+
+void updateLabelIsEntry(Label **label, char *labelName, boolean isEntry) {
+    Label *current = *label;
+    while (current != NULL) {
+        if (strcmp(current -> labelName, labelName) == 0) {
+            current -> entry = isEntry;
             return;
         }
         current = current -> next;
@@ -65,4 +86,26 @@ boolean isUniqueLabel(Label **label, char *labelName, boolean report) {
         current = current -> next;
     }
     return True;
+}
+
+boolean labelIsExternal(Label **label, char *labelName) {
+    Label * current = * label;
+    while (current != NULL) {
+        if (strcmp(current -> labelName, labelName) == 0) {
+            return current -> external;
+        }
+        current = current -> next;
+    }
+    return False;
+}
+
+boolean labelIsEntry(Label **label, char *labelName) {
+    Label * current = * label;
+    while (current != NULL) {
+        if (strcmp(current -> labelName, labelName) == 0) {
+            return current -> entry;
+        }
+        current = current -> next;
+    }
+    return False;
 }
