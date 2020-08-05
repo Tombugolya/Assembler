@@ -5,7 +5,9 @@
 #include "../LabelChart/label_chart.h"
 #include "../UtilFunctions/functions.h"
 
-/* Decodes an InstructionData struct to the proper binary form and writes it to a .test file
+#define NUMBER_OF_BITS 25 /* +1 for '\0'*/
+
+/* Decodes an InstructionData struct to the proper binary form and writes it to a .test file.
  * param data - the InstructionData struct with all of the relevant fields filled out
  * param name - the name of the file to append to
 */

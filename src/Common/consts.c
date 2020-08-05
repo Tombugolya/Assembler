@@ -1,10 +1,10 @@
 #include "common.h"
 
-const char *delimiters = " \t\n"; /* These are essentially the whitespaces that we are trying to read-through*/
+const char *DELIMITERS = " \t\n"; /* These are essentially the whitespaces that we are trying to read-through*/
 
-const InstructionData EmptyInstruction = { 0, 0, 0, 0, 0, 0, 0 };
+const InstructionData EMPTY_INSTRUCTION = {0, 0, 0, 0, 0, 0, 0 };
 
-const Operand EmptyOperand = { False,"\0", 0, False };
+const Operand EMPTY_OPERAND = {False, "\0", 0, False };
 
 const Register REGISTERS[] = {
         {"r0", 0},

@@ -20,20 +20,22 @@ char * concat(const char *s1, const char *s2) {
 
 char * trimWhiteSpace(char *str) {
     char *end;
-    while(isspace((unsigned char)*str)) str++;
-    if(*str == 0)
+    while (isspace((unsigned char)*str))
+        str++;
+    if (*str == 0)
         return str;
     end = str + strlen(str) - 1;
-    while(end > str && isspace((unsigned char)*end)) end--;
+    while(end > str && isspace((unsigned char)*end))
+        end--;
     end[1] = '\0';
     return str;
 }
 
 void createTestFile(char *name) {
     FILE * filePointer;
-    char *fileName = concat(name, TEST_EXTENSION);
+    char *fileName = concat(name, TEST_EXTENSION); /* Concatenating the filename with the test extension*/
     filePointer = fopen(fileName, "w");
-    fprintf(filePointer,"%*d\t%*d\n", 8, 10, 6, 10);
+    fprintf(filePointer,"%*d\t%*d\n", 8, 10, 6, 10); /* Adding placeholder text for the IC DC later on to overwrite */
     fclose(filePointer);
     free(fileName);
 }

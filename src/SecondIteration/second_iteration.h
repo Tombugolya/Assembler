@@ -37,7 +37,7 @@ void processEntryLine(char *arguments, LabelChart *labelHead);
  * param filename - the name of the file
  * param labelHead - the label chart
 */
-void createFiles(char *filename, LabelChart *labelHead);
+void createOutputFiles(char *filename, LabelChart *labelHead);
 
 /* Copies the content from the .test file to the .ob file and checks for reserved lines
  * param testFile - the test file to copy from

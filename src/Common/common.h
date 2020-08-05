@@ -14,6 +14,10 @@
 #define OB_EXTENSION ".ob"
 #define EXT_EXTENSION ".ext"
 #define ENT_EXTENSION ".ent"
+#define COMMENT_SIGN ';'
+#define DECLARATION_SIGN '.'
+#define NUMBER_SIGN '#'
+#define DISTANCE_SIGN '&'
 
 /* boolean type for True and False*/
 typedef enum {
@@ -112,12 +116,12 @@ extern const Register REGISTERS[REGISTER_NUM];
 extern const Operation OPERATIONS[OPERATION_NUM];
 
 /* The delimiters that are used for when we use strtok() */
-extern const char *delimiters;
+extern const char *DELIMITERS;
 
 /* A constant empty Instruction value, used for resetting variables of type InstructionData */
-extern const InstructionData EmptyInstruction;
+extern const InstructionData EMPTY_INSTRUCTION;
 
 /* A constant empty Operand value, used for resetting variables of type Operand */
-extern const Operand EmptyOperand;
+extern const Operand EMPTY_OPERAND;
 
 #endif /* COMMON_H */

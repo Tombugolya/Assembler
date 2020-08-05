@@ -9,8 +9,8 @@
 #include "../ErrorReport/error_report.h"
 #include "../SecondIteration/second_iteration.h"
 
-#define ORIGIN (operandNum == 1 && commandPointer -> operands == 2)                             /* Checks if current operand is the Origin operand */
-#define DESTINATION (operandNum == 2 || operandNum == 1 && commandPointer -> operands == 1)     /* Checks if current operand is the Destination operand */
+#define ORIGIN (operandNum == 1 && operationPointer -> operands == 2)                             /* Checks if current operand is the Origin operand */
+#define DESTINATION (operandNum == 2 || operandNum == 1 && operationPointer -> operands == 1)     /* Checks if current operand is the Destination operand */
 
 /* The first iteration over a user inputted file.
  * The function iterates over each line and does the relevant action for each scenario.
@@ -41,6 +41,11 @@ boolean isLabel(char *labelName, boolean toCheckColon, boolean report);
 */
 boolean isDeclaration(char *declarationName);
 
+/* Checks if the parameter matches any known declaration command (.string, .data, .entry, .extern)
+ * param declarationName - the token to check the condition
+*/
+boolean isValidDeclarationName(char *declarationName);
+
 /* Checks if the line is a potential instruction line, meaning it matches any constant instruction operation (mov, cmp, etc.)
  * param commandName - the token to check if it matches any known operation
  * param report - condition to report on a non-match
@@ -48,9 +53,9 @@ boolean isDeclaration(char *declarationName);
 boolean isInstruction(char *commandName, boolean report);
 
 /* Checks if the line is a comment, i.e begins with a semicolon ';'
- * param commentSymbol - the toke nto check if it starts with a semicolon
+ * param commentSign - the toke nto check if it starts with a semicolon
 */
-boolean isComment(const char *commentSymbol);
+boolean isComment(const char *commentSign);
 
 /* Checks if the declaration line is an .extern declaration */
 boolean isExtern();
@@ -61,11 +66,6 @@ boolean isExtern();
  * param assign - whether to point towards to the constant register or not
 */
 boolean isRegister(char *regis, boolean assign);
-
-/* Checks if the parameter matches any known declaration command (.string, .data, .entry, .extern)
- * param declarationName - the token to check the condition
-*/
-boolean isValidDeclarationName(char *declarationName);
 
 /* Checks if the parameter is a valid syntax whole number (-2, 2, +3)
  * param number - the param to check the condition

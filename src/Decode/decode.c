@@ -1,8 +1,15 @@
 #include "decode.h"
 
+/* The general decoding and writing method goes like this:
+ * 1) Create an empty string array with the length of the memory slot + 1 for null terminator (in our case it's 24 + 1)
+ * 2) Apply appendToBinaryString in the correct order from left to right, specifying the number of bits for each section in second parameter
+ * 3) Null terminate the string
+ * 4) Use strtol() with a binary setting as the third parameter to convert to a decimal int
+ * 5) Print to the file with %X so that the hexadecimal value will be printed instead of the decimal one
+*/
 void writeInstruction(InstructionData data, char *name) {
     int num;
-    char binary[25] = "";
+    char binary[NUMBER_OF_BITS] = "";
     char *endPtr = NULL;
     FILE *filePointer;
     char *fileName = concat(name, TEST_EXTENSION);
@@ -15,7 +22,7 @@ void writeInstruction(InstructionData data, char *name) {
     appendToBinaryString(1, 1, binary);
     appendToBinaryString(0, 1, binary);
     appendToBinaryString(0, 1, binary);
-    binary[24] = '\0';
+    binary[NUMBER_OF_BITS - 1] = '\0';
     num = strtol(binary, &endPtr, 2);
     filePointer = fopen(fileName, "a");
     fprintf(filePointer, "%08d\t%06X\n", data.address, num);
@@ -27,15 +34,15 @@ void writeOperand(Operand operand, char *name) {
     FILE *filePointer;
     char *fileName = concat(name, TEST_EXTENSION);
     char *endPtr;
-    char binary[25] = "";
+    char binary[NUMBER_OF_BITS] = "";
     int num;
     filePointer = fopen(fileName, "a");
-    num = strtol(operand.value, &endPtr, 10);
+    num = strtol(operand.value, &endPtr, 10); /* Converting char to int with strtol() */
     appendToBinaryString(num, 21, binary);
     appendToBinaryString(1, 1, binary);
     appendToBinaryString(0, 1, binary);
     appendToBinaryString(0, 1, binary);
-    binary[24] = '\0';
+    binary[NUMBER_OF_BITS - 1] = '\0';
     num = strtol(binary, &endPtr, 2);
     fprintf(filePointer, "%08d\t%06X\n", operand.address, num);
     fclose(filePointer);
@@ -54,13 +61,13 @@ void reserveOperand(Operand operand, char *name) {
 void writeDistance(FILE *file, int addressOrigin, int addressDestination) {
     int distance = addressDestination - (addressOrigin - 1);
     int num;
-    char binary[25] = "";
+    char binary[NUMBER_OF_BITS] = "";
     char *endPtr;
     appendToBinaryString(distance, 21, binary);
     appendToBinaryString(1, 1, binary);
     appendToBinaryString(0, 1, binary);
     appendToBinaryString(0, 1, binary);
-    binary[24] = '\0';
+    binary[NUMBER_OF_BITS - 1] = '\0';
     num = strtol(binary, &endPtr, 2);
     fprintf(file, "%08d\t%06X\n", addressOrigin, num);
 }
@@ -71,13 +78,13 @@ void writeExternal(FILE *file, int addressOrigin) {
 
 void writeLabelAddress(FILE *file, int addressOrigin, int labelAddress) {
     int num;
-    char binary[25] = "";
+    char binary[NUMBER_OF_BITS] = "";
     char *endPtr;
     appendToBinaryString(labelAddress, 21, binary);
     appendToBinaryString(0, 1, binary);
     appendToBinaryString(1, 1, binary);
     appendToBinaryString(0, 1, binary);
-    binary[24] = '\0';
+    binary[NUMBER_OF_BITS - 1] = '\0';
     num = strtol(binary, &endPtr, 2);
     fprintf(file, "%08d\t%06X\n", addressOrigin, num);
 }
@@ -96,13 +103,13 @@ void writeDeclarations(DeclarationCommands **list, char *name){
     DeclarationCommands *current = *list;
     char *fileName = concat(name, TEST_EXTENSION);
     char *endPtr;
-    char binary[25] = "";
+    char binary[NUMBER_OF_BITS] = "";
     int num;
     filePointer = fopen(fileName, "a");
 
     while (current != NULL){
         appendToBinaryString(current -> value, 24, binary);
-        binary[24] = '\0';
+        binary[NUMBER_OF_BITS - 1] = '\0';
         num = strtol(binary, &endPtr, 2);
         fprintf(filePointer, "%08d\t%06X\n", current -> address, num);
         current = current -> next;
