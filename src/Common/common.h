@@ -10,6 +10,10 @@
 #define MAX_APPLICABLE_MODES 3  /* Max number of supporting mods per operation */
 #define REGISTER_NUM 8          /* Number of registers in use (r0, r1, ... ,r7) */
 #define RESERVED_SIGN '?'       /* Sign that is used to identify reserved lines after first iteration */
+#define TEST_EXTENSION ".test"
+#define OB_EXTENSION ".ob"
+#define EXT_EXTENSION ".ext"
+#define ENT_EXTENSION ".ent"
 
 /* boolean type for True and False*/
 typedef enum {
@@ -92,22 +96,28 @@ typedef struct InstructionData {
     int regisDest;
 } InstructionData;
 
-/* Regis struct to represent each of the 8 constant registers
+/* Register struct to represent each of the 8 constant registers
  * param name - the name of the register (r2, r0, etc.)
  * param value - the numerical value of the register (2 for r2, 1 for r1, etc.)
 */
-typedef struct Regis {
+typedef struct Register {
     char *name;
     int value;
-} Regis;
+} Register;
 
 /* An array of 8 constant registers that our computer offers */
-extern const Regis registers[REGISTER_NUM];
+extern const Register REGISTERS[REGISTER_NUM];
 
 /* An array of 16 constant operations that our assembler can read */
-extern const Operation operations[OPERATION_NUM];
+extern const Operation OPERATIONS[OPERATION_NUM];
 
 /* The delimiters that are used for when we use strtok() */
 extern const char *delimiters;
+
+/* A constant empty Instruction value, used for resetting variables of type InstructionData */
+extern const InstructionData EmptyInstruction;
+
+/* A constant empty Operand value, used for resetting variables of type Operand */
+extern const Operand EmptyOperand;
 
 #endif /* COMMON_H */

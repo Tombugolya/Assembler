@@ -2,7 +2,11 @@
 
 const char *delimiters = " \t\n"; /* These are essentially the whitespaces that we are trying to read-through*/
 
-const Regis registers[] = {
+const InstructionData EmptyInstruction = { 0, 0, 0, 0, 0, 0, 0 };
+
+const Operand EmptyOperand = { False,"\0", 0, False };
+
+const Register REGISTERS[] = {
         {"r0", 0},
         {"r1", 1},
         {"r2", 2},
@@ -13,7 +17,7 @@ const Regis registers[] = {
         {"r7", 7},
 };
 
-const Operation operations[] = {
+const Operation OPERATIONS[] = {
         {"mov", MOV, 0, 2 ,{DIRECT, REGISTER, end}, /* 'end' just pads the length of 3 array */
          {DIRECT, REGISTER, IMMEDIATE}},
 

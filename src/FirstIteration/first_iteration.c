@@ -1,9 +1,7 @@
 #include "first_iteration.h"
-/* TODO: add isEntry option to first iteration that will either add to label chart or enable isEntry on the label chart or skip in the first iteration */
-static const InstructionData EmptyInstruction = { 0, 0, 0, 0, 0, 0, 0 };
-static const Operand EmptyOperand = { False,"\0", 0, False };
+
 const Operation *commandPointer = NULL;
-const Regis *regisPointer = NULL;
+const Register *registerPointer = NULL;
 int IC;
 int DC;
 int lineCount;
@@ -14,8 +12,8 @@ boolean isLabelFlag;
 InstructionData instruction;
 Label *labelHead = NULL;
 DeclarationCommands *declarationsHead = NULL;
-Operand dest;
-Operand origin;
+Operand destinationOperand;
+Operand originOperand;
 
 void resetValues() {
     IC = 100;
@@ -25,16 +23,29 @@ void resetValues() {
     memset(label, 0, sizeof label);
     type = 0;
     commandPointer = NULL;
-    regisPointer = NULL;
+    registerPointer = NULL;
     labelHead = NULL;
     declarationsHead = NULL;
 }
 
 void firstIteration(char *filename, FILE *file){
-    char line[MAX_LINE_CHARS];
-    char *token = NULL;
     resetValues();
     createTestFile(filename);
+    readFileLineByLineFirstTime(filename, file);
+    updateLabelChart(&labelHead, IC);
+    updateDeclarationCommands(&declarationsHead, IC);
+    writeICDC(filename, IC-100, DC);
+    writeData(&declarationsHead, filename);
+    if (errorsExist) {
+        removeFiles(filename);
+        return;
+    } else
+        secondIteration(filename, file, labelHead);
+}
+
+void readFileLineByLineFirstTime(char *filename, FILE *file) {
+    char line[MAX_LINE_CHARS];
+    char *token = NULL;
     while(fgets(line, sizeof(line), file)) {
         isLabelFlag = False;
         lineCount++;
@@ -56,17 +67,7 @@ void firstIteration(char *filename, FILE *file){
             token = strtok(NULL, delimiters);
         }
     }
-    updateLabelChart(&labelHead, IC);
-    updateDeclarationCommands(&declarationsHead, IC);
-    writeICDC(filename, IC-100, DC);
-    writeData(&declarationsHead, filename);
-    if (errorsExist) {
-        removeFiles(filename);
-        return;
-    } else
-        second_iteration(filename, file, labelHead);
 }
-
 
 boolean isLabel(char *labelName, boolean toCheckColon, boolean report) {
     size_t len = strlen(labelName);
@@ -109,8 +110,8 @@ boolean isDeclaration(char *declarationName) {
 boolean isInstruction(char *commandName, boolean report) {
     int i;
     for (i=0; i < OPERATION_NUM ; i++) {
-        if (strcmp(commandName, operations[i].name) == 0 ) {
-            commandPointer = &operations[i];
+        if (strcmp(commandName, OPERATIONS[i].name) == 0 ) {
+            commandPointer = &OPERATIONS[i];
             return True;
         }
     }
@@ -121,8 +122,8 @@ boolean isInstruction(char *commandName, boolean report) {
 boolean isRegister(char *regis, boolean assign) {
     int i;
     for (i=0 ; i < REGISTER_NUM ; i++) {
-        if (strcmp(regis, registers[i].name) == 0) {
-            if (assign) regisPointer = &registers[i];
+        if (strcmp(regis, REGISTERS[i].name) == 0) {
+            if (assign) registerPointer = &REGISTERS[i];
             return True;
         }
     }
@@ -221,8 +222,8 @@ void processExternLine(char *arguments) {
 
 void processInstructionLine(char *arguments, char *filename) {
     instruction = EmptyInstruction;
-    dest = EmptyOperand;
-    origin = EmptyOperand;
+    destinationOperand = EmptyOperand;
+    originOperand = EmptyOperand;
     if (isLabelFlag && isUniqueLabel(&labelHead, label, True))
         addToLabelChart(&labelHead, label, IC, INSTRUCTION, False, False);
     assignInstructionValues();
@@ -238,10 +239,10 @@ void processInstructionLine(char *arguments, char *filename) {
 }
 
 void handleOperands(char *filename) {
-    if (dest.active)
-        dest.reserve ? reserveOperand(dest, filename) : writeOperand(dest, filename);
-    if (origin.active)
-        origin.reserve ? reserveOperand(origin, filename) : writeOperand(origin, filename);
+    if (destinationOperand.active)
+        destinationOperand.reserve ? reserveOperand(destinationOperand, filename) : writeOperand(destinationOperand, filename);
+    if (originOperand.active)
+        originOperand.reserve ? reserveOperand(originOperand, filename) : writeOperand(originOperand, filename);
 }
 
 /*TODO: Potentially you might want to change all of the 'filename' parameters to be the file, instead of opening and closing it every function call*/
@@ -263,8 +264,8 @@ boolean isValidOperand(char *operand, int maxParamNum) {
             return False;
         if (!isValidAddressingMode(operandMode, operandNum))
             return !(errorsExist = errorReport(INVALID_OPERAND_TYPE, lineCount, operandMode, commandPointer->name));
-        if (ORIGIN) pointer = &origin;
-        else if (DESTINATION) pointer = &dest;
+        if (ORIGIN) pointer = &originOperand;
+        else if (DESTINATION) pointer = &destinationOperand;
         switch (operandMode){
             case IMMEDIATE:
                 operand++;
@@ -275,8 +276,8 @@ boolean isValidOperand(char *operand, int maxParamNum) {
                 assignOperandValues(pointer, True, operand);
                 break;
             case REGISTER:
-                if (ORIGIN) instruction.regisOrigin = regisPointer->value;
-                else if (DESTINATION) instruction.regisDest = regisPointer->value;
+                if (ORIGIN) instruction.regisOrigin = registerPointer->value;
+                else if (DESTINATION) instruction.regisDest = registerPointer->value;
                 break;
             default:
                 return False;

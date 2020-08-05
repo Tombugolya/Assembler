@@ -23,6 +23,9 @@
 */
 void firstIteration(char *filename, FILE *file);
 
+/**/
+void readFileLineByLineFirstTime(char *filename, FILE *file);
+
 /* Checks if the first parameter matches the correct LABEL syntax
  * param labelName - the token from the line to check if it is in the correct LABEL: syntax
  * param toCheckColon - condition to check if the ':' appears at the end of the label

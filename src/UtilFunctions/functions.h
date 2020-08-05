@@ -25,6 +25,9 @@ FILE * getFile(char *file);
 */
 char * trimWhiteSpace(char *str);
 
+/**/
+char * concat(const char *s1, const char *s2);
+
 /* Function that creates the initial test file the first iteration writes over
  * param name - the name of the file without the suffix
 */

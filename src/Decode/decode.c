@@ -1,5 +1,4 @@
 #include "decode.h"
-#include "decode.h"
 
 void decodeInstruction(InstructionData data, char *filename) {
     int num;
@@ -29,7 +28,7 @@ void writeOperand(Operand operand, char *name) {
     int num;
     fileName = malloc(strlen(name));
     strcpy(fileName, name);
-    strcat(fileName, ".test");
+    strcat(fileName, TEST_EXTENSION);
     filePointer = fopen(fileName, "a");
     binary[0] = '\0';
     num = strtol(operand.value, &ptr, 10);
@@ -54,8 +53,6 @@ void writeDistance(FILE *file, int addressOrigin, int addressDestination) {
     appendToBinaryString(0, 1, binary);
     appendToBinaryString(0, 1, binary);
     binary[24] = '\0';
-    printf("LABEL IS LOCATED IN ADDRESS: %d\tCODE IS LOCATED IN ADDRESS: %d\n", addressDestination, (addressOrigin - 1));
-    printf("DISTANCE IS : %s\n", binary);
     num = strtol(binary, &ptr, 2);
     fprintf(file, "%08d\t%06x\n", addressOrigin, num);
 }
@@ -83,7 +80,7 @@ void reserveOperand(Operand operand, char *name) {
     char *fileName;
     fileName = malloc(strlen(name));
     strcpy(fileName, name);
-    strcat(fileName, ".test");
+    strcat(fileName, TEST_EXTENSION);
     filePointer = fopen(fileName, "a");
     printf("%c%d\t%s\n", RESERVED_SIGN, operand.address, operand.value);
     fprintf(filePointer, "%c%d\t%s\n", RESERVED_SIGN, operand.address, operand.value);
@@ -95,7 +92,7 @@ void writeICDC(char *name, int IC, int DC){
     char *fileName;
     fileName = malloc(strlen(name));
     strcpy(fileName, name);
-    strcat(fileName, ".test");
+    strcat(fileName, TEST_EXTENSION);
     filePointer = fopen(fileName, "r+");
     fprintf(filePointer,"%*d\t%*d\n", 8, IC, 6, DC);
     fclose(filePointer);
@@ -112,7 +109,7 @@ void writeData(DeclarationCommands **list, char *name){
     binary[0] = '\0';
     fileName = malloc(strlen(name));
     strcpy(fileName, name);
-    strcat(fileName, ".test");
+    strcat(fileName, TEST_EXTENSION);
     filePointer = fopen(fileName, "a");
     while (current != NULL){
         if (current -> type == STRING)
@@ -135,7 +132,7 @@ void writeHexadecimal(int num, int address, char *name) {
     char *fileName;
     fileName = malloc(strlen(name));
     strcpy(fileName, name);
-    strcat(fileName, ".test");
+    strcat(fileName, TEST_EXTENSION);
     filePointer = fopen(fileName, "a");
     fprintf(filePointer, "%08d\t%06x\n",
            address,
@@ -149,7 +146,7 @@ void writeToExtFile(char *filename, char *labelName, int address) {
     char *fileName;
     fileName = malloc(strlen(filename));
     strcpy(fileName, filename);
-    strcat(fileName, ".ext");
+    strcat(fileName, EXT_EXTENSION);
     filePointer = fopen(fileName, "a");
     fprintf(filePointer, "%s\t%08d\n",
             labelName,
@@ -164,7 +161,7 @@ void writeToEntFile(char *filename, Label **list) {
     Label *current = *list;
     fileName = malloc(strlen(filename));
     strcpy(fileName, filename);
-    strcat(fileName, ".ent");
+    strcat(fileName, ENT_EXTENSION);
     filePointer = fopen(fileName, "a");
     while (current != NULL) {
         if (current -> entry) {
