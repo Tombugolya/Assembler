@@ -23,7 +23,10 @@
 */
 void firstIteration(char *filename, FILE *file);
 
-/**/
+/* Reads line by line, sends the arguments forward to the relevant function
+ * param filename - the name of the file
+ * param file - the file to read
+*/
 void readFileLineByLineFirstTime(char *filename, FILE *file);
 
 /* Checks if the first parameter matches the correct LABEL syntax

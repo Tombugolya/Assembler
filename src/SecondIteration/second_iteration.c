@@ -6,7 +6,7 @@ void secondIteration(char *filename, FILE *file, Label *labelHead) {
     rewind(file);
     readFileLineByLineSecondTime(file, labelHead);
     fclose(file);
-    createObFile(filename, labelHead);
+    createFiles(filename, labelHead);
     freeLabelChart(&labelHead);
     if (errorsExist)
         removeFiles(filename);
@@ -15,6 +15,7 @@ void secondIteration(char *filename, FILE *file, Label *labelHead) {
 void readFileLineByLineSecondTime(FILE *file, Label *labelHead) {
     char line[MAX_LINE_CHARS];
     char *token = NULL;
+
     while(fgets(line, sizeof(line), file)) {
         token = strtok(line, delimiters);
         while(token != NULL) {
@@ -39,11 +40,12 @@ boolean isEntry(char *entryName) {
 
 void processEntryLine(char *arguments, Label *labelHead) {
     arguments = strtok(NULL, delimiters);
+
     if (!isUniqueLabel(&labelHead, arguments, False))
         updateLabelIsEntry(&labelHead, arguments, True);
 }
 
-void createObFile(char *filename, Label *labelHead) {
+void createFiles(char *filename, Label *labelHead) {
     FILE *testFile = NULL;
     FILE *obFile = NULL;
     char *filenameWithTestSuffix = concat(filename, TEST_EXTENSION);
@@ -60,39 +62,45 @@ void createObFile(char *filename, Label *labelHead) {
 }
 
 void transferContentFromTestToOb(FILE *testFile, FILE *obFile, char *filename, Label *labelHead) {
-    char *token = NULL;
-    char *endPtr = NULL;
     char line[MAX_LINE_CHARS];
     char lineToCopy[MAX_LINE_CHARS];
-    int address;
-    int labelAddress;
+
     while(fgets(line, sizeof(line), testFile)) {
         if (line[0] != RESERVED_SIGN) {
             strcpy(lineToCopy, line);
             fprintf(obFile, "%s", lineToCopy);
         } else {
-            token = strtok(line, "\t");
-            token++;
-            address = strtol(token, &endPtr, 10);
-            token = strtok(NULL, delimiters);
-            if (token[0] == '&') {
-                token++;
-                if ((labelAddress = getLabelAddress(&labelHead, token)))
-                    writeDistance(obFile, address, labelAddress);
-                else
-                if (labelIsExternal(&labelHead, token))
-                    errorsExist = errorReport(EXTERNAL_DISTANCE_INVALID, 0, token);
-                else
-                    errorsExist = errorReport(NONEXISTENT_LABEL, 0, token);
-            }
-            else if ((labelAddress = getLabelAddress(&labelHead, token))) {
-                writeAddress(obFile, address, labelAddress);
-            } else if (labelIsExternal(&labelHead, token)) {
-                writeExternal(obFile, address);
-                writeToExtFile(filename, token, address);
-            } else {
-                errorsExist = errorReport(NONEXISTENT_LABEL, 0, token);
-            }
+            overwriteReservedLines(line, obFile, filename, labelHead);
         }
+    }
+}
+
+void overwriteReservedLines(char *line, FILE *obFile, char *filename, Label *labelHead) {
+    char *token = NULL;
+    char *endPtr = NULL;
+    int address;
+    int labelAddress;
+    token = strtok(line, "\t");
+    token++;
+    address = strtol(token, &endPtr, 10);
+    token = strtok(NULL, delimiters);
+
+    if (token[0] == '&') {
+        token++;
+        if ((labelAddress = getLabelAddress(&labelHead, token)))
+            writeDistance(obFile, address, labelAddress);
+        else
+        if (labelIsExternal(&labelHead, token))
+            errorsExist = errorReport(EXTERNAL_DISTANCE_INVALID, 0, token);
+        else
+            errorsExist = errorReport(NONEXISTENT_LABEL, 0, token);
+    }
+    else if ((labelAddress = getLabelAddress(&labelHead, token))) {
+        writeAddress(obFile, address, labelAddress);
+    } else if (labelIsExternal(&labelHead, token)) {
+        writeExternal(obFile, address);
+        writeToExtFile(filename, token, address);
+    } else {
+        errorsExist = errorReport(NONEXISTENT_LABEL, 0, token);
     }
 }

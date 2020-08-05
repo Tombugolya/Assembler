@@ -25,7 +25,10 @@ FILE * getFile(char *file);
 */
 char * trimWhiteSpace(char *str);
 
-/**/
+/* Function that return a concatenated string from two string parameters
+ * param s1 - the first string
+ * param s2 - the second string
+*/
 char * concat(const char *s1, const char *s2);
 
 /* Function that creates the initial test file the first iteration writes over
