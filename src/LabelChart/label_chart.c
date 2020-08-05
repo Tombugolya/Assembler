@@ -4,7 +4,7 @@ void addToLabelChart(LabelChart **label, char *name, int address, line_type type
     LabelChart *current;
     if(*label == NULL) {
         *label = (LabelChart *)malloc(sizeof(LabelChart));
-        strcpy((* label) -> labelName, name);
+        strcpy((*label) -> labelName, name);
         (*label) -> address = address;
         (*label) -> type = type;
         (*label) -> entry = is_entry;

@@ -18,6 +18,7 @@
 #define DECLARATION_SIGN '.'
 #define NUMBER_SIGN '#'
 #define DISTANCE_SIGN '&'
+#define LABEL_COLON_SIGN ':'
 
 /* boolean type for True and False*/
 typedef enum {

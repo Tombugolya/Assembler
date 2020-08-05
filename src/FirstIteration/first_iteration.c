@@ -16,7 +16,7 @@ Operand destinationOperand;
 Operand originOperand;
 
 void resetValues() {
-    IC = 100;
+    IC = INITIAL_IC_VALUE;
     DC = 0;
     lineCount = 0;
     errorsExist = False;
@@ -34,7 +34,7 @@ void firstIteration(char *filename, FILE *file){
     readFileLineByLineFirstTime(filename, file);
     updateLabelChartAddresses(&labelHead, IC);
     updateDeclarationCommandsAddresses(&declarationsHead, IC);
-    writeICDC(filename, IC-100, DC);
+    writeICDC(filename, IC - INITIAL_IC_VALUE, DC);
     writeDeclarations(&declarationsHead, filename);
     if (errorsExist) {
         removeFiles(filename);
@@ -49,7 +49,7 @@ void readFileLineByLineFirstTime(char *filename, FILE *file) {
     while(fgets(line, sizeof(line), file)) {
         isLabelFlag = False;
         lineCount++;
-        memset(label, 0, MAX_LABEL_CHARS);
+        memset(label, 0, MAX_LABEL_CHARS); /* Clearing the line variable */
         token = strtok(line, DELIMITERS); /* Using strtok() to go token by token separated by the delimiters */
         while (token != NULL) {
             if (isLabel(token, True, True)) { /* If the line begins with a Label*/
@@ -70,7 +70,7 @@ void readFileLineByLineFirstTime(char *filename, FILE *file) {
 boolean isLabel(char *labelName, boolean toCheckColon, boolean report) {
     size_t len = strlen(labelName);
 
-    if (isalpha(labelName[0]) && (toCheckColon ? labelName[len - 1] == ':' : True)) {
+    if (isalpha(labelName[0]) && (toCheckColon ? labelName[len - 1] == LABEL_COLON_SIGN : True)) {
 
         if (toCheckColon) labelName[len-1] = '\0';
 
@@ -306,7 +306,7 @@ boolean isValidNumber(char *number){
     boolean isValidParam = True;
     number = trimWhiteSpace(number);
     for (i = 0; i < strlen(number) ; i++) {
-        if (i==0 && (number[i] == '-' || number[i] == '+')) /* These are exceptions for the 0 index only  */
+        if (i == 0 && (number[i] == '-' || number[i] == '+')) /* These are exceptions for the 0 index only  */
             isValidParam = True;
         else if (number[i] != ' ' && number[i] != '\t' && !isdigit(number[i])) /* If it's not a digit, a space or a tab */
             return !(errorsExist = errorReport(INVALID_NUMBER, lineCount, number));

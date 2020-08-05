@@ -30,7 +30,7 @@ void readFileLineByLineSecondTime(FILE *file, LabelChart *labelHead) {
 
 
 boolean isEntry(char *entryName) {
-    if (entryName[0] == '.') {
+    if (entryName[0] == DECLARATION_SIGN) {
         entryName++;
         if (strcmp(entryName, "entry") == 0)
             return True;
@@ -85,7 +85,7 @@ void overwriteReservedLines(char *line, FILE *obFile, char *filename, LabelChart
     address = strtol(token, &endPtr, 10);
     token = strtok(NULL, DELIMITERS);
 
-    if (token[0] == '&') { /* If it has the '&' sign it means that we need to calculate the distance (INDIRECT addressing mode) */
+    if (token[0] == DISTANCE_SIGN) { /* If it has the '&' sign it means that we need to calculate the distance (INDIRECT addressing mode) */
         token++;
         if ((labelAddress = getLabelAddress(&labelHead, token)))
             writeDistance(obFile, address, labelAddress);

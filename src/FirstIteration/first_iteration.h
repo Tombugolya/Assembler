@@ -11,7 +11,7 @@
 
 #define ORIGIN (operandNum == 1 && operationPointer -> operands == 2)                             /* Checks if current operand is the Origin operand */
 #define DESTINATION (operandNum == 2 || operandNum == 1 && operationPointer -> operands == 1)     /* Checks if current operand is the Destination operand */
-
+#define INITIAL_IC_VALUE 100
 /* The first iteration over a user inputted file.
  * The function iterates over each line and does the relevant action for each scenario.
  * During the parsing - the translated machine code is written on a temporary ".test" file.
