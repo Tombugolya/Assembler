@@ -88,7 +88,6 @@ void writeICDC(char *name, int IC, int DC){
 
 void writeData(DeclarationCommands **list, char *name){
     FILE *filePointer;
-    DataCode code;
     DeclarationCommands *current = *list;
     char *fileName = concat(name, TEST_EXTENSION);
     char *endPtr;
@@ -97,9 +96,7 @@ void writeData(DeclarationCommands **list, char *name){
     filePointer = fopen(fileName, "a");
 
     while (current != NULL){
-        code.dataCode = current -> value;
-
-        appendToBinaryString(code.dataCode, 24, binary);
+        appendToBinaryString(current -> value, 24, binary);
         binary[24] = '\0';
         num = strtol(binary, &endPtr, 2);
         fprintf(filePointer, "%08d\t%06X\n", current -> address, num);

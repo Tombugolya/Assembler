@@ -5,10 +5,6 @@
 #include "../LabelChart/label_chart.h"
 #include "../UtilFunctions/functions.h"
 
-typedef struct DataCode {
-    unsigned int dataCode       : 24;
-} DataCode;
-
 void decodeInstruction(InstructionData data, char *filename);
 
 void writeOperand(Operand operand, char *name);

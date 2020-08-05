@@ -32,7 +32,7 @@ void firstIteration(char *filename, FILE *file){
     resetValues();
     createTestFile(filename);
     readFileLineByLineFirstTime(filename, file);
-    updateLabelChart(&labelHead, IC);
+    updateLabelChartAddresses(&labelHead, IC);
     updateDeclarationCommandsAddresses(&declarationsHead, IC);
     writeICDC(filename, IC-100, DC);
     writeData(&declarationsHead, filename);

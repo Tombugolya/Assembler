@@ -57,7 +57,7 @@ void updateLabelIsEntry(LabelChart **label, char *labelName, boolean isEntry) {
     }
 }
 
-void updateLabelChart(LabelChart **label, int IC) {
+void updateLabelChartAddresses(LabelChart **label, int IC) {
     LabelChart *current = *label;
     while (current != NULL) {
         if (current -> type != INSTRUCTION && !current -> external) {
