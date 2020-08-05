@@ -2,6 +2,7 @@
 #define ASSEMBLER_DECODE_H
 #include <stdarg.h>
 #include "../LinkedListOfDataCommands/data_commands.h"
+#include "../LabelChart/label_chart.h"
 #include "../UtilFunctions/functions.h"
 
 typedef struct DataCode {
@@ -28,6 +29,6 @@ void writeHexadecimal(int num, int address, char *name);
 
 void writeToExtFile(char *filename, char *labelName, int address);
 
-void writeToEntFile(char *filename, char *labelName, int address);
+void writeToEntFile(char *filename, Label **list);
 
 #endif //ASSEMBLER_DECODE_H

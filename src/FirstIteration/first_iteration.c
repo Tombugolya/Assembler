@@ -1,7 +1,7 @@
 #include "first_iteration.h"
 /* TODO: add isEntry option to first iteration that will either add to label chart or enable isEntry on the label chart or skip in the first iteration */
-static const InstructionData EmptyInstruction = {0, 0, 0, 0, 0, 0, 0};
-static const Operand EmptyOperand = {False,"\0", 0, 0, False};
+static const InstructionData EmptyInstruction = { 0, 0, 0, 0, 0, 0, 0 };
+static const Operand EmptyOperand = { False,"\0", 0, False };
 const Operation *commandPointer = NULL;
 const Regis *regisPointer = NULL;
 int IC;
@@ -41,7 +41,7 @@ void firstIteration(char *filename, FILE *file){
         memset(label, 0, MAX_LABEL_CHARS);
         token = strtok(line, delimiters);
         while(token != NULL) {
-            if (isLabel(token, True))
+            if (isLabel(token, True, True))
                 isLabelFlag = True;
             else if (isComment(token)){
                 token = NULL;
@@ -68,21 +68,25 @@ void firstIteration(char *filename, FILE *file){
 }
 
 
-boolean isLabel(char *labelName, boolean toCheckColon) {
+boolean isLabel(char *labelName, boolean toCheckColon, boolean report) {
     size_t len = strlen(labelName);
     if (isalpha(labelName[0]) && (toCheckColon ? labelName[len - 1] == ':' : True)) {
         if (toCheckColon) labelName[len-1] = '\0';
         if (len >= MAX_LABEL_CHARS)
-            errorsExist = errorReport(LABEL_TOO_LONG, lineCount, labelName);
+            return !(errorsExist = errorReport(LABEL_TOO_LONG, lineCount, labelName));
         else if (isRegister(labelName, False) || isInstruction(labelName, False) || isValidDeclarationName(labelName))
-            errorsExist = errorReport(RESERVED_NAME, lineCount, labelName);
+            return !(errorsExist = errorReport(RESERVED_NAME, lineCount, labelName));
         else if (!isLabelFlag) {
             memcpy(label, labelName, (toCheckColon ? len - 1 : len));
             label[len] = '\0';
             return True;
         }
-        else
-            errorsExist = errorReport(TOO_MANY_LABELS, lineCount, labelName);
+        else {
+            if (report)
+                errorsExist = errorReport(TOO_MANY_LABELS, lineCount, labelName);
+            else
+                return True;
+        }
     }
     return False;
 }
@@ -208,7 +212,7 @@ void processExternLine(char *arguments) {
         return;
     }
     arguments = strtok(NULL, delimiters);
-    if (isLabel(arguments, False))
+    if (isLabel(arguments, False, True))
         isUniqueLabel(&labelHead, arguments, False) ? addToLabelChart(&labelHead, arguments, 0, DATA, False, True) : updateLabelAddress(
                 &labelHead, label, 0);
     else
@@ -223,7 +227,7 @@ void processInstructionLine(char *arguments, char *filename) {
         addToLabelChart(&labelHead, label, IC, INSTRUCTION, False, False);
     assignInstructionValues();
     if (commandPointer -> operands > 0) {
-        if (isValidOperand(arguments, commandPointer->operands)) {
+        if (isValidOperand(arguments, commandPointer -> operands)) {
             decodeInstruction(instruction, filename);
             handleOperands(filename);
         }
@@ -241,7 +245,7 @@ void handleOperands(char *filename) {
 }
 
 /*TODO: Potentially you might want to change all of the 'filename' parameters to be the file, instead of opening and closing it every function call*/
-boolean isValidOperand(char * operand, int maxParamNum) {
+boolean isValidOperand(char *operand, int maxParamNum) {
     int operandNum = 0;
     char *pt = NULL;
     addressing_mode operandMode;
@@ -259,8 +263,8 @@ boolean isValidOperand(char * operand, int maxParamNum) {
             return False;
         if (!isValidAddressingMode(operandMode, operandNum))
             return !(errorsExist = errorReport(INVALID_OPERAND_TYPE, lineCount, operandMode, commandPointer->name));
-        if (FIRST_OPERAND) pointer = &dest;
-        else if (SECOND_OPERAND) pointer = &origin;
+        if (ORIGIN) pointer = &origin;
+        else if (DESTINATION) pointer = &dest;
         switch (operandMode){
             case IMMEDIATE:
                 operand++;
@@ -271,8 +275,8 @@ boolean isValidOperand(char * operand, int maxParamNum) {
                 assignOperandValues(pointer, True, operand);
                 break;
             case REGISTER:
-                if (FIRST_OPERAND) instruction.regisDest = regisPointer->value;
-                if (SECOND_OPERAND) instruction.regisOrigin = regisPointer->value;
+                if (ORIGIN) instruction.regisOrigin = regisPointer->value;
+                else if (DESTINATION) instruction.regisDest = regisPointer->value;
                 break;
             default:
                 return False;
@@ -300,16 +304,17 @@ boolean isValidNumber(char *number){
 boolean isValidAddressingMode(addressing_mode mode, int operandNum){
     int i;
     const addressing_mode *modes = NULL;
-    if (FIRST_OPERAND)
-        modes = commandPointer->modesDest;
-    else if (SECOND_OPERAND)
-        modes = commandPointer->modesOrigin;
+    if (ORIGIN)
+        modes = commandPointer -> modesOrigin;
+    else if (DESTINATION)
+        modes = commandPointer -> modesDest;
+
     for (i = 0; i < MAX_APPLICABLE_MODES; i++) {
         if (mode == modes[i]) {
-            if (FIRST_OPERAND)
-                instruction.destMode = modes[i];
-            else if (SECOND_OPERAND)
+            if (ORIGIN)
                 instruction.originMode = modes[i];
+            else if (DESTINATION)
+                instruction.destMode = modes[i];
             return True;
         }
     }
@@ -326,9 +331,9 @@ addressing_mode getOperandAddressingMode(char *operand) {
         return REGISTER;
     } else if (operand[0] == '&') {
         operand++;
-        if (isLabel(operand, False))
+        if (isLabel(operand, False, False))
             return INDIRECT;
-    } else if (isLabel(operand, False))
+    } else if (isLabel(operand, False, False))
         return DIRECT;
     else
         errorsExist = errorReport(INVALID_MODE, lineCount, operand);
@@ -346,5 +351,4 @@ void assignInstructionValues() {
     instruction.address = IC++;
     instruction.opCode = commandPointer -> opCode;
     instruction.function = commandPointer -> function;
-;
 }

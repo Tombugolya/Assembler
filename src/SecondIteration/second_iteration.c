@@ -82,10 +82,6 @@ void writeTestFileToOb(char *filename, Label *labelHead) {
                         errorsExist = errorReport(NONEXISTENT_LABEL, 0, token);
             }
             else if ((labelAddress = getLabelAddress(&labelHead, token))) {
-                if (labelIsEntry(&labelHead, token)){
-                    writeAddress(obFile, address, labelAddress);
-                    writeToEntFile(filename, token, labelAddress);
-                } else
                     writeAddress(obFile, address, labelAddress);
             } else if (labelIsExternal(&labelHead, token)) {
                     writeExternal(obFile, address);
@@ -95,6 +91,7 @@ void writeTestFileToOb(char *filename, Label *labelHead) {
             }
         }
     }
+    writeToEntFile(filename, &labelHead);
     fclose(testFile);
     fclose(obFile);
     remove(filenameWithTestSuffix);

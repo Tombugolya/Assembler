@@ -28,7 +28,4 @@ boolean isUniqueLabel(Label **label, char *labelName, boolean report);
 
 boolean labelIsExternal(Label **label, char *labelName);
 
-boolean labelIsEntry(Label **label, char *labelName);
-
-
 #endif /* LABEL_CHART_H */

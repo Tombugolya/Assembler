@@ -86,10 +86,10 @@ typedef struct InstructionData {
     int address;
     opcodes opCode;
     int function;
-    addressing_mode destMode;
     addressing_mode originMode;
-    int regisDest;
+    addressing_mode destMode;
     int regisOrigin;
+    int regisDest;
 } InstructionData;
 
 /* Regis struct to represent each of the 8 constant registers

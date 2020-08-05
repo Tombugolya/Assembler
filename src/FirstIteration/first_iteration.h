@@ -9,8 +9,8 @@
 #include "../ErrorReport/error_report.h"
 #include "../SecondIteration/second_iteration.h"
 
-#define FIRST_OPERAND operandNum == 1
-#define SECOND_OPERAND operandNum == 2
+#define ORIGIN (operandNum == 1 && commandPointer -> operands == 2)
+#define DESTINATION (operandNum == 2 || operandNum == 1 && commandPointer -> operands == 1)
 
 /* The first iteration over a user inputted file.
  * The function iterates over each line and does the relevant action for each scenario.
@@ -27,7 +27,7 @@ void firstIteration(char *filename, FILE *file);
  * param labelName - the token from the line to check if it is in the correct LABEL: syntax
  * param toCheckColon - condition to check if the ':' appears at the end of the label
 */
-boolean isLabel(char *labelName, boolean toCheckColon);
+boolean isLabel(char *labelName, boolean toCheckColon, boolean report);
 
 /* Checks if the line is a potential declaration line, meaning it begins with a '.'.
  * The function is combined with isValidDeclarationName()

@@ -98,14 +98,3 @@ boolean labelIsExternal(Label **label, char *labelName) {
     }
     return False;
 }
-
-boolean labelIsEntry(Label **label, char *labelName) {
-    Label * current = * label;
-    while (current != NULL) {
-        if (strcmp(current -> labelName, labelName) == 0) {
-            return current -> entry;
-        }
-        current = current -> next;
-    }
-    return False;
-}

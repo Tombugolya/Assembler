@@ -53,7 +53,7 @@ const Operation operations[] = {
         {"red", RED, 0, 1 ,{DIRECT, REGISTER, end},
                 {end, end, end}},
 
-        {"prn", PRN, 0, 1 ,{DIRECT, REGISTER, end},
+        {"prn", PRN, 0, 1 ,{IMMEDIATE, DIRECT, REGISTER},
                 {end, end, end}},
 
         {"rts", RTS, 0, 0 ,{end, end, end},

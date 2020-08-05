@@ -1,4 +1,5 @@
 #include "decode.h"
+#include "decode.h"
 
 void decodeInstruction(InstructionData data, char *filename) {
     int num;
@@ -43,17 +44,18 @@ void writeOperand(Operand operand, char *name) {
 }
 
 void writeDistance(FILE *file, int addressOrigin, int addressDestination) {
-    int distance = addressOrigin - addressDestination;
+    int distance = addressDestination - (addressOrigin - 1);
     int num;
     char binary[25];
     char *ptr;
     binary[0] = '\0';
     appendToBinaryString(distance, 21, binary);
-    appendToBinaryString(0, 1, binary);
     appendToBinaryString(1, 1, binary);
     appendToBinaryString(0, 1, binary);
+    appendToBinaryString(0, 1, binary);
     binary[24] = '\0';
-    printf("BINARY DISTANCE: %s\n", binary);
+    printf("LABEL IS LOCATED IN ADDRESS: %d\tCODE IS LOCATED IN ADDRESS: %d\n", addressDestination, (addressOrigin - 1));
+    printf("DISTANCE IS : %s\n", binary);
     num = strtol(binary, &ptr, 2);
     fprintf(file, "%08d\t%06x\n", addressOrigin, num);
 }
@@ -156,16 +158,22 @@ void writeToExtFile(char *filename, char *labelName, int address) {
     fclose(filePointer);
 }
 
-void writeToEntFile(char *filename, char *labelName, int address) {
+void writeToEntFile(char *filename, Label **list) {
     FILE *filePointer;
     char *fileName;
+    Label *current = *list;
     fileName = malloc(strlen(filename));
     strcpy(fileName, filename);
     strcat(fileName, ".ent");
     filePointer = fopen(fileName, "a");
-    fprintf(filePointer, "%s\t%08d\n",
-            labelName,
-            address
-    );
+    while (current != NULL) {
+        if (current -> entry) {
+            fprintf(filePointer, "%s\t%08d\n",
+                    current -> labelName,
+                    current -> address
+            );
+        }
+        current = current -> next;
+    }
     fclose(filePointer);
 }
