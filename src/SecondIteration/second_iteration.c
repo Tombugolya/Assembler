@@ -5,9 +5,9 @@ boolean errorsExist = False;
 void secondIteration(char *filename, FILE *file, Label *labelHead) {
     rewind(file);
     readFileLineByLineSecondTime(file, labelHead);
-    printLabelChart(&labelHead);
     fclose(file);
     createObFile(filename, labelHead);
+    freeLabelChart(&labelHead);
     if (errorsExist)
         removeFiles(filename);
 }
@@ -29,13 +29,9 @@ void readFileLineByLineSecondTime(FILE *file, Label *labelHead) {
 
 
 boolean isEntry(char *entryName) {
-    size_t len = strlen(entryName);
-    char *name = NULL;
-    name = (char *) malloc(len - 1);
-    strncpy(name, entryName + 1, len - 1);
-    name[len - 1] = '\0';
     if (entryName[0] == '.') {
-        if (strcmp(name, "entry") == 0)
+        entryName++;
+        if (strcmp(entryName, "entry") == 0)
             return True;
     }
     return False;
@@ -50,14 +46,8 @@ void processEntryLine(char *arguments, Label *labelHead) {
 void createObFile(char *filename, Label *labelHead) {
     FILE *testFile = NULL;
     FILE *obFile = NULL;
-    char *filenameWithTestSuffix = NULL;
-    char *filenameWithObSuffix = NULL;
-    filenameWithTestSuffix = malloc(strlen(filename));
-    strcpy(filenameWithTestSuffix, filename);
-    strcat(filenameWithTestSuffix, TEST_EXTENSION);
-    filenameWithObSuffix = malloc(strlen(filename));
-    strcpy(filenameWithObSuffix, filename);
-    strcat(filenameWithObSuffix, OB_EXTENSION);
+    char *filenameWithTestSuffix = concat(filename, TEST_EXTENSION);
+    char *filenameWithObSuffix = concat(filename, OB_EXTENSION);
     testFile = fopen(filenameWithTestSuffix, "r");
     obFile = fopen(filenameWithObSuffix, "w");
     transferContentFromTestToOb(testFile, obFile, filename, labelHead);
@@ -65,6 +55,8 @@ void createObFile(char *filename, Label *labelHead) {
     fclose(testFile);
     fclose(obFile);
     remove(filenameWithTestSuffix);
+    free(filenameWithTestSuffix);
+    free(filenameWithObSuffix);
 }
 
 void transferContentFromTestToOb(FILE *testFile, FILE *obFile, char *filename, Label *labelHead) {

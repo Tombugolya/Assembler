@@ -7,8 +7,8 @@
 #include "../Common/common.h"
 #include "../ErrorReport/error_report.h"
 
-#define FILE_TYPE ".as"
-#define FILE_TYPE_LEN strlen(FILE_TYPE)
+#define AS_EXTENSION ".as"
+#define FILE_TYPE_LEN strlen(AS_EXTENSION)
 
 /* Function that retries the filename without the suffix
  * param file - the full name of the file

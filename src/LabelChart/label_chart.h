@@ -28,4 +28,6 @@ boolean isUniqueLabel(Label **label, char *labelName, boolean report);
 
 boolean labelIsExternal(Label **label, char *labelName);
 
+void freeLabelChart(Label **label);
+
 #endif /* LABEL_CHART_H */

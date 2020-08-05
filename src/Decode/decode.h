@@ -1,7 +1,7 @@
 #ifndef ASSEMBLER_DECODE_H
 #define ASSEMBLER_DECODE_H
 #include <stdarg.h>
-#include "../LinkedListOfDataCommands/data_commands.h"
+#include "../LinkedListOfDataCommands/declaration_commands.h"
 #include "../LabelChart/label_chart.h"
 #include "../UtilFunctions/functions.h"
 

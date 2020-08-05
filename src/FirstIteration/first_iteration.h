@@ -4,7 +4,7 @@
 #include "../Common/common.h"
 #include "../UtilFunctions/functions.h"
 #include "../LabelChart/label_chart.h"
-#include "../LinkedListOfDataCommands/data_commands.h"
+#include "../LinkedListOfDataCommands/declaration_commands.h"
 #include "../Decode/decode.h"
 #include "../ErrorReport/error_report.h"
 #include "../SecondIteration/second_iteration.h"

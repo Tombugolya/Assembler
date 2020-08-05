@@ -93,13 +93,9 @@ boolean isLabel(char *labelName, boolean toCheckColon, boolean report) {
 }
 
 boolean isDeclaration(char *declarationName) {
-    size_t len = strlen(declarationName);
-    char *name = NULL;
-    name = (char *) malloc(len - 1);
-    strncpy(name, declarationName + 1, len - 1);
-    name[len - 1] = '\0';
     if (declarationName[0] == '.') {
-        if (isValidDeclarationName(name))
+        declarationName++;
+        if (isValidDeclarationName(declarationName))
             return True;
         else
             errorsExist = errorReport(UNKNOWN_DECLARATION_COMMAND, lineCount, declarationName);
@@ -173,16 +169,15 @@ void processDeclarationLine(char *arguments) {
 
 void processString(char *arguments) {
     size_t len;
-    char *stringContent = NULL;
     int i;
     arguments = strtok(NULL, "\n");
     arguments = trimWhiteSpace(arguments);
-    if (arguments[0] == '"' && arguments[len = (strlen(arguments) - 1)] == '"') {
-        stringContent = malloc(len);
-        strncpy(stringContent, arguments + 1, len - 1);
-        stringContent[len - 1] = '\0';
-        for (i=0 ; i < strlen(stringContent) ; i++)
-            addToDeclarationCommands(&declarationsHead, DC++, STRING, stringContent[i]);
+    len = strlen(arguments) - 1;
+    if (arguments[0] == '"' && arguments[len] == '"') {
+        arguments++;
+        arguments[len - 1] = '\0';
+        for (i=0 ; i < strlen(arguments) ; i++)
+            addToDeclarationCommands(&declarationsHead, DC++, STRING, arguments[i]);
         addToDeclarationCommands(&declarationsHead, DC++, STRING, '\0');
     } else {
         errorsExist = errorReport(NO_QUOTATIONS, lineCount, arguments);
@@ -192,14 +187,10 @@ void processString(char *arguments) {
 void processData(char *arguments) {
     int num;
     char *endPtr = NULL;
-    char *saveContent = NULL;
     arguments = strtok(NULL, ",\n");
     while (arguments != NULL) {
-        saveContent = malloc(strlen(arguments));
-        strcpy(saveContent, arguments);
-        saveContent[strlen(saveContent)] = '\0';
-        if (isValidNumber(saveContent)) {
-            num = strtol(saveContent, &endPtr, 10);
+        if (isValidNumber(arguments)) {
+            num = strtol(arguments, &endPtr, 10);
             addToDeclarationCommands(&declarationsHead, DC, DATA, num);
             DC++;
         }

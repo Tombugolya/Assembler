@@ -1,4 +1,4 @@
-#include "data_commands.h"
+#include "declaration_commands.h"
 
 void addToDeclarationCommands(DeclarationCommands **list, int address, line_type type, int value) {
     DeclarationCommands *current;
@@ -33,19 +33,14 @@ void addToDeclarationCommands(DeclarationCommands **list, int address, line_type
     }
 }
 
-void printDeclarationCommands(DeclarationCommands **list) {
-    DeclarationCommands * current = * list;
-    printf("ADDRESS\t\tNUM\tCHAR\tTYPE\n");
-    while (current != NULL) {
-        printf("%d\t\t%d\t%c\t%d\t\n", current->address, current->num, current->character, current->type);
-        current = current -> next;
-    }
-}
-
 void updateDeclarationCommands(DeclarationCommands **list, int IC) {
     DeclarationCommands * current = * list;
     while (current != NULL) {
         current -> address += IC;
         current = current -> next;
     }
+}
+
+void freeDeclarationCommands(DeclarationCommands **list) {
+    free(*list);
 }

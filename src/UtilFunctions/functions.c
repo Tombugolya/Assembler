@@ -6,12 +6,11 @@ char * getFilename(char *file){
     char * filename;
     int i;
     filename = (char *) malloc(len - FILE_TYPE_LEN);
-
     if (len > 3) {
         last_three = &file[len - FILE_TYPE_LEN];
         for(i=0 ; last_three[i] ; i++)
             last_three[i] = (char) tolower(last_three[i]);
-        if (strcmp(last_three, FILE_TYPE) == 0) {
+        if (strcmp(last_three, AS_EXTENSION) == 0) {
             memcpy(filename, file, len - FILE_TYPE_LEN);
             filename[len - FILE_TYPE_LEN] = '\0';
             return filename;
@@ -50,13 +49,11 @@ char * trimWhiteSpace(char *str) {
 
 void createTestFile(char *name) {
     FILE * filePointer;
-    char *fileName;
-    fileName = malloc(strlen(name));
-    strcpy(fileName, name);
-    strcat(fileName, TEST_EXTENSION);
+    char *fileName = concat(name, TEST_EXTENSION);
     filePointer = fopen(fileName, "w");
     fprintf(filePointer,"%*d\t%*d\n", 8, 10, 6, 10);
     fclose(filePointer);
+    free(fileName);
 }
 
 void removeFiles(char *name) {

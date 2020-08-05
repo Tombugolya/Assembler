@@ -22,13 +22,10 @@ void decodeInstruction(InstructionData data, char *filename) {
 
 void writeOperand(Operand operand, char *name) {
     FILE *filePointer;
-    char *fileName;
+    char *fileName = concat(name, TEST_EXTENSION);
     char *ptr;
     char binary[25];
     int num;
-    fileName = malloc(strlen(name));
-    strcpy(fileName, name);
-    strcat(fileName, TEST_EXTENSION);
     filePointer = fopen(fileName, "a");
     binary[0] = '\0';
     num = strtol(operand.value, &ptr, 10);
@@ -37,9 +34,10 @@ void writeOperand(Operand operand, char *name) {
     appendToBinaryString(0, 1, binary);
     appendToBinaryString(0, 1, binary);
     binary[24] = '\0';
-    num=strtol(binary, &ptr, 2);
+    num = strtol(binary, &ptr, 2);
     fprintf(filePointer, "%08d\t%06x\n", operand.address, num);
     fclose(filePointer);
+    free(fileName);
 }
 
 void writeDistance(FILE *file, int addressOrigin, int addressDestination) {
@@ -77,39 +75,32 @@ void writeAddress(FILE *file, int addressOrigin, int labelAddress) {
 
 void reserveOperand(Operand operand, char *name) {
     FILE *filePointer;
-    char *fileName;
-    fileName = malloc(strlen(name));
-    strcpy(fileName, name);
-    strcat(fileName, TEST_EXTENSION);
+    char *fileName = concat(name, TEST_EXTENSION);
     filePointer = fopen(fileName, "a");
     printf("%c%d\t%s\n", RESERVED_SIGN, operand.address, operand.value);
     fprintf(filePointer, "%c%d\t%s\n", RESERVED_SIGN, operand.address, operand.value);
     fclose(filePointer);
+    free(fileName);
 }
 
 void writeICDC(char *name, int IC, int DC){
     FILE *filePointer;
-    char *fileName;
-    fileName = malloc(strlen(name));
-    strcpy(fileName, name);
-    strcat(fileName, TEST_EXTENSION);
+    char *fileName = concat(name, TEST_EXTENSION);
     filePointer = fopen(fileName, "r+");
     fprintf(filePointer,"%*d\t%*d\n", 8, IC, 6, DC);
     fclose(filePointer);
+    free(fileName);
 }
 
 void writeData(DeclarationCommands **list, char *name){
     FILE *filePointer;
     DataCode code;
     DeclarationCommands *current = *list;
-    char *fileName;
+    char *fileName = concat(name, TEST_EXTENSION);
     char *ptr;
     char binary[25];
     int num;
     binary[0] = '\0';
-    fileName = malloc(strlen(name));
-    strcpy(fileName, name);
-    strcat(fileName, TEST_EXTENSION);
     filePointer = fopen(fileName, "a");
     while (current != NULL){
         if (current -> type == STRING)
@@ -125,43 +116,38 @@ void writeData(DeclarationCommands **list, char *name){
         binary[0] = '\0';
     }
     fclose(filePointer);
+    free(fileName);
+    freeDeclarationCommands(list);
 }
 
 void writeHexadecimal(int num, int address, char *name) {
     FILE *filePointer;
-    char *fileName;
-    fileName = malloc(strlen(name));
-    strcpy(fileName, name);
-    strcat(fileName, TEST_EXTENSION);
+    char *fileName = concat(name, TEST_EXTENSION);
     filePointer = fopen(fileName, "a");
     fprintf(filePointer, "%08d\t%06x\n",
            address,
            num
     );
     fclose(filePointer);
+    free(fileName);
 }
 
 void writeToExtFile(char *filename, char *labelName, int address) {
     FILE *filePointer;
-    char *fileName;
-    fileName = malloc(strlen(filename));
-    strcpy(fileName, filename);
-    strcat(fileName, EXT_EXTENSION);
+    char *fileName = concat(filename, EXT_EXTENSION);
     filePointer = fopen(fileName, "a");
     fprintf(filePointer, "%s\t%08d\n",
             labelName,
             address
     );
     fclose(filePointer);
+    free(fileName);
 }
 
 void writeToEntFile(char *filename, Label **list) {
     FILE *filePointer;
-    char *fileName;
+    char *fileName = concat(filename, ENT_EXTENSION);
     Label *current = *list;
-    fileName = malloc(strlen(filename));
-    strcpy(fileName, filename);
-    strcat(fileName, ENT_EXTENSION);
     filePointer = fopen(fileName, "a");
     while (current != NULL) {
         if (current -> entry) {
@@ -173,4 +159,5 @@ void writeToEntFile(char *filename, Label **list) {
         current = current -> next;
     }
     fclose(filePointer);
+    free(fileName);
 }

@@ -98,3 +98,7 @@ boolean labelIsExternal(Label **label, char *labelName) {
     }
     return False;
 }
+
+void freeLabelChart(Label **label) {
+    free(*label);
+}

@@ -24,5 +24,6 @@ void processFiles(int argc, char **argv){
             removeFiles(filename);
             firstIteration(filename, file);
         }
+        free(filename);
     }
 }

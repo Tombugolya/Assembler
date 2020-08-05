@@ -1,5 +1,5 @@
-#ifndef ASSEMBLER_DATA_COMMANDS_H
-#define ASSEMBLER_DATA_COMMANDS_H
+#ifndef ASSEMBLER_DECLARATION_COMMANDS_H
+#define ASSEMBLER_DECLARATION_COMMANDS_H
 #include "../Common/common.h"
 
 typedef struct DeclarationCommands {
@@ -12,8 +12,8 @@ typedef struct DeclarationCommands {
 
 void addToDeclarationCommands(DeclarationCommands **list, int address, line_type type, int value);
 
-void printDeclarationCommands(DeclarationCommands **list);
-
 void updateDeclarationCommands(DeclarationCommands **list, int IC);
 
-#endif //ASSEMBLER_DATA_COMMANDS_H
+void freeDeclarationCommands(DeclarationCommands **list);
+
+#endif //ASSEMBLER_DECLARATION_COMMANDS_H
