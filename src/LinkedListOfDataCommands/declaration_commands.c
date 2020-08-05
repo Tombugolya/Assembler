@@ -34,7 +34,7 @@ void addToDeclarationCommands(DeclarationCommands **list, int address, line_type
 }
 
 void updateDeclarationCommands(DeclarationCommands **list, int IC) {
-    DeclarationCommands * current = * list;
+    DeclarationCommands *current = *list;
     while (current != NULL) {
         current -> address += IC;
         current = current -> next;

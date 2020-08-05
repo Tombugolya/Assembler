@@ -35,7 +35,7 @@ void writeOperand(Operand operand, char *name) {
     appendToBinaryString(0, 1, binary);
     binary[24] = '\0';
     num = strtol(binary, &ptr, 2);
-    fprintf(filePointer, "%08d\t%06x\n", operand.address, num);
+    fprintf(filePointer, "%08d\t%06X\n", operand.address, num);
     fclose(filePointer);
     free(fileName);
 }
@@ -52,11 +52,11 @@ void writeDistance(FILE *file, int addressOrigin, int addressDestination) {
     appendToBinaryString(0, 1, binary);
     binary[24] = '\0';
     num = strtol(binary, &ptr, 2);
-    fprintf(file, "%08d\t%06x\n", addressOrigin, num);
+    fprintf(file, "%08d\t%06X\n", addressOrigin, num);
 }
 
 void writeExternal(FILE *file, int addressOrigin) {
-    fprintf(file, "%08d\t%06x\n", addressOrigin, 1);
+    fprintf(file, "%08d\t%06X\n", addressOrigin, 1);
 }
 
 void writeAddress(FILE *file, int addressOrigin, int labelAddress) {
@@ -70,7 +70,7 @@ void writeAddress(FILE *file, int addressOrigin, int labelAddress) {
     appendToBinaryString(0, 1, binary);
     binary[24] = '\0';
     num = strtol(binary, &ptr, 2);
-    fprintf(file, "%08d\t%06x\n", addressOrigin, num);
+    fprintf(file, "%08d\t%06X\n", addressOrigin, num);
 }
 
 void reserveOperand(Operand operand, char *name) {
@@ -111,7 +111,7 @@ void writeData(DeclarationCommands **list, char *name){
         binary[24] = '\0';
         num=strtol(binary, &ptr, 2);
         printf("%d\t%s\n",current -> address, binary);
-        fprintf(filePointer, "%08d\t%06x\n", current -> address, num);
+        fprintf(filePointer, "%08d\t%06X\n", current -> address, num);
         current = current -> next;
         binary[0] = '\0';
     }
@@ -124,9 +124,9 @@ void writeHexadecimal(int num, int address, char *name) {
     FILE *filePointer;
     char *fileName = concat(name, TEST_EXTENSION);
     filePointer = fopen(fileName, "a");
-    fprintf(filePointer, "%08d\t%06x\n",
-           address,
-           num
+    fprintf(filePointer, "%08d\t%06X\n",
+       address,
+       num
     );
     fclose(filePointer);
     free(fileName);
@@ -137,8 +137,8 @@ void writeToExtFile(char *filename, char *labelName, int address) {
     char *fileName = concat(filename, EXT_EXTENSION);
     filePointer = fopen(fileName, "a");
     fprintf(filePointer, "%s\t%08d\n",
-            labelName,
-            address
+        labelName,
+        address
     );
     fclose(filePointer);
     free(fileName);
@@ -152,8 +152,8 @@ void writeToEntFile(char *filename, Label **list) {
     while (current != NULL) {
         if (current -> entry) {
             fprintf(filePointer, "%s\t%08d\n",
-                    current -> labelName,
-                    current -> address
+                current -> labelName,
+                current -> address
             );
         }
         current = current -> next;

@@ -15,8 +15,8 @@ void fileManagement(int argc, char **argv){
 
 void processFiles(int argc, char **argv){
     int i;
-    char * filename;
-    FILE * file;
+    char *filename;
+    FILE *file;
     for (i = INPUT ; i < argc ; i++){
         filename = getFilename(argv[i]);
         file = getFile(argv[i]);

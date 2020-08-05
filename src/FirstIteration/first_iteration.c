@@ -57,12 +57,10 @@ void readFileLineByLineFirstTime(char *filename, FILE *file) {
             else if (isComment(token)){
                 token = NULL;
                 break;
-            }
-            else if (isDeclaration(token)) {
+            } else if (isDeclaration(token)) {
                 isExtern() ? processExternLine(line) : processDeclarationLine(line);
                 break;
-            }
-            else if (isInstruction(token, True))
+            } else if (isInstruction(token, True))
                 processInstructionLine(line, filename);
             token = strtok(NULL, delimiters);
         }
@@ -81,8 +79,7 @@ boolean isLabel(char *labelName, boolean toCheckColon, boolean report) {
             memcpy(label, labelName, (toCheckColon ? len - 1 : len));
             label[len] = '\0';
             return True;
-        }
-        else {
+        } else {
             if (report)
                 errorsExist = errorReport(TOO_MANY_LABELS, lineCount, labelName);
             else
@@ -230,10 +227,10 @@ void processInstructionLine(char *arguments, char *filename) {
 }
 
 void handleOperands(char *filename) {
-    if (destinationOperand.active)
-        destinationOperand.reserve ? reserveOperand(destinationOperand, filename) : writeOperand(destinationOperand, filename);
     if (originOperand.active)
         originOperand.reserve ? reserveOperand(originOperand, filename) : writeOperand(originOperand, filename);
+    if (destinationOperand.active)
+        destinationOperand.reserve ? reserveOperand(destinationOperand, filename) : writeOperand(destinationOperand, filename);
 }
 
 /*TODO: Potentially you might want to change all of the 'filename' parameters to be the file, instead of opening and closing it every function call*/

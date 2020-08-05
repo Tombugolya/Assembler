@@ -16,8 +16,6 @@ void addToLabelChart(Label **label, char *name, int address, line_type type, boo
 
 int getLabelAddress(Label **label, char *labelName);
 
-void printLabelChart(Label **label);
-
 void updateLabelAddress(Label **label, char *labelName, int value);
 
 void updateLabelIsEntry(Label **label, char *labelName, boolean isEntry);
