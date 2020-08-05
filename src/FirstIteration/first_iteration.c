@@ -52,9 +52,9 @@ void readFileLineByLineFirstTime(char *filename, FILE *file) {
         memset(label, 0, MAX_LABEL_CHARS);
         token = strtok(line, delimiters);
         while(token != NULL) {
-            if (isLabel(token, True, True))
+            if (isLabel(token, True, True)) {
                 isLabelFlag = True;
-            else if (isComment(token)){
+            } else if (isComment(token)){
                 token = NULL;
                 break;
             } else if (isDeclaration(token)) {
@@ -69,13 +69,20 @@ void readFileLineByLineFirstTime(char *filename, FILE *file) {
 
 boolean isLabel(char *labelName, boolean toCheckColon, boolean report) {
     size_t len = strlen(labelName);
+
     if (isalpha(labelName[0]) && (toCheckColon ? labelName[len - 1] == ':' : True)) {
+
         if (toCheckColon) labelName[len-1] = '\0';
-        if (len >= MAX_LABEL_CHARS)
+
+        if (len >= MAX_LABEL_CHARS) {
             return !(errorsExist = errorReport(LABEL_TOO_LONG, lineCount, labelName));
-        else if (isRegister(labelName, False) || isInstruction(labelName, False) || isValidDeclarationName(labelName))
+        } else if ( /* If the name matches a register / instruction operation or declaration operation name it should throw an error */
+            isRegister(labelName, False) ||
+            isInstruction(labelName, False) ||
+            isValidDeclarationName(labelName)
+        ) {
             return !(errorsExist = errorReport(RESERVED_NAME, lineCount, labelName));
-        else if (!isLabelFlag) {
+        } else if (!isLabelFlag) {
             memcpy(label, labelName, (toCheckColon ? len - 1 : len));
             label[len] = '\0';
             return True;
@@ -102,7 +109,7 @@ boolean isDeclaration(char *declarationName) {
 
 boolean isInstruction(char *commandName, boolean report) {
     int i;
-    for (i=0; i < OPERATION_NUM ; i++) {
+    for (i = 0; i < OPERATION_NUM ; i++) {
         if (strcmp(commandName, OPERATIONS[i].name) == 0 ) {
             commandPointer = &OPERATIONS[i];
             return True;
@@ -114,7 +121,7 @@ boolean isInstruction(char *commandName, boolean report) {
 
 boolean isRegister(char *regis, boolean assign) {
     int i;
-    for (i=0 ; i < REGISTER_NUM ; i++) {
+    for (i = 0 ; i < REGISTER_NUM ; i++) {
         if (strcmp(regis, REGISTERS[i].name) == 0) {
             if (assign) registerPointer = &REGISTERS[i];
             return True;
@@ -151,6 +158,7 @@ boolean isValidDeclarationName(char *declarationName) {
 void processDeclarationLine(char *arguments) {
     if (isLabelFlag && isUniqueLabel(&labelHead, label, True))
         addToLabelChart(&labelHead, label, DC, type, False, False);
+
     switch (type) {
         case STRING:
             processString(arguments);
@@ -170,10 +178,11 @@ void processString(char *arguments) {
     arguments = strtok(NULL, "\n");
     arguments = trimWhiteSpace(arguments);
     len = strlen(arguments) - 1;
+
     if (arguments[0] == '"' && arguments[len] == '"') {
         arguments++;
         arguments[len - 1] = '\0';
-        for (i=0 ; i < strlen(arguments) ; i++)
+        for (i = 0 ; i < strlen(arguments) ; i++)
             addToDeclarationCommands(&declarationsHead, DC++, STRING, arguments[i]);
         addToDeclarationCommands(&declarationsHead, DC++, STRING, '\0');
     } else {
@@ -185,6 +194,7 @@ void processData(char *arguments) {
     int num;
     char *endPtr = NULL;
     arguments = strtok(NULL, ",\n");
+
     while (arguments != NULL) {
         if (isValidNumber(arguments)) {
             num = strtol(arguments, &endPtr, 10);
@@ -200,11 +210,13 @@ void processExternLine(char *arguments) {
         errorsExist = errorReport(EXTERN_AFTER_LABEL, lineCount, arguments);
         return;
     }
+
     arguments = strtok(NULL, delimiters);
-    if (isLabel(arguments, False, True))
-        isUniqueLabel(&labelHead, arguments, False) ? addToLabelChart(&labelHead, arguments, 0, DATA, False, True) : updateLabelAddress(
-                &labelHead, label, 0);
-    else
+    if (isLabel(arguments, False, True)) {
+        isUniqueLabel(&labelHead, arguments, False) ?
+            addToLabelChart(&labelHead, arguments, 0, DATA, False, True) :
+            updateLabelAddress(&labelHead, label, 0);
+    } else
         errorsExist = errorReport(INVALID_LABEL, lineCount, arguments);
 }
 
@@ -212,23 +224,25 @@ void processInstructionLine(char *arguments, char *filename) {
     instruction = EmptyInstruction;
     destinationOperand = EmptyOperand;
     originOperand = EmptyOperand;
+
     if (isLabelFlag && isUniqueLabel(&labelHead, label, True))
         addToLabelChart(&labelHead, label, IC, INSTRUCTION, False, False);
+
     assignInstructionValues();
+
     if (commandPointer -> operands > 0) {
         if (isValidOperand(arguments, commandPointer -> operands)) {
             decodeInstruction(instruction, filename);
             handleOperands(filename);
         }
-    }
-    else { /* No operands */
+    } else  /* No operands */
         decodeInstruction(instruction, filename);
-    }
 }
 
 void handleOperands(char *filename) {
     if (originOperand.active)
         originOperand.reserve ? reserveOperand(originOperand, filename) : writeOperand(originOperand, filename);
+
     if (destinationOperand.active)
         destinationOperand.reserve ? reserveOperand(destinationOperand, filename) : writeOperand(destinationOperand, filename);
 }
@@ -236,7 +250,7 @@ void handleOperands(char *filename) {
 /*TODO: Potentially you might want to change all of the 'filename' parameters to be the file, instead of opening and closing it every function call*/
 boolean isValidOperand(char *operand, int maxParamNum) {
     int operandNum = 0;
-    char *pt = NULL;
+    char *whitespacePointer = NULL;
     addressing_mode operandMode;
     Operand *pointer;
     operand = strtok(NULL, ",\n");
@@ -244,16 +258,22 @@ boolean isValidOperand(char *operand, int maxParamNum) {
         operandNum++;
         if (operandNum > maxParamNum)
             return !(errorsExist = errorReport(TOO_MANY_ARGUMENTS, lineCount));
+
         operand = trimWhiteSpace(operand);
-        pt = strpbrk(operand, " \t");
-        if (pt != NULL)
+
+        whitespacePointer = strpbrk(operand, " \t");
+        if (whitespacePointer != NULL)
             return !(errorsExist = errorReport(NOT_COMMA_SEPARATED, lineCount));
+
         if ((operandMode = getOperandAddressingMode(operand)) == ERROR)
             return False;
+
         if (!isValidAddressingMode(operandMode, operandNum))
             return !(errorsExist = errorReport(INVALID_OPERAND_TYPE, lineCount, operandMode, commandPointer->name));
+
         if (ORIGIN) pointer = &originOperand;
         else if (DESTINATION) pointer = &destinationOperand;
+
         switch (operandMode){
             case IMMEDIATE:
                 operand++;
@@ -270,10 +290,13 @@ boolean isValidOperand(char *operand, int maxParamNum) {
             default:
                 return False;
         }
+
         operand = strtok(NULL, ",\n");
     }
+
     if (operandNum < maxParamNum)
         return !(errorsExist = errorReport(TOO_FEW_ARGUMENTS, lineCount));
+
     return True;
 }
 
@@ -281,18 +304,21 @@ boolean isValidNumber(char *number){
     int i;
     boolean isValidParam = True;
     number = trimWhiteSpace(number);
-    for(i=0; i < strlen(number) ; i++) {
+
+    for (i = 0; i < strlen(number) ; i++) {
         if (i==0 && (number[i] == '-' || number[i] == '+'))
             isValidParam = True;
         else if (number[i] != ' ' && number[i] != '\t' && !isdigit(number[i]))
             return !(errorsExist = errorReport(INVALID_NUMBER, lineCount, number));
     }
+
     return isValidParam;
 }
 
 boolean isValidAddressingMode(addressing_mode mode, int operandNum){
     int i;
     const addressing_mode *modes = NULL;
+
     if (ORIGIN)
         modes = commandPointer -> modesOrigin;
     else if (DESTINATION)
@@ -312,6 +338,7 @@ boolean isValidAddressingMode(addressing_mode mode, int operandNum){
 
 addressing_mode getOperandAddressingMode(char *operand) {
     operand = trimWhiteSpace(operand);
+
     if (operand[0] == '#'){
         operand++;
         if (isValidNumber(operand))
@@ -326,6 +353,7 @@ addressing_mode getOperandAddressingMode(char *operand) {
         return DIRECT;
     else
         errorsExist = errorReport(INVALID_MODE, lineCount, operand);
+
     return ERROR;
 }
 
