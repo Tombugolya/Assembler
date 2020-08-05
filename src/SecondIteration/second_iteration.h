@@ -14,13 +14,13 @@
  * param file - the file to read
  * param labelHead - the Label Chart from the first iteration
 */
-void secondIteration(char *filename, FILE *file, Label *labelHead);
+void secondIteration(char *filename, FILE *file, LabelChart *labelHead);
 
 /* Reads the file line by line and sends it over to the relevant function
  * param file - the file to read
  * param labelHead - the label chart
 */
-void readFileLineByLineSecondTime(FILE *file, Label *labelHead);
+void readFileLineByLineSecondTime(FILE *file, LabelChart *labelHead);
 
 /* Checks if the line is an .entry declaration line and returns the relevant boolean value
  * param entryName - the line to check
@@ -31,13 +31,13 @@ boolean isEntry(char *entryName);
  * param arguments - the arguments to check
  * param labelHead - the label chart
 */
-void processEntryLine(char *arguments, Label *labelHead);
+void processEntryLine(char *arguments, LabelChart *labelHead);
 
 /* Creates the final .ob, .ent and .ext files
  * param filename - the name of the file
  * param labelHead - the label chart
 */
-void createFiles(char *filename, Label *labelHead);
+void createFiles(char *filename, LabelChart *labelHead);
 
 /* Copies the content from the .test file to the .ob file and checks for reserved lines
  * param testFile - the test file to copy from
@@ -45,7 +45,7 @@ void createFiles(char *filename, Label *labelHead);
  * param filename - the name of the file
  * param labelHead - the label chart
 */
-void transferContentFromTestToOb(FILE *testFile, FILE *obFile, char *filename, Label *labelHead);
+void transferContentFromTestToOb(FILE *testFile, FILE *obFile, char *filename, LabelChart *labelHead);
 
 /* Handles the reserved lines from the first iteration and overwrites them to the proper address / distance of the label
  * param line - the current line on the test file
@@ -53,6 +53,6 @@ void transferContentFromTestToOb(FILE *testFile, FILE *obFile, char *filename, L
  * param filename - the name of the file
  * param labelHead - the label chart
 */
-void overwriteReservedLines(char *line, FILE *obFile, char *filename, Label *labelHead);
+void overwriteReservedLines(char *line, FILE *obFile, char *filename, LabelChart *labelHead);
 
 #endif //ASSEMBLER_SECOND_ITERATION_H

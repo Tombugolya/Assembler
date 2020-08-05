@@ -1,9 +1,9 @@
 #include "label_chart.h"
 
-void addToLabelChart(Label **label, char *name, int address, line_type type, boolean is_entry, boolean is_extern) {
-    Label *current;
+void addToLabelChart(LabelChart **label, char *name, int address, line_type type, boolean is_entry, boolean is_extern) {
+    LabelChart *current;
     if(*label == NULL) {
-        *label = (Label *)malloc(sizeof(Label));
+        *label = (LabelChart *)malloc(sizeof(LabelChart));
         strcpy((* label) -> labelName, name);
         (*label) -> address = address;
         (*label) -> type = type;
@@ -15,7 +15,7 @@ void addToLabelChart(Label **label, char *name, int address, line_type type, boo
         current = *label;
         while(current -> next)
             current = current->next;
-        current -> next = (Label *) malloc(sizeof(Label));
+        current -> next = (LabelChart *) malloc(sizeof(LabelChart));
         strcpy(current -> next -> labelName, name);
         current -> next -> address = address;
         current -> next -> type = type;
@@ -25,8 +25,8 @@ void addToLabelChart(Label **label, char *name, int address, line_type type, boo
     }
 }
 
-int getLabelAddress(Label **label, char *labelName) {
-    Label *current = *label;
+int getLabelAddress(LabelChart **label, char *labelName) {
+    LabelChart *current = *label;
     while (current != NULL) {
         if (strcmp(current -> labelName, labelName) == 0)
             return current -> address;
@@ -35,8 +35,8 @@ int getLabelAddress(Label **label, char *labelName) {
     return 0;
 }
 
-void updateLabelAddress(Label **label, char *labelName, int value) {
-    Label *current = *label;
+void updateLabelAddress(LabelChart **label, char *labelName, int value) {
+    LabelChart *current = *label;
     while (current != NULL) {
         if (strcmp(current -> labelName, labelName) == 0) {
             current -> address = value;
@@ -46,8 +46,8 @@ void updateLabelAddress(Label **label, char *labelName, int value) {
     }
 }
 
-void updateLabelIsEntry(Label **label, char *labelName, boolean isEntry) {
-    Label *current = *label;
+void updateLabelIsEntry(LabelChart **label, char *labelName, boolean isEntry) {
+    LabelChart *current = *label;
     while (current != NULL) {
         if (strcmp(current -> labelName, labelName) == 0) {
             current -> entry = isEntry;
@@ -57,8 +57,8 @@ void updateLabelIsEntry(Label **label, char *labelName, boolean isEntry) {
     }
 }
 
-void updateLabelChart(Label **label, int IC) {
-    Label *current = *label;
+void updateLabelChart(LabelChart **label, int IC) {
+    LabelChart *current = *label;
     while (current != NULL) {
         if (current -> type != INSTRUCTION && !current -> external) {
             current -> address += IC;
@@ -67,8 +67,8 @@ void updateLabelChart(Label **label, int IC) {
     }
 }
 
-boolean isUniqueLabel(Label **label, char *labelName, boolean report) {
-    Label *current = *label;
+boolean isUniqueLabel(LabelChart **label, char *labelName, boolean report) {
+    LabelChart *current = *label;
     while (current != NULL) {
         if (strcmp(current -> labelName, labelName) == 0) {
             if (report) errorReport(NOT_UNIQUE_LABEL, 0, labelName);
@@ -79,8 +79,8 @@ boolean isUniqueLabel(Label **label, char *labelName, boolean report) {
     return True;
 }
 
-boolean labelIsExternal(Label **label, char *labelName) {
-    Label *current = *label;
+boolean labelIsExternal(LabelChart **label, char *labelName) {
+    LabelChart *current = *label;
     while (current != NULL) {
         if (strcmp(current -> labelName, labelName) == 0) {
             return current -> external;
@@ -90,6 +90,11 @@ boolean labelIsExternal(Label **label, char *labelName) {
     return False;
 }
 
-void freeLabelChart(Label **label) {
-    free(*label);
+void freeLabelChart(LabelChart *label) {
+    LabelChart  *current;
+    while (label != NULL) {
+        current = label;
+        label = label -> next;
+        free(current);
+    }
 }

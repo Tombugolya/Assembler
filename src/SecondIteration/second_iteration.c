@@ -2,17 +2,17 @@
 
 boolean errorsExist = False;
 
-void secondIteration(char *filename, FILE *file, Label *labelHead) {
+void secondIteration(char *filename, FILE *file, LabelChart *labelHead) {
     rewind(file);
     readFileLineByLineSecondTime(file, labelHead);
     fclose(file);
     createFiles(filename, labelHead);
-    freeLabelChart(&labelHead);
+    freeLabelChart(labelHead);
     if (errorsExist)
         removeFiles(filename);
 }
 
-void readFileLineByLineSecondTime(FILE *file, Label *labelHead) {
+void readFileLineByLineSecondTime(FILE *file, LabelChart *labelHead) {
     char line[MAX_LINE_CHARS];
     char *token = NULL;
 
@@ -38,14 +38,14 @@ boolean isEntry(char *entryName) {
     return False;
 }
 
-void processEntryLine(char *arguments, Label *labelHead) {
+void processEntryLine(char *arguments, LabelChart *labelHead) {
     arguments = strtok(NULL, delimiters);
 
     if (!isUniqueLabel(&labelHead, arguments, False))
         updateLabelIsEntry(&labelHead, arguments, True);
 }
 
-void createFiles(char *filename, Label *labelHead) {
+void createFiles(char *filename, LabelChart *labelHead) {
     FILE *testFile = NULL;
     FILE *obFile = NULL;
     char *filenameWithTestSuffix = concat(filename, TEST_EXTENSION);
@@ -61,7 +61,7 @@ void createFiles(char *filename, Label *labelHead) {
     free(filenameWithObSuffix);
 }
 
-void transferContentFromTestToOb(FILE *testFile, FILE *obFile, char *filename, Label *labelHead) {
+void transferContentFromTestToOb(FILE *testFile, FILE *obFile, char *filename, LabelChart *labelHead) {
     char line[MAX_LINE_CHARS];
     char lineToCopy[MAX_LINE_CHARS];
 
@@ -75,7 +75,7 @@ void transferContentFromTestToOb(FILE *testFile, FILE *obFile, char *filename, L
     }
 }
 
-void overwriteReservedLines(char *line, FILE *obFile, char *filename, Label *labelHead) {
+void overwriteReservedLines(char *line, FILE *obFile, char *filename, LabelChart *labelHead) {
     char *token = NULL;
     char *endPtr = NULL;
     int address;

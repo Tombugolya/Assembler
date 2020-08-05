@@ -10,7 +10,7 @@ line_type type;
 boolean errorsExist;
 boolean isLabelFlag;
 InstructionData instruction;
-Label *labelHead = NULL;
+LabelChart *labelHead = NULL;
 DeclarationCommands *declarationsHead = NULL;
 Operand destinationOperand;
 Operand originOperand;
@@ -33,7 +33,7 @@ void firstIteration(char *filename, FILE *file){
     createTestFile(filename);
     readFileLineByLineFirstTime(filename, file);
     updateLabelChart(&labelHead, IC);
-    updateDeclarationCommands(&declarationsHead, IC);
+    updateDeclarationCommandsAddresses(&declarationsHead, IC);
     writeICDC(filename, IC-100, DC);
     writeData(&declarationsHead, filename);
     if (errorsExist) {

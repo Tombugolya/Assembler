@@ -29,6 +29,6 @@ void writeHexadecimal(int num, int address, char *name);
 
 void writeToExtFile(char *filename, char *labelName, int address);
 
-void writeToEntFile(char *filename, Label **list);
+void writeToEntFile(char *filename, LabelChart **list);
 
 #endif //ASSEMBLER_DECODE_H

@@ -97,10 +97,7 @@ void writeData(DeclarationCommands **list, char *name){
     filePointer = fopen(fileName, "a");
 
     while (current != NULL){
-        if (current -> type == STRING)
-            code.dataCode = current -> character;
-        else if (current -> type == DATA)
-            code.dataCode = current -> num;
+        code.dataCode = current -> value;
 
         appendToBinaryString(code.dataCode, 24, binary);
         binary[24] = '\0';
@@ -111,7 +108,7 @@ void writeData(DeclarationCommands **list, char *name){
     }
     fclose(filePointer);
     free(fileName);
-    freeDeclarationCommands(list);
+    freeDeclarationCommands(*list);
 }
 
 void writeHexadecimal(int num, int address, char *name) {
@@ -138,9 +135,9 @@ void writeToExtFile(char *filename, char *labelName, int address) {
     free(fileName);
 }
 
-void writeToEntFile(char *filename, Label **list) {
+void writeToEntFile(char *filename, LabelChart **list) {
     FILE *filePointer;
-    Label *current = *list;
+    LabelChart *current = *list;
     char *fileName = concat(filename, ENT_EXTENSION);
     boolean isPrinted = False;
     filePointer = fopen(fileName, "a");
