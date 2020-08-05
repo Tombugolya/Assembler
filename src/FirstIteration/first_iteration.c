@@ -35,7 +35,7 @@ void firstIteration(char *filename, FILE *file){
     updateLabelChartAddresses(&labelHead, IC);
     updateDeclarationCommandsAddresses(&declarationsHead, IC);
     writeICDC(filename, IC-100, DC);
-    writeData(&declarationsHead, filename);
+    writeDeclarations(&declarationsHead, filename);
     if (errorsExist) {
         removeFiles(filename);
         return;
@@ -232,11 +232,11 @@ void processInstructionLine(char *arguments, char *filename) {
 
     if (commandPointer -> operands > 0) {
         if (isValidOperand(arguments, commandPointer -> operands)) {
-            decodeInstruction(instruction, filename);
+            writeInstruction(instruction, filename);
             handleOperands(filename);
         }
     } else  /* No operands */
-        decodeInstruction(instruction, filename);
+        writeInstruction(instruction, filename);
 }
 
 void handleOperands(char *filename) {

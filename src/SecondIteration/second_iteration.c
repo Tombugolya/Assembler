@@ -96,7 +96,7 @@ void overwriteReservedLines(char *line, FILE *obFile, char *filename, LabelChart
             errorsExist = errorReport(NONEXISTENT_LABEL, 0, token);
     }
     else if ((labelAddress = getLabelAddress(&labelHead, token))) {
-        writeAddress(obFile, address, labelAddress);
+        writeLabelAddress(obFile, address, labelAddress);
     } else if (labelIsExternal(&labelHead, token)) {
         writeExternal(obFile, address);
         writeToExtFile(filename, token, address);

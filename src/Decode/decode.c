@@ -1,9 +1,11 @@
 #include "decode.h"
 
-void decodeInstruction(InstructionData data, char *filename) {
+void writeInstruction(InstructionData data, char *name) {
     int num;
     char binary[25] = "";
     char *endPtr = NULL;
+    FILE *filePointer;
+    char *fileName = concat(name, TEST_EXTENSION);
     appendToBinaryString(data.opCode, 6, binary);
     appendToBinaryString(data.originMode, 2, binary);
     appendToBinaryString(data.regisOrigin, 3, binary);
@@ -14,8 +16,11 @@ void decodeInstruction(InstructionData data, char *filename) {
     appendToBinaryString(0, 1, binary);
     appendToBinaryString(0, 1, binary);
     binary[24] = '\0';
-    num=strtol(binary, &endPtr, 2);
-    writeHexadecimal(num, data.address, filename);
+    num = strtol(binary, &endPtr, 2);
+    filePointer = fopen(fileName, "a");
+    fprintf(filePointer, "%08d\t%06X\n", data.address, num);
+    fclose(filePointer);
+    free(fileName);
 }
 
 void writeOperand(Operand operand, char *name) {
@@ -33,6 +38,15 @@ void writeOperand(Operand operand, char *name) {
     binary[24] = '\0';
     num = strtol(binary, &endPtr, 2);
     fprintf(filePointer, "%08d\t%06X\n", operand.address, num);
+    fclose(filePointer);
+    free(fileName);
+}
+
+void reserveOperand(Operand operand, char *name) {
+    FILE *filePointer;
+    char *fileName = concat(name, TEST_EXTENSION);
+    filePointer = fopen(fileName, "a");
+    fprintf(filePointer, "%c%d\t%s\n", RESERVED_SIGN, operand.address, operand.value);
     fclose(filePointer);
     free(fileName);
 }
@@ -55,7 +69,7 @@ void writeExternal(FILE *file, int addressOrigin) {
     fprintf(file, "%08d\t%06X\n", addressOrigin, 1);
 }
 
-void writeAddress(FILE *file, int addressOrigin, int labelAddress) {
+void writeLabelAddress(FILE *file, int addressOrigin, int labelAddress) {
     int num;
     char binary[25] = "";
     char *endPtr;
@@ -68,15 +82,6 @@ void writeAddress(FILE *file, int addressOrigin, int labelAddress) {
     fprintf(file, "%08d\t%06X\n", addressOrigin, num);
 }
 
-void reserveOperand(Operand operand, char *name) {
-    FILE *filePointer;
-    char *fileName = concat(name, TEST_EXTENSION);
-    filePointer = fopen(fileName, "a");
-    fprintf(filePointer, "%c%d\t%s\n", RESERVED_SIGN, operand.address, operand.value);
-    fclose(filePointer);
-    free(fileName);
-}
-
 void writeICDC(char *name, int IC, int DC){
     FILE *filePointer;
     char *fileName = concat(name, TEST_EXTENSION);
@@ -86,7 +91,7 @@ void writeICDC(char *name, int IC, int DC){
     free(fileName);
 }
 
-void writeData(DeclarationCommands **list, char *name){
+void writeDeclarations(DeclarationCommands **list, char *name){
     FILE *filePointer;
     DeclarationCommands *current = *list;
     char *fileName = concat(name, TEST_EXTENSION);
@@ -108,26 +113,11 @@ void writeData(DeclarationCommands **list, char *name){
     freeDeclarationCommands(*list);
 }
 
-void writeHexadecimal(int num, int address, char *name) {
-    FILE *filePointer;
-    char *fileName = concat(name, TEST_EXTENSION);
-    filePointer = fopen(fileName, "a");
-    fprintf(filePointer, "%08d\t%06X\n",
-       address,
-       num
-    );
-    fclose(filePointer);
-    free(fileName);
-}
-
 void writeToExtFile(char *filename, char *labelName, int address) {
     FILE *filePointer;
     char *fileName = concat(filename, EXT_EXTENSION);
     filePointer = fopen(fileName, "a");
-    fprintf(filePointer, "%s\t%08d\n",
-        labelName,
-        address
-    );
+    fprintf(filePointer, "%s\t%08d\n", labelName, address);
     fclose(filePointer);
     free(fileName);
 }
@@ -140,10 +130,7 @@ void writeToEntFile(char *filename, LabelChart **list) {
     filePointer = fopen(fileName, "a");
     while (current != NULL) {
         if (current -> entry) {
-            fprintf(filePointer, "%s\t%08d\n",
-                current -> labelName,
-                current -> address
-            );
+            fprintf(filePointer, "%s\t%08d\n", current -> labelName, current -> address);
             isPrinted = True;
         }
         current = current -> next;
