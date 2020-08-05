@@ -8,12 +8,6 @@
 #include "../ErrorReport/error_report.h"
 
 #define AS_EXTENSION ".as"
-#define FILE_TYPE_LEN strlen(AS_EXTENSION)
-
-/* Function that retries the filename without the suffix
- * param file - the full name of the file
-*/
-char * getFilename(char *file);
 
 /* Function that opens the file and returns the file pointer
  * param file - the full name of the file

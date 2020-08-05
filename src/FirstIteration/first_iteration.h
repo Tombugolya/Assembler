@@ -9,8 +9,8 @@
 #include "../ErrorReport/error_report.h"
 #include "../SecondIteration/second_iteration.h"
 
-#define ORIGIN (operandNum == 1 && commandPointer -> operands == 2)
-#define DESTINATION (operandNum == 2 || operandNum == 1 && commandPointer -> operands == 1)
+#define ORIGIN (operandNum == 1 && commandPointer -> operands == 2)                             /* Checks if current operand is the Origin operand */
+#define DESTINATION (operandNum == 2 || operandNum == 1 && commandPointer -> operands == 1)     /* Checks if current operand is the Destination operand */
 
 /* The first iteration over a user inputted file.
  * The function iterates over each line and does the relevant action for each scenario.

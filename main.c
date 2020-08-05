@@ -18,12 +18,11 @@ void processFiles(int argc, char **argv){
     char *filename;
     FILE *file;
     for (i = INPUT ; i < argc ; i++){
-        filename = getFilename(argv[i]);
-        file = getFile(argv[i]);
+        filename = argv[i];
+        file = getFile(filename);
         if (filename && file) {
             removeFiles(filename);
             firstIteration(filename, file);
         }
-        /*free(filename);*/
     }
 }

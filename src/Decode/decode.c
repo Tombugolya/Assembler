@@ -140,8 +140,9 @@ void writeToExtFile(char *filename, char *labelName, int address) {
 
 void writeToEntFile(char *filename, Label **list) {
     FILE *filePointer;
-    char *fileName = concat(filename, ENT_EXTENSION);
     Label *current = *list;
+    char *fileName = concat(filename, ENT_EXTENSION);
+    boolean isPrinted = False;
     filePointer = fopen(fileName, "a");
     while (current != NULL) {
         if (current -> entry) {
@@ -149,9 +150,12 @@ void writeToEntFile(char *filename, Label **list) {
                 current -> labelName,
                 current -> address
             );
+            isPrinted = True;
         }
         current = current -> next;
     }
     fclose(filePointer);
+    if (!isPrinted)
+        remove(fileName);
     free(fileName);
 }
