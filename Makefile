@@ -8,6 +8,9 @@ FLAGS = -g -Wall -ansi -pedantic
 all: $(OBJS)
 	$(CC) -g $(OBJS) -o $(OUT) $(LFLAGS)
 
+src/Common/consts.o: src/Common/consts.c
+	$(CC) $(FLAGS) src/Common/consts.c 
+	
 main.o: main.c
 	$(CC) $(FLAGS) main.c 
 
@@ -29,8 +32,7 @@ src/ErrorReport/error_report.o: src/ErrorReport/error_report.c
 src/Decode/decode.o: src/Decode/decode.c
 	$(CC) $(FLAGS) src/Decode/decode.c 
 
-src/Common/consts.o: src/Common/consts.c
-	$(CC) $(FLAGS) src/Common/consts.c 
+
 
 clean:
 	rm -f $(OBJS) $(OUT)

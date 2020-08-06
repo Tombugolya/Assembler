@@ -125,4 +125,4 @@ extern const InstructionData EMPTY_INSTRUCTION;
 /* A constant empty Operand value, used for resetting variables of type Operand */
 extern const Operand EMPTY_OPERAND;
 
-#endif /* COMMON_H */
+#endif

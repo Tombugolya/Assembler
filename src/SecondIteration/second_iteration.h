@@ -55,4 +55,4 @@ void transferContentFromTestToOb(FILE *testFile, FILE *obFile, char *filename, L
 */
 void overwriteReservedLines(char *line, FILE *obFile, char *filename, LabelChart *labelHead);
 
-#endif //ASSEMBLER_SECOND_ITERATION_H
+#endif

@@ -137,4 +137,4 @@ void assignInstructionValues();
 /* Resets the values for all of the relevant variables for the first iteration */
 void resetValues();
 
-#endif /* FIRST_ITERATION_H */
+#endif

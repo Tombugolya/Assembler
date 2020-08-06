@@ -85,4 +85,4 @@ void writeToEntFile(char *filename, LabelChart **list);
 */
 void appendARE(int absolute, int relocatable, int external, char *binary);
 
-#endif //ASSEMBLER_DECODE_H
+#endif

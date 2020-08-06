@@ -77,4 +77,4 @@ boolean labelIsExternal(LabelChart **label, char *labelName);
 */
 void freeLabelChart(LabelChart *label);
 
-#endif /* LABEL_CHART_H */
+#endif

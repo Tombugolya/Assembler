@@ -38,4 +38,4 @@ void updateDeclarationCommandsAddresses(DeclarationCommands **list, int IC);
 */
 void freeDeclarationCommands(DeclarationCommands *list);
 
-#endif //ASSEMBLER_DECLARATION_COMMANDS_H
+#endif

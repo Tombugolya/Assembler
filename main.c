@@ -1,5 +1,4 @@
 #include "main.h"
-#include "src/FirstIteration/first_iteration.h"
 
 int main(int argc, char **argv) {
     fileManagement(argc, argv);

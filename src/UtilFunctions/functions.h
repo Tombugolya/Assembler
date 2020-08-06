@@ -42,4 +42,4 @@ void removeFiles(char *name);
 */
 void appendToBinaryString(unsigned int num, unsigned int bits, char *str);
 
-#endif /* FUNCTIONS_H */
+#endif

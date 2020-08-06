@@ -35,4 +35,4 @@ typedef enum {
  */
 boolean errorReport(error_code err, int lineNumber, ...);
 
-#endif //ASSEMBLER_ERROR_REPORT_H
+#endif
