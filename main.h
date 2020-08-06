@@ -2,7 +2,7 @@
 #define MAIN_H
 #include <stdio.h>
 
-enum {INPUT = 1}; /* In argv the 1st argument (index 0) is always the name of the file, so hence INPUT for index 1*/
+enum {INPUT = 1}; /* In argv the 1st argument (index 0) is always the name of the file, so hence INPUT for index 1 */
 
 /* Function that checks if the user inputted at least one file in the command line */
 void fileManagement(int argc, char **argv);

@@ -2,7 +2,7 @@
 
 void addToDeclarationCommands(DeclarationCommands **list, int address, line_type type, int value) {
     DeclarationCommands *current;
-    if(*list == NULL) {
+    if(*list == NULL) { /* If it's a null head -- means that this list will be our new head */
         *list = (DeclarationCommands *)malloc(sizeof(DeclarationCommands));
         (*list) -> address = address;
         (*list) -> type = type;
@@ -11,8 +11,8 @@ void addToDeclarationCommands(DeclarationCommands **list, int address, line_type
     }
     else {
         current = *list;
-        while(current -> next)
-            current = current->next;
+        while(current -> next) /* Iterating until we reach next that equals to null -- which means it's a new spot in the list */
+            current = current -> next;
         current -> next = (DeclarationCommands *)malloc(sizeof(DeclarationCommands));
         current -> next -> address = address;
         current -> next -> type = type;

@@ -1,8 +1,10 @@
 #include "second_iteration.h"
 
 boolean errorsExist = False;
+int lineCount;
 
 void secondIteration(char *filename, FILE *file, LabelChart *labelHead) {
+    lineCount = 0;
     rewind(file); /* Rewind because we iterated throughout the file once in firstIteration*/
     readFileLineByLineSecondTime(file, labelHead);
     fclose(file); /* At this point we are done with the user inputted file */
@@ -17,6 +19,7 @@ void readFileLineByLineSecondTime(FILE *file, LabelChart *labelHead) {
     char *token = NULL;
 
     while(fgets(line, sizeof(line), file)) {
+        lineCount++;
         token = strtok(line, DELIMITERS);
         while(token != NULL) {
             if (isEntry(token)) {
@@ -41,7 +44,7 @@ boolean isEntry(char *entryName) {
 void processEntryLine(char *arguments, LabelChart *labelHead) {
     arguments = strtok(NULL, DELIMITERS);
 
-    if (!isUniqueLabel(&labelHead, arguments, False)) /* Means that the label exists and we can update its entry flag */
+    if (!isUniqueLabel(&labelHead, arguments, False, lineCount)) /* Means that the label exists and we can update its entry flag */
         updateLabelIsEntry(&labelHead, arguments, True);
 }
 
@@ -91,9 +94,9 @@ void overwriteReservedLines(char *line, FILE *obFile, char *filename, LabelChart
             writeDistance(obFile, address, labelAddress);
         else { /* Means that getLabelAddress returned 0 -- which means that it is either an external label or simply a nonexistent one */
             if (labelIsExternal(&labelHead, token))
-                errorsExist = errorReport(EXTERNAL_DISTANCE_INVALID, 0, token);
+                errorsExist = errorReport(EXTERNAL_DISTANCE_INVALID, lineCount, token);
             else
-                errorsExist = errorReport(NONEXISTENT_LABEL, 0, token);
+                errorsExist = errorReport(NONEXISTENT_LABEL, lineCount, token);
         }
     }
     else if ((labelAddress = getLabelAddress(&labelHead, token))) { /* If it's a non external or non entry label */
@@ -102,6 +105,6 @@ void overwriteReservedLines(char *line, FILE *obFile, char *filename, LabelChart
         writeExternal(obFile, address);
         writeToExtFile(filename, token, address);
     } else { /* Nonexistent label */
-        errorsExist = errorReport(NONEXISTENT_LABEL, 0, token);
+        errorsExist = errorReport(NONEXISTENT_LABEL, lineCount, token);
     }
 }

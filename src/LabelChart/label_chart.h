@@ -64,7 +64,7 @@ void updateLabelChartAddresses(LabelChart **label, int IC);
  * param labelName - the name of the label to check if it already exists in the label chart or not
  * param report - flag for reporting an error in case the label is not unique
 */
-boolean isUniqueLabel(LabelChart **label, char *labelName, boolean report);
+boolean isUniqueLabel(LabelChart **label, char *labelName, boolean report, int lineCount);
 
 /* Returns a boolean value depending if the label is external or not
  * param label - the head of the label chart

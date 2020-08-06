@@ -2,7 +2,7 @@
 
 void addToLabelChart(LabelChart **label, char *name, int address, line_type type, boolean is_entry, boolean is_extern) {
     LabelChart *current;
-    if(*label == NULL) {
+    if(*label == NULL) { /* If the label is empty -- means that our label will be the nwe head */
         *label = (LabelChart *)malloc(sizeof(LabelChart));
         strcpy((*label) -> labelName, name);
         (*label) -> address = address;
@@ -13,8 +13,8 @@ void addToLabelChart(LabelChart **label, char *name, int address, line_type type
     }
     else {
         current = *label;
-        while(current -> next)
-            current = current->next;
+        while(current -> next) /* Iterating until next is null -- which is a new spot for our label */
+            current = current -> next;
         current -> next = (LabelChart *) malloc(sizeof(LabelChart));
         strcpy(current -> next -> labelName, name);
         current -> next -> address = address;
@@ -67,11 +67,11 @@ void updateLabelChartAddresses(LabelChart **label, int IC) {
     }
 }
 
-boolean isUniqueLabel(LabelChart **label, char *labelName, boolean report) {
+boolean isUniqueLabel(LabelChart **label, char *labelName, boolean report, int lineCount) {
     LabelChart *current = *label;
     while (current != NULL) {
         if (strcmp(current -> labelName, labelName) == 0) {
-            if (report) errorReport(NOT_UNIQUE_LABEL, 0, labelName);
+            if (report) errorReport(NOT_UNIQUE_LABEL, lineCount, labelName);
             return False;
         }
         current = current -> next;

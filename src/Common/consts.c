@@ -1,6 +1,6 @@
 #include "common.h"
 
-const char *DELIMITERS = " \t\n"; /* These are essentially the whitespaces that we are trying to read-through*/
+const char *DELIMITERS = " \t\n";
 
 const InstructionData EMPTY_INSTRUCTION = {0, 0, 0, 0, 0, 0, 0 };
 

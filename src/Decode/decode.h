@@ -78,4 +78,11 @@ void writeToExtFile(char *filename, char *labelName, int address);
 */
 void writeToEntFile(char *filename, LabelChart **list);
 
+/* Appends the values to the ARE bits depending on user input.
+ * param absolute - 1 or 0 value to the A slot
+ * param relocatable - 1 or 0 value to the R slot
+ * param external - 1 or 0 value to the E slot
+*/
+void appendARE(int absolute, int relocatable, int external, char *binary);
+
 #endif //ASSEMBLER_DECODE_H

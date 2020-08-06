@@ -33,7 +33,7 @@ void readFileLineByLineFirstTime(char *filename, FILE *file);
  * param labelName - the token from the line to check if it is in the correct LABEL: syntax
  * param toCheckColon - condition to check if the ':' appears at the end of the label
 */
-boolean isLabel(char *labelName, boolean toCheckColon, boolean report);
+boolean isLabel(char *labelName, boolean toCheckColon);
 
 /* Checks if the line is a potential declaration line, meaning it begins with a '.'.
  * The function is combined with isValidDeclarationName()

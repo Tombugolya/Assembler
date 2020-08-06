@@ -9,6 +9,7 @@ char label[MAX_LABEL_CHARS];
 line_type type;
 boolean errorsExist;
 boolean isLabelFlag;
+boolean reportError;
 InstructionData instruction;
 LabelChart *labelHead = NULL;
 DeclarationCommands *declarationsHead = NULL;
@@ -31,12 +32,12 @@ void resetValues() {
 void firstIteration(char *filename, FILE *file){
     resetValues();
     createTestFile(filename); /* Initializing our .test file */
-    readFileLineByLineFirstTime(filename, file);
-    updateLabelChartAddresses(&labelHead, IC);
-    updateDeclarationCommandsAddresses(&declarationsHead, IC);
-    writeICDC(filename, IC - INITIAL_IC_VALUE, DC);
-    writeDeclarations(&declarationsHead, filename);
-    if (errorsExist) {
+    readFileLineByLineFirstTime(filename, file);/* Reading the user inputted file line by line */
+    updateLabelChartAddresses(&labelHead, IC); /* Now -- we can increment the label chart addresses (for non INSTRUCTION types) with our updated IC value */
+    updateDeclarationCommandsAddresses(&declarationsHead, IC); /* Same for the Declaration commands that we gathered */
+    writeICDC(filename, IC - INITIAL_IC_VALUE, DC); /* Overwrite the first line with our updated IC and DC */
+    writeDeclarations(&declarationsHead, filename); /* Now we can append our declaration that we gathered */
+    if (errorsExist) { /* If errors returned we can remove the files and exit not proceed to secondIteration */
         removeFiles(filename);
         return;
     } else
@@ -48,11 +49,12 @@ void readFileLineByLineFirstTime(char *filename, FILE *file) {
     char *token = NULL;
     while(fgets(line, sizeof(line), file)) {
         isLabelFlag = False;
+        reportError = True;
         lineCount++;
         memset(label, 0, MAX_LABEL_CHARS); /* Clearing the line variable */
         token = strtok(line, DELIMITERS); /* Using strtok() to go token by token separated by the delimiters */
         while (token != NULL) {
-            if (isLabel(token, True, True)) { /* If the line begins with a Label*/
+            if (isLabel(token, True)) { /* If the line begins with a Label*/
                 isLabelFlag = True;
             } else if (isComment(token)){ /* If the line is a comment*/
                 token = NULL;
@@ -60,37 +62,44 @@ void readFileLineByLineFirstTime(char *filename, FILE *file) {
             } else if (isDeclaration(token)) { /* If the line is a declaration (excluding .entry which will be handled in secondIteration */
                 isExtern() ? processExternLine(line) : processDeclarationLine(line);
                 break;
-            } else if (isInstruction(token, True)) /* Only thing that is left is that it could be an instruction */
+            } else if (isInstruction(token, reportError)) { /* Only thing that is left is that it could be an instruction */
                 processInstructionLine(line, filename);
+            } else { /* Error in the line, no need to continue to the next token */
+                token = NULL;
+                break;
+            }
             token = strtok(NULL, DELIMITERS); /* Next token.. */
         }
     }
 }
 
-boolean isLabel(char *labelName, boolean toCheckColon, boolean report) {
+boolean isLabel(char *labelName, boolean toCheckColon) {
     size_t len = strlen(labelName);
-
+    char *whitespacePointer = NULL;
     if (isalpha(labelName[0]) && (toCheckColon ? labelName[len - 1] == LABEL_COLON_SIGN : True)) {
 
         if (toCheckColon) labelName[len-1] = '\0';
 
         if (len >= MAX_LABEL_CHARS) {
+            reportError = False;
             return !(errorsExist = errorReport(LABEL_TOO_LONG, lineCount, labelName));
         } else if ( /* If the name matches a register / instruction operation or declaration operation name it should throw an error */
             isRegister(labelName, False) ||
             isInstruction(labelName, False) ||
             isValidDeclarationName(labelName)
         ) {
+            reportError = False;
             return !(errorsExist = errorReport(RESERVED_NAME, lineCount, labelName));
         } else if (!isLabelFlag) {
+            whitespacePointer = strpbrk(labelName, " \t");
+            if (whitespacePointer != NULL)
+                return !(errorsExist = errorReport(INVALID_WHITESPACE, lineCount, labelName));
             memcpy(label, labelName, (toCheckColon ? len - 1 : len));
             label[len] = '\0';
             return True;
-        } else { /* If another label showed up in the same .entry / .extern this is not good, otherwise could happen in instruction lines */
-            if (report)
-                errorsExist = errorReport(TOO_MANY_LABELS, lineCount, labelName);
-            else
-                return True;
+
+        } else {
+            return True;
         }
     }
     return False;
@@ -99,6 +108,7 @@ boolean isLabel(char *labelName, boolean toCheckColon, boolean report) {
 boolean isDeclaration(char *declarationName) {
     if (declarationName[0] == DECLARATION_SIGN) { /* Sign of a declaration '.' */
         declarationName++;
+
         if (isValidDeclarationName(declarationName))
             return True;
         else /* Doesn't match any known declaration names*/
@@ -158,7 +168,7 @@ boolean isExtern() {
 }
 
 void processDeclarationLine(char *arguments) {
-    if (isLabelFlag && isUniqueLabel(&labelHead, label, True))
+    if (isLabelFlag && isUniqueLabel(&labelHead, label, True, lineCount))
         addToLabelChart(&labelHead, label, DC, type, False, False);
 
     switch (type) {
@@ -209,13 +219,12 @@ void processData(char *arguments) {
 
 void processExternLine(char *arguments) {
     if (isLabelFlag) {
-        errorsExist = errorReport(EXTERN_AFTER_LABEL, lineCount, arguments);
-        return;
+        errorReport(EXTERN_AFTER_LABEL, lineCount, arguments);
     }
 
-    arguments = strtok(NULL, DELIMITERS);
-    if (isLabel(arguments, False, True)) {
-        isUniqueLabel(&labelHead, arguments, False) ? /* If it's a unique label -- add it, otherwise update the label with a value of 0 to the address */
+    arguments = strtok(NULL, ",\t\n");
+    if (isLabel(arguments, False)) {
+        isUniqueLabel(&labelHead, arguments, False, lineCount) ? /* If it's a unique label -- add it, otherwise update the label with a value of 0 to the address */
             addToLabelChart(&labelHead, arguments, 0, DATA, False, True) :
             updateLabelAddress(&labelHead, label, 0);
     } else
@@ -227,7 +236,7 @@ void processInstructionLine(char *arguments, char *filename) {
     destinationOperand = EMPTY_OPERAND;
     originOperand = EMPTY_OPERAND;
 
-    if (isLabelFlag && isUniqueLabel(&labelHead, label, True))
+    if (isLabelFlag && isUniqueLabel(&labelHead, label, True, lineCount))
         addToLabelChart(&labelHead, label, IC, INSTRUCTION, False, False);
 
     assignInstructionValues();
@@ -236,6 +245,8 @@ void processInstructionLine(char *arguments, char *filename) {
         if (isValidOperand(arguments, operationPointer -> operands)) {
             writeInstruction(instruction, filename);
             handleOperands(filename);
+        } else {
+            reportError = False; /* If an error returned once from the operand there is no need to report the other one*/
         }
     } else  /* No operands */
         writeInstruction(instruction, filename);
@@ -301,14 +312,14 @@ boolean isValidOperand(char *operand, int maxParamNum) {
     return True;
 }
 
-boolean isValidNumber(char *number){
+boolean isValidNumber(char *number) {
     int i;
     boolean isValidParam = True;
     number = trimWhiteSpace(number);
     for (i = 0; i < strlen(number) ; i++) {
         if (i == 0 && (number[i] == '-' || number[i] == '+')) /* These are exceptions for the 0 index only  */
             isValidParam = True;
-        else if (number[i] != ' ' && number[i] != '\t' && !isdigit(number[i])) /* If it's not a digit, a space or a tab */
+        else if (number[i] == ' ' || number[i] == '\t' || !isdigit(number[i])) /* If it's not a digit, a space or a tab */
             return !(errorsExist = errorReport(INVALID_NUMBER, lineCount, number));
     }
 
@@ -347,9 +358,9 @@ addressing_mode getOperandAddressingMode(char *operand) {
         return REGISTER;
     } else if (operand[0] == DISTANCE_SIGN) { /* Sign for a distance calculating value (indirect) */
         operand++;
-        if (isLabel(operand, False, False))
+        if (isLabel(operand, False))
             return INDIRECT;
-    } else if (isLabel(operand, False, False)) /* Just a label without the colon */
+    } else if (isLabel(operand, False)) /* Just a label without the colon */
         return DIRECT;
     else
         errorsExist = errorReport(INVALID_MODE, lineCount, operand);
@@ -358,6 +369,7 @@ addressing_mode getOperandAddressingMode(char *operand) {
 }
 
 void assignOperandValues(Operand *operand, boolean reserve, char *value) {
+    (*operand).active = True;
     (*operand).active = True;
     (*operand).value = value;
     (*operand).reserve = reserve;

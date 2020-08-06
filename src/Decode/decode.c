@@ -13,15 +13,13 @@ void writeInstruction(InstructionData data, char *name) {
     char *endPtr = NULL;
     FILE *filePointer;
     char *fileName = concat(name, TEST_EXTENSION);
-    appendToBinaryString(data.opCode, 6, binary);
-    appendToBinaryString(data.originMode, 2, binary);
-    appendToBinaryString(data.regisOrigin, 3, binary);
-    appendToBinaryString(data.destMode, 2, binary);
-    appendToBinaryString(data.regisDest, 3, binary);
-    appendToBinaryString(data.function,5, binary);
-    appendToBinaryString(1, 1, binary);
-    appendToBinaryString(0, 1, binary);
-    appendToBinaryString(0, 1, binary);
+    appendToBinaryString(data.opCode, 6, binary);       /* 6 bits for opcode */
+    appendToBinaryString(data.originMode, 2, binary);   /* 2 bits for origin operand addressing mode */
+    appendToBinaryString(data.regisOrigin, 3, binary);  /* 3 bits for origin operand register number */
+    appendToBinaryString(data.destMode, 2, binary);     /* 2 bits for destination operand addressing mode*/
+    appendToBinaryString(data.regisDest, 3, binary);    /* 3 bits for destination operand register number */
+    appendToBinaryString(data.function,5, binary);      /* 5 bits for function code*/
+    appendARE(1, 0, 0, binary);     /* 3 last bits for one of the ARE values */
     binary[NUMBER_OF_BITS - 1] = '\0';
     num = strtol(binary, &endPtr, 2);
     filePointer = fopen(fileName, "a");
@@ -37,11 +35,9 @@ void writeOperand(Operand operand, char *name) {
     char binary[NUMBER_OF_BITS] = "";
     int num;
     filePointer = fopen(fileName, "a");
-    num = strtol(operand.value, &endPtr, 10); /* Converting char to int with strtol() */
-    appendToBinaryString(num, 21, binary);
-    appendToBinaryString(1, 1, binary);
-    appendToBinaryString(0, 1, binary);
-    appendToBinaryString(0, 1, binary);
+    num = strtol(operand.value, &endPtr, 10);       /* Converting char to int with strtol() */
+    appendToBinaryString(num, 21, binary);            /* 21 bits for the operand value */
+    appendARE(1, 0, 0, binary);   /* 3 bits for one of the ARE values */
     binary[NUMBER_OF_BITS - 1] = '\0';
     num = strtol(binary, &endPtr, 2);
     fprintf(filePointer, "%08d\t%06X\n", operand.address, num);
@@ -63,27 +59,23 @@ void writeDistance(FILE *file, int addressOrigin, int addressDestination) {
     int num;
     char binary[NUMBER_OF_BITS] = "";
     char *endPtr;
-    appendToBinaryString(distance, 21, binary);
-    appendToBinaryString(1, 1, binary);
-    appendToBinaryString(0, 1, binary);
-    appendToBinaryString(0, 1, binary);
+    appendToBinaryString(distance, 21, binary);         /* 21 bits for the distance between label address and origin instruction value */
+    appendARE(1, 0, 0, binary);     /* 3 bits for one of the ARE values */
     binary[NUMBER_OF_BITS - 1] = '\0';
     num = strtol(binary, &endPtr, 2);
     fprintf(file, "%08d\t%06X\n", addressOrigin, num);
 }
 
 void writeExternal(FILE *file, int addressOrigin) {
-    fprintf(file, "%08d\t%06X\n", addressOrigin, 1);
+    fprintf(file, "%08d\t%06X\n", addressOrigin, 1); /* All external labels have the same '1' address so we just print the value 1 in base16 */
 }
 
 void writeLabelAddress(FILE *file, int addressOrigin, int labelAddress) {
     int num;
     char binary[NUMBER_OF_BITS] = "";
     char *endPtr;
-    appendToBinaryString(labelAddress, 21, binary);
-    appendToBinaryString(0, 1, binary);
-    appendToBinaryString(1, 1, binary);
-    appendToBinaryString(0, 1, binary);
+    appendToBinaryString(labelAddress, 21, binary);     /* 21 bits for label address where the label was initialized */
+    appendARE(0, 1, 0, binary);     /* 3 bits for one of the ARE values */
     binary[NUMBER_OF_BITS - 1] = '\0';
     num = strtol(binary, &endPtr, 2);
     fprintf(file, "%08d\t%06X\n", addressOrigin, num);
@@ -93,7 +85,7 @@ void writeICDC(char *name, int IC, int DC){
     FILE *filePointer;
     char *fileName = concat(name, TEST_EXTENSION);
     filePointer = fopen(fileName, "r+");
-    fprintf(filePointer,"%*d\t%*d\n", 8, IC, 6, DC);
+    fprintf(filePointer,"%*d\t%*d\n", 8, IC, 6, DC); /* If the .as file is empty - a file will be created with 0 & 0 as IC and DC */
     fclose(filePointer);
     free(fileName);
 }
@@ -108,7 +100,7 @@ void writeDeclarations(DeclarationCommands **list, char *name){
     filePointer = fopen(fileName, "a");
 
     while (current != NULL){
-        appendToBinaryString(current -> value, 24, binary);
+        appendToBinaryString(current -> value, 24, binary); /* A declaration argument uses all of the 24 bits */
         binary[NUMBER_OF_BITS - 1] = '\0';
         num = strtol(binary, &endPtr, 2);
         fprintf(filePointer, "%08d\t%06X\n", current -> address, num);
@@ -135,7 +127,8 @@ void writeToEntFile(char *filename, LabelChart **list) {
     char *fileName = concat(filename, ENT_EXTENSION);
     boolean isPrinted = False;
     filePointer = fopen(fileName, "a");
-    while (current != NULL) {
+
+    while (current != NULL) { /* Iterating over a give label chart and printing for every label with an entry flag*/
         if (current -> entry) {
             fprintf(filePointer, "%s\t%08d\n", current -> labelName, current -> address);
             isPrinted = True;
@@ -146,4 +139,10 @@ void writeToEntFile(char *filename, LabelChart **list) {
     if (!isPrinted)
         remove(fileName);
     free(fileName);
+}
+
+void appendARE(int absolute, int relocatable, int external, char *binary) {
+    appendToBinaryString(absolute, 1, binary);
+    appendToBinaryString(relocatable, 1, binary);
+    appendToBinaryString(external, 1, binary);
 }

@@ -6,18 +6,18 @@ int main(int argc, char **argv) {
     return 0;
 }
 
-void fileManagement(int argc, char **argv){
-    if (argc > 1)
+void fileManagement(int argc, char **argv) {
+    if (argc > 1) /* At least 2 arguments needed since first argument is always the name of the program */
         processFiles(argc, argv);
     else
         errorReport(NO_FILES, 0);
 }
 
-void processFiles(int argc, char **argv){
+void processFiles(int argc, char **argv) {
     int i;
     char *filename;
     FILE *file;
-    for (i = INPUT ; i < argc ; i++){
+    for (i = INPUT ; i < argc ; i++) { /* Iterate over all of the files attached */
         filename = argv[i];
         file = getFile(filename);
         if (filename && file) {

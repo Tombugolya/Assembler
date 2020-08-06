@@ -1,5 +1,7 @@
 #include "error_report.h"
 
+/* Just a big switch case function with all of the possible error codes. Printed to stderr.
+ * It uses the <stdarg> library since some errors may need one or more extra arguments to report to better identify the issue.*/
 boolean errorReport(error_code err, int lineNumber, ... ){
     va_list args;
     va_start(args, lineNumber);
@@ -12,12 +14,7 @@ boolean errorReport(error_code err, int lineNumber, ... ){
             fprintf(stderr, "Error in line.%d: Label name \"%s\" is too long, up to %d characters are allowed\n",
                     lineNumber,
                     va_arg(args, char*),
-                    MAX_LABEL_CHARS - 1);
-            break;
-        case TOO_MANY_LABELS:
-            fprintf(stderr,"Error in line.%d: Unexpected appearance of an extra label \"%s\", only one label can appear per line\n",
-                    lineNumber,
-                    va_arg(args, char*));
+                    MAX_LABEL_CHARS - 2);
             break;
         case UNKNOWN_DECLARATION_COMMAND:
             fprintf(stderr, "Error in line.%d: Unknown data command \"%s\"\n",
@@ -35,7 +32,7 @@ boolean errorReport(error_code err, int lineNumber, ... ){
                     va_arg(args, char*));
             break;
         case EXTERN_AFTER_LABEL:
-            fprintf(stderr, "Error in line.%d: Label needs to appear after \".extern\"\n",
+            fprintf(stderr,"Warning in line.%d: Unnecessary label before \".extern\"\n",
                     lineNumber);
             break;
         case INVALID_LABEL:
@@ -45,11 +42,6 @@ boolean errorReport(error_code err, int lineNumber, ... ){
             break;
         case INVALID_NUMBER:
             fprintf(stderr, "Error in line.%d: \"%s\" is not a valid number\n",
-                    lineNumber,
-                    va_arg(args, char*));
-            break;
-        case MISSING_COMMAS:
-            fprintf(stderr, "Error in line.%d: Missing comma before \"%s\"\n",
                     lineNumber,
                     va_arg(args, char*));
             break;
@@ -81,20 +73,24 @@ boolean errorReport(error_code err, int lineNumber, ... ){
                     lineNumber, va_arg(args, char *));
             break;
         case RESERVED_NAME:
-            fprintf(stderr, "Error in line.%d: \"%s\" is a reserved name and cannot be used\n",
+            fprintf(stderr, "Error in line.%d: \"%s\" is a reserved name and cannot be used as a label\n",
                     lineNumber, va_arg(args, char *));
             break;
         case NOT_UNIQUE_LABEL:
-            fprintf(stderr, "Error: Label with the name \"%s\" is already used \n",
-                    va_arg(args, char *));
+            fprintf(stderr, "Error in line.%d: Label with the name \"%s\" is already used \n",
+                    lineNumber, va_arg(args, char *));
             break;
         case NONEXISTENT_LABEL:
-            fprintf(stderr, "Error: Label with the name \"%s\" does not exist \n",
-                    va_arg(args, char *));
+            fprintf(stderr, "Error in line.%d: Label with the name \"%s\" does not exist \n",
+                    lineNumber, va_arg(args, char *));
             break;
         case EXTERNAL_DISTANCE_INVALID:
-            fprintf(stderr, "Error: Label with the name \"%s\" is external so it's distance cannot be calculated \n",
-                    va_arg(args, char *));
+            fprintf(stderr, "Error in line.%d: Label with the name \"%s\" is external so it's distance cannot be calculated \n",
+                    lineNumber, va_arg(args, char *));
+            break;
+        case INVALID_WHITESPACE:
+            fprintf(stderr, "Error in line.%d: Label with the name \"%s\" has invalid whitespace \n",
+                    lineNumber, va_arg(args, char *));
             break;
         default:
             fprintf(stderr, "UH OH! You forgot to put the break!\n");

@@ -12,22 +12,23 @@ FILE * getFile(char *name){
 }
 
 char * concat(const char *s1, const char *s2) {
-    char *result = malloc(strlen(s1) + strlen(s2) + 1); /* +1 for the null-terminator*/
+    char *result = malloc(strlen(s1) + strlen(s2) + 1); /* +1 for the null terminator */
     strcpy(result, s1);
     strcat(result, s2);
     return result;
 }
 
+
 char * trimWhiteSpace(char *str) {
     char *end;
-    while (isspace((unsigned char)*str))
+    while (isspace((unsigned char)*str)) /* Clearing out all of the whitespace before the content */
         str++;
-    if (*str == 0)
+    if (*str == 0) /* If it's a null terminator means there is no whitespace after the content */
         return str;
-    end = str + strlen(str) - 1;
-    while(end > str && isspace((unsigned char)*end))
+    end = str + strlen(str) - 1; /* We point to the end of the str */
+    while(end > str && isspace((unsigned char)*end)) /* As long as it's ahead of our 'str' we clear out all of the whitespace from the right */
         end--;
-    end[1] = '\0';
+    end[1] = '\0'; /* Closing the string from the right meaning we are finished */
     return str;
 }
 
@@ -55,6 +56,10 @@ void removeFiles(char *name) {
     free(testFile);
 }
 
+/* Taken from one of Danny's lectures.
+ * We create a mask that initially has a 1 on it's left most (or right most depending on the PC) bit.
+ * We compare the bit of the mask with the num, using '&', if they both have a 1 we concatenate a 1 to the attached str.
+ * After each iteration in the while loop -- the mask is right shifted by 1 bit.*/
 void appendToBinaryString(unsigned int num, unsigned int bits, char *str) {
     unsigned int mask = (unsigned) 1 << (bits - 1);
     while (mask) {
