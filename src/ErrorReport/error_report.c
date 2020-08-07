@@ -4,8 +4,8 @@
  * It uses the <stdarg> library since some errors may need one or more extra arguments to report to better identify the issue.*/
 boolean errorReport(error_code err, int lineNumber, ... ){
     va_list args;
-    va_start(args, lineNumber);
     addressing_mode mode;
+    va_start(args, lineNumber);
     switch (err) {
         case NO_FILES:
             fprintf(stderr, "Error: No files attached\n");
