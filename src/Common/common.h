@@ -4,21 +4,24 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define MAX_LABEL_CHARS 32      /* 30 + '\n' + '\0' */
-#define MAX_LINE_CHARS 82       /* 80 + '\n' + '\0' */
-#define OPERATION_NUM 16        /* Number of operations (mov, jmp, etc.) */
-#define MAX_APPLICABLE_MODES 3  /* Max number of supporting mods per operation */
-#define REGISTER_NUM 8          /* Number of registers in use (r0, r1, ... ,r7) */
-#define RESERVED_SIGN '?'       /* Sign that is used to identify reserved lines after first iteration */
-#define TEST_EXTENSION ".test"
-#define OB_EXTENSION ".ob"
-#define EXT_EXTENSION ".ext"
-#define ENT_EXTENSION ".ent"
-#define COMMENT_SIGN ';'
-#define DECLARATION_SIGN '.'
-#define NUMBER_SIGN '#'
-#define DISTANCE_SIGN '&'
-#define LABEL_COLON_SIGN ':'
+#define MAX_LABEL_CHARS 32                  /* 30 + '\n' + '\0' */
+#define MAX_LINE_CHARS 82                   /* 80 + '\n' + '\0' */
+#define OPERATION_NUM 16                    /* Number of operations (mov, jmp, etc.) */
+#define MAX_APPLICABLE_MODES 3              /* Max number of supporting mods per operation */
+#define REGISTER_NUM 8                      /* Number of registers in use (r0, r1, ... ,r7) */
+#define RESERVED_SIGN '?'                   /* Sign that is used to identify reserved lines after first iteration */
+#define TEST_EXTENSION ".test"              /* .test file extension for the temporary file */
+#define OB_EXTENSION ".ob"                  /* .ob file extension for the main file */
+#define EXT_EXTENSION ".ext"                /* .ext file extension */
+#define ENT_EXTENSION ".ent"                /* .ent file extension */
+#define COMMENT_SIGN ';'                    /* The sign that signifies a comment line */
+#define DECLARATION_SIGN '.'                /* The sign that signifies a declaration line */
+#define NUMBER_SIGN '#'                     /* The sign that signifies a number operand (immediate addressing mode) */
+#define DISTANCE_SIGN '&'                   /* The sign that signifies a distance operand (indirect mode) */
+#define LABEL_COLON_SIGN ':'                /* A sign that showcases a label, appears at the end of the name */
+#define DELIMITERS_GENERAL " \v\f\r\t\n"    /* All whitespace delimiters */
+#define DELIMITERS_WITH_COMMA ",\v\f\r\t\n" /* Whitespace delimiters + comma */
+
 
 /* boolean type for True and False*/
 typedef enum {
@@ -117,7 +120,6 @@ extern const Register REGISTERS[REGISTER_NUM];
 extern const Operation OPERATIONS[OPERATION_NUM];
 
 /* The delimiters that are used for when we use strtok() */
-extern const char *DELIMITERS;
 
 /* A constant empty Instruction value, used for resetting variables of type InstructionData */
 extern const InstructionData EMPTY_INSTRUCTION;

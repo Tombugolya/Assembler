@@ -35,11 +35,12 @@ int getLabelAddress(LabelChart **label, char *labelName) {
     return 0;
 }
 
-void updateLabelAddress(LabelChart **label, char *labelName, int value) {
+void updateLabelIsExtern(LabelChart **label, char *labelName, int value) {
     LabelChart *current = *label;
     while (current != NULL) {
         if (strcmp(current -> labelName, labelName) == 0) {
             current -> address = value;
+            current -> external = True;
             return;
         }
         current = current -> next;
@@ -83,7 +84,10 @@ boolean labelIsExternal(LabelChart **label, char *labelName) {
     LabelChart *current = *label;
     while (current != NULL) {
         if (strcmp(current -> labelName, labelName) == 0) {
-            return current -> external;
+            if (current -> external == True)
+                return True;
+            else
+                return False;
         }
         current = current -> next;
     }

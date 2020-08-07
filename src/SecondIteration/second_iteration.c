@@ -20,13 +20,13 @@ void readFileLineByLineSecondTime(FILE *file, LabelChart *labelHead) {
 
     while(fgets(line, sizeof(line), file)) {
         lineCount++;
-        token = strtok(line, DELIMITERS);
+        token = strtok(line, DELIMITERS_GENERAL);
         while(token != NULL) {
             if (isEntry(token)) {
                 processEntryLine(line, labelHead);
                 token = NULL;
             }
-            token = strtok(NULL, DELIMITERS);
+            token = strtok(NULL, DELIMITERS_GENERAL);
         }
     }
 }
@@ -42,7 +42,7 @@ boolean isEntry(char *entryName) {
 }
 
 void processEntryLine(char *arguments, LabelChart *labelHead) {
-    arguments = strtok(NULL, DELIMITERS);
+    arguments = strtok(NULL, DELIMITERS_GENERAL);
 
     if (!isUniqueLabel(&labelHead, arguments, False, lineCount)) /* Means that the label exists and we can update its entry flag */
         updateLabelIsEntry(&labelHead, arguments, True);
@@ -83,10 +83,10 @@ void overwriteReservedLines(char *line, FILE *obFile, char *filename, LabelChart
     char *endPtr = NULL;
     int address;
     int labelAddress;
-    token = strtok(line, "\t");
+    token = strtok(line, "\t"); /* We placed a single tab between the reserved sign + address and the label name*/
     token++;
     address = strtol(token, &endPtr, 10);
-    token = strtok(NULL, DELIMITERS);
+    token = strtok(NULL, DELIMITERS_GENERAL);
 
     if (token[0] == DISTANCE_SIGN) { /* If it has the '&' sign it means that we need to calculate the distance (INDIRECT addressing mode) */
         token++;

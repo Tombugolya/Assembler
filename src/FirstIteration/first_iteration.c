@@ -21,7 +21,7 @@ void resetValues() {
     DC = 0;
     lineCount = 0;
     errorsExist = False;
-    memset(label, 0, sizeof label);
+    memset(label, 0, MAX_LABEL_CHARS);
     type = 0;
     operationPointer = NULL;
     registerPointer = NULL;
@@ -52,11 +52,11 @@ void readFileLineByLineFirstTime(char *filename, FILE *file) {
         reportError = True;
         lineCount++;
         memset(label, 0, MAX_LABEL_CHARS); /* Clearing the line variable */
-        token = strtok(line, DELIMITERS); /* Using strtok() to go token by token separated by the delimiters */
+        token = strtok(line, DELIMITERS_GENERAL); /* Using strtok() to go token by token separated by the delimiters */
         while (token != NULL) {
             if (isLabel(token, True)) { /* If the line begins with a Label*/
                 isLabelFlag = True;
-            } else if (isComment(token)){ /* If the line is a comment*/
+            } else if (isComment(token)) { /* If the line is a comment*/
                 token = NULL;
                 break;
             } else if (isDeclaration(token)) { /* If the line is a declaration (excluding .entry which will be handled in secondIteration */
@@ -68,7 +68,7 @@ void readFileLineByLineFirstTime(char *filename, FILE *file) {
                 token = NULL;
                 break;
             }
-            token = strtok(NULL, DELIMITERS); /* Next token.. */
+            token = strtok(NULL, DELIMITERS_GENERAL); /* Next token.. */
         }
     }
 }
@@ -97,7 +97,6 @@ boolean isLabel(char *labelName, boolean toCheckColon) {
             memcpy(label, labelName, (toCheckColon ? len - 1 : len));
             label[len] = '\0';
             return True;
-
         } else {
             return True;
         }
@@ -222,11 +221,13 @@ void processExternLine(char *arguments) {
         errorReport(EXTERN_AFTER_LABEL, lineCount, arguments);
     }
 
-    arguments = strtok(NULL, ",\t\n");
+    arguments = strtok(NULL, DELIMITERS_WITH_COMMA);
     if (isLabel(arguments, False)) {
-        isUniqueLabel(&labelHead, arguments, False, lineCount) ? /* If it's a unique label -- add it, otherwise update the label with a value of 0 to the address */
-            addToLabelChart(&labelHead, arguments, 0, DATA, False, True) :
-            updateLabelAddress(&labelHead, label, 0);
+        /* If it's a unique label -- add it, otherwise update the label with a value of 0 to the address */
+        if (isUniqueLabel(&labelHead, arguments, False, lineCount))
+            addToLabelChart(&labelHead, arguments, 0, DATA, False, True);
+        else
+            updateLabelIsExtern(&labelHead, label, 0);
     } else
         errorsExist = errorReport(INVALID_LABEL, lineCount, arguments);
 }
@@ -264,8 +265,8 @@ boolean isValidOperand(char *operand, int maxParamNum) {
     int operandNum = 0;
     char *whitespacePointer = NULL; /* For checking proper comma separation */
     addressing_mode operandMode;
-    Operand *pointer;
-    operand = strtok(NULL, ",\n"); /* Next token since we are expecting a few that are comma separated */
+    Operand *pointer = NULL;
+    operand = strtok(NULL, DELIMITERS_WITH_COMMA); /* Next token since we are expecting a few that are comma separated */
     while (operand != NULL) {
         operandNum++;
         if (operandNum > maxParamNum)
@@ -302,8 +303,7 @@ boolean isValidOperand(char *operand, int maxParamNum) {
             default:
                 return False;
         }
-
-        operand = strtok(NULL, ",\n"); /* Next token.. */
+        operand = strtok(NULL, DELIMITERS_WITH_COMMA); /* Next token.. */
     }
 
     if (operandNum < maxParamNum)

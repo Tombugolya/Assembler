@@ -43,7 +43,7 @@ int getLabelAddress(LabelChart **label, char *labelName);
  * param labelName - the name of the label to update
  * param value - the new address to store
 */
-void updateLabelAddress(LabelChart **label, char *labelName, int value);
+void updateLabelIsExtern(LabelChart **label, char *labelName, int value);
 
 /* Updates the is_entry value for the relevant label
  * param label - the head of the label chart
