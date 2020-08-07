@@ -52,6 +52,7 @@ void readFileLineByLineFirstTime(char *filename, FILE *file) {
         reportError = True;
         lineCount++;
         memset(label, 0, MAX_LABEL_CHARS); /* Clearing the line variable */
+        checkMemory();
         token = strtok(line, DELIMITERS_GENERAL); /* Using strtok() to go token by token separated by the delimiters */
         while (token != NULL) {
             if (isLabel(token, True)) { /* If the line begins with a Label*/
@@ -380,4 +381,11 @@ void assignInstructionValues() { /* Assigning initial data to the decoder based 
     instruction.address = IC++;
     instruction.opCode = operationPointer -> opCode;
     instruction.function = operationPointer -> function;
+}
+
+void checkMemory() {
+	if (IC + DC > MAX_MEMORY) {
+		errorReport(MAX_MEMORY_REACHED, 0);
+		exit(1);
+	}
 }

@@ -92,6 +92,9 @@ boolean errorReport(error_code err, int lineNumber, ... ){
             fprintf(stderr, "Error in line.%d: Label with the name \"%s\" has invalid whitespace \n",
                     lineNumber, va_arg(args, char *));
             break;
+    	case MAX_MEMORY_REACHED:
+    		fprintf(stderr, "Error: Max memory reached, exiting program\n");
+    		break;
         default:
             fprintf(stderr, "UH OH! You forgot to put the break!\n");
             break;

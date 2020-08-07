@@ -7,7 +7,7 @@
 #include "../Common/common.h"
 #include "../ErrorReport/error_report.h"
 
-#define AS_EXTENSION ".as"
+#define AS_EXTENSION ".as" /* Assembler file extension */
 
 /* Function that opens the file and returns the file pointer
  * param file - the full name of the file
