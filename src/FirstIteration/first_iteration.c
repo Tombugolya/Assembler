@@ -384,7 +384,7 @@ void assignInstructionValues() { /* Assigning initial data to the decoder based 
 }
 
 void checkMemory() {
-	if (IC + DC > MAX_MEMORY) {
+	if ((IC - INITIAL_IC_VALUE) + DC > MAX_MEMORY) {
 		errorReport(MAX_MEMORY_REACHED, 0);
 		exit(1);
 	}
