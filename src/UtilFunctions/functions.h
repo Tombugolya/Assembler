@@ -42,4 +42,7 @@ void removeFiles(char *name);
 */
 void appendToBinaryString(unsigned int num, unsigned int bits, char *str);
 
+/**/
+int isFullLine(const char *line);
+
 #endif

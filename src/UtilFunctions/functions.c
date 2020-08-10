@@ -70,3 +70,10 @@ void appendToBinaryString(unsigned int num, unsigned int bits, char *str) {
         mask = mask >> (unsigned) 1;
     }
 }
+
+/* Returns a valid value if a new line is found, if it was not found it means that the line was longer than MAX_LINE_CHARS
+ * param line - the line to check
+*/
+int isFullLine(const char *line) {
+	return strchr(line, '\n') != NULL;
+}

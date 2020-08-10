@@ -95,6 +95,9 @@ boolean errorReport(error_code err, int lineNumber, ... ){
     	case MAX_MEMORY_REACHED:
     		fprintf(stderr, "Error: Max memory reached, exiting program\n");
     		break;
+    	case LINE_TOO_LONG:
+    		fprintf(stderr, "Error in line.%d: Exceeded maximum character count of %d\n", lineNumber, MAX_LINE_CHARS - 2);
+    		break;
         default:
             fprintf(stderr, "UH OH! You forgot to put the break!\n");
             break;

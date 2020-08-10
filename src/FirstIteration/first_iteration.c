@@ -53,7 +53,11 @@ void readFileLineByLineFirstTime(char *filename, FILE *file) {
         lineCount++;
         memset(label, 0, MAX_LABEL_CHARS); /* Clearing the line variable */
         checkMemory();
-        token = strtok(line, DELIMITERS_GENERAL); /* Using strtok() to go token by token separated by the delimiters */
+		if (!isFullLine(line)) {
+			errorReport(LINE_TOO_LONG, lineCount--); /* Means line is too long, decrementing line by 1 to stay on track */
+			token = NULL;
+		} else
+        	token = strtok(line, DELIMITERS_GENERAL); /* Using strtok() to go token by token separated by the delimiters */
         while (token != NULL) {
             if (isLabel(token, True)) { /* If the line begins with a Label*/
                 isLabelFlag = True;
